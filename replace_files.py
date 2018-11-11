@@ -17,7 +17,7 @@ def main() -> None:
 
 def template_files() -> Iterable[Path]:
     # TODO get these as params
-    shutil.copytree('src', 'dest')
+    shutil.copytree('src', 'dest', symlinks=True)
     os.chdir('dest')
     paths = Path('.').glob('**/{{*}}')
     return paths
@@ -69,12 +69,13 @@ class Node:
             if new_name == '' or new_name is None:
                 print(str(self.whole_path()) + ' expands to an empty string, skipping')
                 return False
+
+            # TODO catch ValueError for invalid name
             new_path = self.whole_path().with_name(new_name)
             print('renaming ' + str(self.whole_path()) + ' to ' + str(new_path))
             self.whole_path().replace(new_path)
-            self.path = new_path
-            print('new name: ' + str(self.path))
-            return True
+            self.path = self.path.with_name(new_name)
+            #print('new name: ' + str(self.path))
         return True
 
     def walk(self, process: Callable[['Node'], bool]) -> None:
@@ -82,7 +83,9 @@ class Node:
             for child in self.children:
                 child.walk(process)
         else:
-            self.parent.children.remove(self)
+            print('removing', str(self.whole_path()))
+            # TODO nonexistent path left dangling in parent,
+            # but removing self from parent.children messes with loop
             self.whole_path().unlink()
 
     def print(self, prefix: str = '|-') -> None:
