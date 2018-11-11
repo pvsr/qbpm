@@ -5,10 +5,7 @@ Run jinja on all filenames in a directory.
 from pathlib import Path
 from jinja2 import Template
 from typing import Callable, Dict, Iterable, List, Optional
-
-# TODO three filesystem libraries?
 import shutil
-import os
 
 def main() -> None:
     root = create_tree(template_files())
@@ -18,8 +15,7 @@ def main() -> None:
 def template_files() -> Iterable[Path]:
     # TODO get these as params
     shutil.copytree('src', 'dest', symlinks=True)
-    os.chdir('dest')
-    paths = Path('.').glob('**/{{*}}')
+    paths = Path('dest').glob('**/{{*}}')
     return paths
 
 def render_name(name: str) -> str:
@@ -29,14 +25,14 @@ def rename_tree(root: 'Node') -> None:
     root.walk(lambda node: node.rename(render_name))
 
 def create_tree(paths: Iterable[Path]) -> 'Node':
-    root = Node(Path('.'))
+    root = Node(Path('dest'))
     inserted: Dict[Path, 'Node'] = {}
     for path in paths:
         insert(root, inserted, path)
     return root
 
 def insert(root: 'Node', inserted: Dict[Path, 'Node'], path: Path) -> 'Node':
-    if len(path.parts) == 1:
+    if len(path.relative_to('dest').parts) == 1:
         parent_node = root
     elif path.parent in inserted:
         parent_node = inserted[path.parent]
@@ -52,14 +48,14 @@ class Node:
         self.parent: Optional[Node] = parent
         self.path: Path
         if parent is not None:
-            self.path = path.relative_to(parent.path)
+            self.path = path.relative_to(parent.whole_path())
             parent.children.append(self)
         else:
             self.path = path
 
     def whole_path(self) -> Path:
         if self.parent is not None:
-            return self.parent.path.joinpath(self.path)
+            return self.parent.whole_path().joinpath(self.path)
         else:
             return self.path
 
