@@ -6,12 +6,19 @@ from pathlib import Path
 from jinja2 import Template
 from typing import Callable, Dict, Iterable, List, Optional
 
+# TODO three filesystem libraries?
+import shutil
+import os
+
 def main() -> None:
     root = create_tree(template_files())
     root.print()
     rename_tree(root)
 
 def template_files() -> Iterable[Path]:
+    # TODO get these as params
+    shutil.copytree('src', 'dest')
+    os.chdir('dest')
     paths = Path('.').glob('**/{{*}}')
     return paths
 
@@ -56,19 +63,27 @@ class Node:
         else:
             return self.path
 
-    def rename(self, transform_name: Callable[[str], str]) -> None:
+    def rename(self, transform_name: Callable[[str], str]) -> bool:
         if self.path.name != '':
             new_name = transform_name(self.path.name)
+            if new_name == '' or new_name is None:
+                print(str(self.whole_path()) + ' expands to an empty string, skipping')
+                return False
             new_path = self.whole_path().with_name(new_name)
             print('renaming ' + str(self.whole_path()) + ' to ' + str(new_path))
             self.whole_path().replace(new_path)
             self.path = new_path
             print('new name: ' + str(self.path))
+            return True
+        return True
 
-    def walk(self, process: Callable[['Node'], None]) -> None:
-        process(self)
-        for child in self.children:
-            child.walk(process)
+    def walk(self, process: Callable[['Node'], bool]) -> None:
+        if process(self):
+            for child in self.children:
+                child.walk(process)
+        else:
+            self.parent.children.remove(self)
+            self.whole_path().unlink()
 
     def print(self, prefix: str = '|-') -> None:
         print(prefix + str(self.path))
