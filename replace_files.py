@@ -7,6 +7,8 @@ from jinja2 import Template
 from typing import Callable, Dict, Iterable, List, Optional
 import shutil
 
+root_dir = 'dest'
+
 def main() -> None:
     root = create_tree(template_files())
     root.print()
@@ -14,8 +16,8 @@ def main() -> None:
 
 def template_files() -> Iterable[Path]:
     # TODO get these as params
-    shutil.copytree('src', 'dest', symlinks=True)
-    paths = Path('dest').glob('**/{{*}}')
+    shutil.copytree('src', root_dir, symlinks=True)
+    paths = Path(root_dir).glob('**/{{*}}')
     return paths
 
 def render_name(name: str) -> str:
@@ -25,14 +27,14 @@ def rename_tree(root: 'Node') -> None:
     root.walk(lambda node: node.rename(render_name))
 
 def create_tree(paths: Iterable[Path]) -> 'Node':
-    root = Node(Path('dest'))
+    root = Node(Path(root_dir))
     inserted: Dict[Path, 'Node'] = {}
     for path in paths:
         insert(root, inserted, path)
     return root
 
 def insert(root: 'Node', inserted: Dict[Path, 'Node'], path: Path) -> 'Node':
-    if len(path.relative_to('dest').parts) == 1:
+    if len(path.relative_to(root_dir).parts) == 1:
         parent_node = root
     elif path.parent in inserted:
         parent_node = inserted[path.parent]
@@ -53,14 +55,16 @@ class Node:
         else:
             self.path = path
 
+    # full path relative to root
     def whole_path(self) -> Path:
-        if self.parent is not None:
+        if self.parent:
             return self.parent.whole_path().joinpath(self.path)
         else:
             return self.path
 
     def rename(self, transform_name: Callable[[str], str]) -> bool:
-        if self.path.name != '':
+        # ignore root node
+        if self.parent:
             new_name = transform_name(self.path.name)
             if new_name == '' or new_name is None:
                 print(str(self.whole_path()) + ' expands to an empty string, skipping')
