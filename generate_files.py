@@ -18,7 +18,11 @@ def main() -> None:
     env.filters["dashcase"] = dashcase
     dir_template = env.get_template("dir.toml")
     rendered = dir_template.render(
-        name="test app", url="example.com", bin="/tmp/qute-ssb-test/bin"
+        name="test app",
+        url="example.com",
+        basedir="/tmp/qute-ssb-test/basedirs/",
+        bin="/tmp/qute-ssb-test/bin",
+        applications="/tmp/qute-ssb-test/applications/qute-ssb/"
     )
     tree = toml.loads(rendered)
     for key, dirname in tree.items():
@@ -31,6 +35,7 @@ def dashcase(string: str) -> str:
 
 # TODO xdg dirs
 def generate_tree(key: str, tree: Mapping[str, Any]) -> None:
+    # TODO allow relative paths in location?
     if not "location" in tree:
         print("warning: no location in", key)
         return

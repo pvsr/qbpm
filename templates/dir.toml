@@ -1,13 +1,11 @@
 # qutebrowser basedir
 [basedir]
-location = "/tmp/qute-ssb-test/basedirs/{{ name | dashcase }}"
-#location = "$XDG_DATA_HOME/qute-ssb/{{ name | dashcase }}"
+location = "{{ basedir }}/{{ name | dashcase }}"
 overwrite = false
   [basedir.dirs.config]
     [basedir.dirs.config.files."config.py"]
     link = "$XDG_CONFIG_HOME/.config/qutebrowser/config.py"
 
-    [basedir.dirs.config.dirs."conf.d"]
     [basedir.dirs.config.dirs."conf.d".files."ssb.py"]
     template = "ssb.py"
 
@@ -25,7 +23,7 @@ qutebrowser --basedir "$XDG_DATA_HOME/qute-ssb/{{ name | dashcase }}" "$@"\
   """
 
 [applications]
-location = "/tmp/qute-ssb-test/applications"
+location = "{{ applications }}"
 #location = "$XDG_DATA_HOME/applications/qute-ssb"
   [applications.files."{{ name | dashcase }}.desktop"]
   overwrite = false
