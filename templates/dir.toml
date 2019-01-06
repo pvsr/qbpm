@@ -19,11 +19,11 @@ location = "{{ bin }}"
   overwrite = false
   contents = """
 #!/bin/sh
-qutebrowser --basedir "$XDG_DATA_HOME/qute-ssb/{{ name | dashcase }}" "$@"\
+qutebrowser --basedir "${{ basedir }}/{{ name | dashcase }}" "$@"\
   """
 
 [applications]
-location = "{{ applications }}"
+location = "{{ applications }}/qute-ssb"
 #location = "$XDG_DATA_HOME/applications/qute-ssb"
   [applications.files."{{ name | dashcase }}.desktop"]
   overwrite = false

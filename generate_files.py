@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any, Mapping
+from xdg import BaseDirectory
 
 import toml
 from jinja2 import Environment, FileSystemLoader
@@ -20,9 +21,12 @@ def main() -> None:
     rendered = dir_template.render(
         name="test app",
         url="example.com",
-        basedir="/tmp/qute-ssb-test/basedirs/",
-        bin="/tmp/qute-ssb-test/bin",
-        applications="/tmp/qute-ssb-test/applications/qute-ssb/"
+        basedir="/tmp/qute-ssb-test/" + BaseDirectory.save_data_path("qute-ssb"),
+        bin="/tmp/qute-ssb-test/" + str(Path.home()) + "/bin",
+        applications="/tmp/qute-ssb-test/" + BaseDirectory.save_data_path("applications")
+        # basedir="/tmp/qute-ssb-test/basedirs/",
+        # bin="/tmp/qute-ssb-test/bin",
+        # applications="/tmp/qute-ssb-test/applications/"
     )
     tree = toml.loads(rendered)
     for key, dirname in tree.items():
