@@ -19,7 +19,7 @@ location = "{{ bin }}"
   overwrite = false
   contents = """
 #!/bin/sh
-qutebrowser --basedir "${{ basedir }}/{{ name | dashcase }}" "$@"\
+qutebrowser --basedir "{{ basedir }}/{{ name | dashcase }}" "$@"\
   """
 
 [applications]
