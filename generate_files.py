@@ -1,9 +1,10 @@
+import sys
 from enum import Enum
 from pathlib import Path
 from typing import Any, Mapping, Tuple, Optional
 
 import toml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from xdg import BaseDirectory
 
 
@@ -14,6 +15,7 @@ def main() -> None:
     # TODO argparse for:
     ## app name
     ## app url(s?)
+    ## dry run
     ## disable js by default (except in app url)?
     ## bin location (default to ~/bin)
     ## custom ssb.py
@@ -29,44 +31,64 @@ def main() -> None:
         + BaseDirectory.save_data_path("applications"),
     }
 
-    tree = toml.loads(render("dir.toml"))
+    rendered = render("dir.toml")
+    if not rendered:
+        sys.exit(1)
+
+    try:
+        tree = toml.loads(rendered)
+    except toml.TomlDecodeError as e:
+        print("Error in dir.toml:", e)
+        sys.exit(1)
+
     for key, dirname in tree.items():
         generate_tree(key, dirname)
 
 
-def render(name: str) -> str:
-    # TODO check for TemplateNotFound
-    return ENV.get_template(name).render()
+def render(name: str) -> Optional[str]:
+    try:
+        return ENV.get_template(name).render()
+    except TemplateNotFound as e:
+        print("Template not found:", e)
+        return None
 
 
 def dashcase(string: str) -> str:
     return string.lower().replace(" ", "-")
 
 
-# TODO xdg dirs
 def generate_tree(key: str, tree: Mapping[str, Any]) -> None:
-    # TODO allow relative paths in location?
     if not "location" in tree:
         print("warning: no location in", key)
         return
-    location = Path(tree["location"])
+
+    location = Path(tree["location"]).expanduser()
+    if not location.is_absolute():
+        print("warning:", str(location), "is a relative path")
+
     generate_dir(location, tree)
 
 
-# TODO don't allow / in names
 def generate_dir(dirname: Path, tree: Mapping[str, Any]) -> bool:
-    overwrite = tree.get("overwrite", True)
-    if not overwrite and dirname.exists():
-        print("warning: " + str(dirname) + " already exists")
+    if not tree.get("overwrite", True) and dirname.exists():
+        print("warning:", str(dirname), "already exists")
         return False
+
     print("mkdir file   ", dirname)
+
     # TODO don't commit until all paths are checked
     dirname.mkdir(parents=True, exist_ok=True)
     result = True
+
     for name, details in tree.get("files", {}).items():
-        result &= generate_file(dirname / Path(name), details)
+        if "/" in name:
+            print("warning: invalid filename", name)
+            result = False
+            continue
+        result = generate_file(dirname / Path(name), details) and result
     for name, contents in tree.get("dirs", {}).items():
-        result &= generate_dir(dirname / Path(name), contents)
+        result = generate_dir(dirname / Path(name), contents) and result
+
     return result
 
 
@@ -77,15 +99,17 @@ class FileConstructorType(Enum):
 
 
 def generate_file(file: Path, details: Mapping[str, Any]) -> bool:
-    overwrite = details.get("overwrite", True)
-    if not overwrite and file.exists():
-        print("warning: " + str(file) + " already exists")
+    if not details.get("overwrite", True) and file.exists():
+        print("warning:", str(file), "already exists")
         return False
+
     # TODO don't commit until all paths are checked
     print("generate file", file)
+
     constructor = get_constructor_type(details)
     if not constructor:
         return False
+
     c_type, value = constructor
     if c_type == FileConstructorType.LINK:
         print("linking:      " + value)
@@ -93,6 +117,8 @@ def generate_file(file: Path, details: Mapping[str, Any]) -> bool:
     elif c_type == FileConstructorType.TEMPLATE:
         print("template:     " + value)
         rendered = render(value)
+        if not rendered:
+            return False
         file.write_text(rendered)
     elif c_type == FileConstructorType.CONTENTS:
         print("contents:     " + value)
@@ -100,6 +126,7 @@ def generate_file(file: Path, details: Mapping[str, Any]) -> bool:
     else:
         print("unknown type")
         return False
+
     return True
 
 
@@ -111,9 +138,11 @@ def get_constructor_type(
         for name, member in FileConstructorType.__members__.items()
         if member.value in details
     ]
+
     if len(present) != 1:
-        print("error")
+        print("warning: expected one of link, template, or contents")
         return None
+
     return (present[0], details[present[0].value])
 
 
