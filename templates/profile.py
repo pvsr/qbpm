@@ -8,8 +8,11 @@ c.statusbar.hide = True
 c.tabs.last_close = 'ignore'
 c.tabs.show = 'switching'
 
-c.url.start_pages = '{{ url }}'
-# TODO multiple urls?
-config.set('content.javascript.enabled', True, '*://{{ url }}/*')
-
 c.window.title_format = '{title}'
+{% if urls is not none %}
+
+c.url.start_pages = {{ urls }}
+{% for url in urls %}
+config.set('content.javascript.enabled', True, '*://{{ url }}/*')
+{% endfor %}
+{% endif %}

@@ -1,157 +1,245 @@
 import sys
-from enum import Enum
+import argparse
 from pathlib import Path
-from typing import Any, Mapping, Tuple, Optional
+from typing import Mapping, Optional, Callable, Dict
 
-import toml
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from jinja2 import (
+    ChoiceLoader,
+    Environment,
+    DictLoader,
+    FileSystemLoader,
+    TemplateNotFound,
+)
 from xdg import BaseDirectory
+from xdg.DesktopEntry import DesktopEntry
 
+CUSTOM_TEMPLATES = {}
 
-ENV = Environment(loader=FileSystemLoader("templates"))
-
-
-def main() -> None:
-    # TODO argparse for:
-    ## app name
-    ## app url(s?)
-    ## dry run
-    ## disable js by default (except in app url)?
-    ## bin location (default to ~/bin)
-    ## custom ssb.py
-    ## Desktop info: generic name, types, keywords
-    ## arbitrary qutebrowser options for ssb.py?
-    ENV.filters["dashcase"] = dashcase
-    ENV.globals = {
-        "name": "test app",
-        "url": "example.com",
-        "basedir": "/tmp/qute-ssb-test/" + BaseDirectory.save_data_path("qute-ssb"),
-        "bin": "/tmp/qute-ssb-test/" + str(Path.home()) + "/bin",
-        "applications": "/tmp/qute-ssb-test/"
-        + BaseDirectory.save_data_path("applications"),
-    }
-
-    rendered = render("dir.toml")
-    if not rendered:
-        sys.exit(1)
-
-    try:
-        tree = toml.loads(rendered)
-    except toml.TomlDecodeError as e:
-        print("Error in dir.toml:", e)
-        sys.exit(1)
-
-    for key, dirname in tree.items():
-        generate_tree(key, dirname)
+ENV = Environment(
+    loader=ChoiceLoader([DictLoader(CUSTOM_TEMPLATES), FileSystemLoader("templates")]),
+    trim_blocks=True,
+    lstrip_blocks=True,
+)
 
 
 def render(name: str) -> Optional[str]:
     try:
         return ENV.get_template(name).render()
-    except TemplateNotFound as e:
-        print("Template not found:", e)
+    except TemplateNotFound as ex:
+        print("Template not found:", ex)
         return None
 
 
-def dashcase(string: str) -> str:
-    return string.lower().replace(" ", "-")
+def dash_case(string: str) -> str:
+    return string.lower().replace(" ", "-").replace("_", "-")
 
 
-def generate_tree(key: str, tree: Mapping[str, Any]) -> None:
-    if not "location" in tree:
-        print("warning: no location in", key)
-        return
-
-    location = Path(tree["location"]).expanduser()
-    if not location.is_absolute():
-        print("warning:", str(location), "is a relative path")
-
-    generate_dir(location, tree)
-
-
-def generate_dir(dirname: Path, tree: Mapping[str, Any]) -> bool:
-    if not tree.get("overwrite", True) and dirname.exists():
-        print("warning:", str(dirname), "already exists")
-        return False
-
-    print("mkdir file   ", dirname)
-
-    # TODO don't commit until all paths are checked
-    dirname.mkdir(parents=True, exist_ok=True)
-    result = True
-
-    for name, details in tree.get("files", {}).items():
-        if "/" in name:
-            print("warning: invalid filename", name)
-            result = False
-            continue
-        result = generate_file(dirname / Path(name), details) and result
-    for name, contents in tree.get("dirs", {}).items():
-        result = generate_dir(dirname / Path(name), contents) and result
-
-    return result
-
-
-class FileConstructorType(Enum):
-    LINK = "link"
-    TEMPLATE = "template"
-    CONTENTS = "contents"
-
-
-def generate_file(file: Path, details: Mapping[str, Any]) -> bool:
-    if not details.get("overwrite", True) and file.exists():
-        print("warning:", str(file), "already exists")
-        return False
-
-    # TODO don't commit until all paths are checked
-    print("generate file", file)
-
-    constructor = get_constructor_type(details)
-    if not constructor:
-        return False
-
-    c_type, value = constructor
-    if c_type == FileConstructorType.LINK:
-        print("linking:      " + value)
-        file.symlink_to(resolve_xdg(value))
-    elif c_type == FileConstructorType.TEMPLATE:
-        print("template:     " + value)
-        rendered = render(value)
-        if not rendered:
-            return False
-        file.write_text(rendered)
-    elif c_type == FileConstructorType.CONTENTS:
-        print("contents:     " + value)
-        file.write_text(value)
-    else:
-        print("unknown type")
-        return False
-
-    return True
-
-
-def get_constructor_type(
-    details: Mapping[str, Any]
-) -> Optional[Tuple[FileConstructorType, str]]:
-    present = [
-        member
-        for name, member in FileConstructorType.__members__.items()
-        if member.value in details
-    ]
-
-    if len(present) != 1:
-        print("warning: expected one of link, template, or contents")
-        return None
-
-    return (present[0], details[present[0].value])
-
-
-def resolve_xdg(path: str) -> Path:
-    return Path(
-        path.replace("$XDG_DATA_HOME", BaseDirectory.xdg_data_home)
-        .replace("$XDG_CONFIG_HOME", BaseDirectory.xdg_config_home)
-        .replace("$XDG_CACHE_HOME", BaseDirectory.xdg_cache_home)
+def main() -> None:
+    # TODO argparse for:
+    ## Desktop info: generic name, types, keywords
+    ## arbitrary qutebrowser options for ssb.py?
+    parser = argparse.ArgumentParser(description="program desc")
+    parser.add_argument(
+        "name",
+        help='user-friendly name of your qutebrowser profile, e.g. "Python" or "My Cool Webapp"',
     )
+    # TODO get default from config file?
+    parser.add_argument(
+        "-p",
+        "--profile-location",
+        metavar="DIR",
+        type=Path,
+        default=Path(BaseDirectory.save_data_path("qute-profiles")),
+        help="location of qute-profile configurations, defaults to $XDG_DATA_HOME/qute-profiles",
+    )
+
+    parser.add_argument(
+        "--prefix",
+        metavar="DIR",
+        nargs="?",
+        default="qute-profiles",
+        help="group qute-profile binaries and desktop files in a directory called DIR."
+        + ' defaults to "qute-profiles", call without an argument to disable',
+    )
+    binary = parser.add_mutually_exclusive_group()
+    binary.add_argument(
+        "-b",
+        "--bin",
+        metavar="DIR",
+        type=Path,
+        default=Path.home() / "bin",
+        help="directory to store binaries in. defaults to $HOME/bin",
+    )
+    binary.add_argument(
+        "-B", "--no-bin", action="store_true", help="disable binary generation"
+    )
+    parser.add_argument(
+        "-D",
+        "--no-desktop",
+        action="store_true",
+        help="disable desktop file generation",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--copy-type",
+        choices=["symlink", "copy"],
+        default="symlink",
+        help="how to reference files from the source profile. defaults to symlink",
+    )
+    profile = parser.add_mutually_exclusive_group()
+    profile.add_argument(
+        "-s",
+        "--ssb",
+        action="store_true",
+        help="use built-in site-specific browser profile",
+    )
+    profile.add_argument(
+        "-c",
+        "--custom-profile",
+        type=argparse.FileType("r"),
+        help="custom qutebrowser configuration file",
+    )
+    profile.add_argument(
+        "-C",
+        "--custom-profile-location",
+        type=Path,
+        default=Path(),
+        help="location of custom profile, relative to base config dir",
+    )
+    conf = parser.add_mutually_exclusive_group()
+    conf.add_argument("--no-copy-config", action="store_true", help="bin")
+    conf.add_argument(
+        "--qb-config-dir",
+        type=Path,
+        default=Path(BaseDirectory.save_config_path("qutebrowser")),
+        help="bin",
+    )
+    data = parser.add_mutually_exclusive_group()
+    data.add_argument("--no-copy-data", action="store_true", help="bin")
+    data.add_argument(
+        "--qb-data-dir",
+        type=Path,
+        default=Path(BaseDirectory.save_data_path("qutebrowser")),
+        help="bin",
+    )
+
+    parser.add_argument("-u", "--home-page", nargs="+", help="name")
+    # TODO dry run
+    parser.add_argument("-n", "--dry-run", action="store_true", help="dry-run")
+    # TODO debug
+    # TODO files to not copy/link. should probably be in a config too
+    # by default should probably include data/{sessions, webengine} at least
+    # maybe history should always be copied?
+    # parser.add_argument("-i", "--ignore")
+    args = parser.parse_args()
+
+    if args.no_desktop:
+        args.desktop = None
+    else:
+        args.desktop = Path(BaseDirectory.save_data_path("applications"))
+        if args.prefix:
+            args.desktop = args.desktop / args.prefix
+
+    if args.no_bin:
+        args.bin = None
+    elif args.prefix:
+        args.bin = args.bin / args.prefix
+
+    ENV.globals = {"urls": args.home_page}
+
+    # TODO support this. check validity?
+    # if args.custom_profile:
+    #     CUSTOM_TEMPLATES["profile.py"] = args.custom_profile_config.read()
+
+    dest = args.profile_location / args.name
+    if dest.exists():
+        print("Error: {} already exists".format(dest), file=sys.stderr)
+        sys.exit(1)
+
+    bin_content = "qutebrowser --basedir \"{basedir}/{name}\"".format(
+        basedir=args.profile_location, name=dash_case(args.name)
+    )
+
+    src_roots: Dict[str, Path] = {}
+    if args.qb_config_dir:
+        src_roots["config"] = args.qb_config_dir
+    if args.qb_data_dir:
+        src_roots["data"] = args.qb_data_dir
+
+    dest = args.profile_location / dash_case(args.name)
+    if args.copy_type == "copy":
+        clone(dest, src_roots, copy)
+    elif args.copy_type == "symlink":
+        clone(dest, src_roots, lambda src, dest: dest.symlink_to(src))
+
+    # TODO
+    # if args.ssb:
+    # elif args.custom_profile:
+
+    if args.desktop:
+        generate_desktop_file(args.desktop, args.name, bin_content)
+
+
+def copy(src: Path, dest: Path) -> None:
+    dest.write_bytes(src.read_bytes())
+
+
+def clone(
+    dest: Path, src_roots: Mapping[str, Path], file_op: Callable[[Path, Path], None]
+) -> None:
+    # TODO check src.is_dir()
+    for dirname, src_root in src_roots.items():
+        dest_root = dest / dirname
+        if dest_root.exists():
+            print("Error: {} already exists".format(dest_root), file=sys.stderr)
+            sys.exit(1)
+        else:
+            dest_root.mkdir(parents=True)
+            walk(src_root, dest_root, file_op)
+
+
+def walk(
+    src_root: Path, dest_root: Path, file_op: Callable[[Path, Path], None]
+) -> None:
+    # TODO subtract ignored
+    for src in src_root.expanduser().resolve().glob("**/*"):
+        dest = dest_root / src.relative_to(src_root)
+        if src.is_dir():
+            dest.mkdir()
+        else:
+            file_op(src, dest)
+
+
+def generate_desktop_file(applications_dir: Path, name: str, bin_content: str) -> None:
+    dest = applications_dir / "{}.desktop".format(dash_case(name))
+    entry = DesktopEntry(dest)
+    entry.set("Name", name)
+    entry.set("Exec", bin_content + " %u")
+    # TODO customize icon?
+    entry.set("Icon", "qutebrowser")
+    # TODO allow additional categories
+    entry.set("Categories", ["Network", "WebBrowser"])
+    entry.set("Terminal", False)
+    entry.set("StartupNotify", False)
+    entry.set(
+        "MimeType",
+        [
+            "text/html",
+            "text/xml",
+            "application/xhtml+xml",
+            "application/xml",
+            "application/rdf+xml",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "x-scheme-handler/http",
+            "x-scheme-handler/https",
+            "x-scheme-handler/qute",
+        ],
+    )
+    entry.set("Keywords", ["Browser"])
+    entry.write()
 
 
 if __name__ == "__main__":

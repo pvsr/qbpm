@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name={{ name }}
-#GenericName=
-Icon=qutebrowser
-Type=Application
-#Categories=network
-Exec={{ bin }}/qute-ssb/{{ name | dashcase }}
-Terminal=false
-StartupNotify=false
