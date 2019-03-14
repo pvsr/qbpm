@@ -162,9 +162,9 @@ def main() -> None:
     )
 
     src_roots: Dict[str, Path] = {}
-    if args.qb_config_dir:
+    if not args.no_copy_config and args.qb_config_dir:
         src_roots["config"] = args.qb_config_dir
-    if args.qb_data_dir:
+    if not args.no_copy_data and args.qb_data_dir:
         src_roots["data"] = args.qb_data_dir
 
     dest = args.profile_location / dash_case(args.name)
