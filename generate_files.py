@@ -100,7 +100,7 @@ def main() -> None:
         type=argparse.FileType("r"),
         help="custom qutebrowser configuration file",
     )
-    profile.add_argument(
+    parser.add_argument(
         "-C",
         "--custom-profile-location",
         type=Path,
@@ -148,10 +148,6 @@ def main() -> None:
 
     ENV.globals = {"urls": args.home_page}
 
-    # TODO support this. check validity?
-    # if args.custom_profile:
-    #     CUSTOM_TEMPLATES["profile.py"] = args.custom_profile_config.read()
-
     dest = args.profile_location / args.name
     if dest.exists():
         print("Error: {} already exists".format(dest), file=sys.stderr)
@@ -173,9 +169,17 @@ def main() -> None:
     elif args.copy_type == "symlink":
         clone(dest, src_roots, lambda src, dest: dest.symlink_to(src))
 
-    # TODO
-    # if args.ssb:
-    # elif args.custom_profile:
+    if args.ssb:
+        profile = dest / "config" / args.custom_profile_location / "profile.py"
+        profile.parent.mkdir(parents=True, exist_ok=True)
+        profile.write_text(render("profile.py"))
+        with open(profile, "w") as f:
+            f.write(render("profile.py"))
+    elif args.custom_profile:
+        profile = dest / "config" / args.custom_profile_location / "profile.py"
+        profile.parent.mkdir(parents=True, exist_ok=True)
+        # TODO treat custom prof as template?
+        profile.write_text(args.custom_profile.read())
 
     if args.desktop:
         generate_desktop_file(args.desktop, args.name, bin_content)
