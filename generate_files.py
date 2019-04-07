@@ -161,14 +161,6 @@ def parse():
         help="do not copy or link config.py/autoconfig.yml",
     )
 
-    parser.add_argument(
-        "--copy-history",
-        dest="history",
-        action="store_const",
-        const="copy",
-        help="copy original history database to new profile",
-    )
-
     bookmarks = parser.add_mutually_exclusive_group()
     bookmarks.add_argument(
         "--link-to-bookmarks",
@@ -186,26 +178,61 @@ def parse():
     )
 
     parser.add_argument(
+        "--copy-other-config",
+        type=Path,
+        nargs="+",
+        help="other files to copy from the original config dir",
+    )
+
+    parser.add_argument(
+        "--link-other-config",
+        type=Path,
+        nargs="+",
+        help="other files to symlink from the original config dir",
+    )
+
+    parser.add_argument(
+        "--copy-history",
+        dest="history",
+        action="store_const",
+        const="copy",
+        help="copy original history database to new profile",
+    )
+
+    parser.add_argument(
         "-u", "--home-page", nargs="+", help="pages to show when starting profile"
     )
 
-    # TODO
     parser.add_argument(
-        "-n", "--dry-run", action="store_true", help="NOT IMPLEMENTED YET"
+        "-n",
+        "--dry-run",
+        action="store_true",
+        help="print what file operations would happen without performing them",
     )
 
-    # TODO debug option
+    # TODO debug option?
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # apply prefix to desktop and bin dirs if enabled
+    if args.prefix:
+        args.desktop = args.desktop and args.desktop / args.prefix
+        args.bin = args.bin and args.bin / args.prefix
+
+    if args.dry_run:
+        args.config = dry(args.config)
+        args.bookmarks = dry(args.bookmarks)
+        args.history = dry(args.history)
+
+    return args
+
+
+def dry(method: Optional[str]) -> Optional[str]:
+    return method and "dry_" + method
 
 
 def main() -> None:
     args = parse()
-
-    if args.prefix:
-        # apply prefix to desktop and bin dirs if enabled
-        args.desktop = args.desktop and args.desktop / args.prefix
-        args.bin = args.bin and args.bin / args.prefix
 
     ENV.globals = {"urls": args.home_page}
 
@@ -223,25 +250,41 @@ def main() -> None:
     clone(args.config, args.qb_config_dir, config_root, Path("config.py"))
     clone(args.config, args.qb_config_dir, config_root, Path("autoconfig.yml"))
 
-    clone(args.bookmarks, args.qb_config_dir, config_root, Path("bookmarks/urls"))
+    clone(args.bookmarks, args.qb_config_dir, config_root, Path("bookmarks"))
     clone(args.bookmarks, args.qb_config_dir, config_root, Path("quickmarks"))
+
+    # TODO these shouldn't go above config_root
+    for other in args.copy_other_config:
+        clone(
+            "dry_copy" if args.dry_run else "copy",
+            args.qb_config_dir,
+            config_root,
+            other,
+        )
+
+    for other in args.link_other_config:
+        clone(
+            "dry_symlink" if args.dry_run else "symlink",
+            args.qb_config_dir,
+            config_root,
+            other,
+        )
 
     data_root = dest_root / "config"
     clone(args.history, args.qb_data_dir, data_root, Path("history.sqlite"))
 
     if args.ssb:
         profile = config_root / args.custom_profile_location / "profile.py"
-        profile.parent.mkdir(parents=True, exist_ok=True)
+        create_parent(profile)
         contents = render("profile.py")
         if contents:
             profile.write_text(contents)
         else:
-            # TODO
-            print("could not find ssb template", file=sys.stderr)
+            print("Error: could not find ssb template", file=sys.stderr)
             sys.exit(1)
     elif args.custom_profile:
         profile = config_root / args.custom_profile_location / "profile.py"
-        profile.parent.mkdir(parents=True, exist_ok=True)
+        create_parent(profile)
         # TODO treat custom prof as template
         profile.write_text(args.custom_profile.read())
 
@@ -249,29 +292,50 @@ def main() -> None:
         generate_desktop_file(args.desktop, args.name, bin_content)
 
 
-# TODO return false if failed
 def clone(method: str, src_root: Path, dest_root: Path, rel: Path) -> bool:
-    src = src_root / rel
-    dest = dest_root / rel
     if not method:
         return True
-    if method == "symlink":
-        return symlink(src, dest)
-    if method == "copy":
-        return copy(src, dest)
 
-    print("should be unreachable", file=sys.stderr)
-    sys.exit(1)
+    src = src_root / rel
+    dest = dest_root / rel
 
+    if not src.exists():
+        return False
 
-def symlink(src: Path, dest: Path) -> bool:
-    dest.write_bytes(src.read_bytes())
+    create_parent(dest)
+
+    if method == "dry_symlink":
+        print("symlink {src} to {dest}".format(src=src, dest=dest))
+    elif method == "dry_copy":
+        print("copy {src} to {dest}".format(src=src, dest=dest))
+    elif method == "symlink":
+        symlink(src, dest)
+    elif method == "copy":
+        copy(src, dest)
+    else:
+        print("Error: invalid clone method! This should be unreachable", file=sys.stderr)
+        sys.exit(1)
+
     return True
 
 
-def copy(src: Path, dest: Path) -> bool:
-    dest.write_bytes(src.read_bytes())
-    return True
+def symlink(src: Path, dest: Path) -> None:
+    # TODO link contents instead?
+    dest.symlink_to(src)
+
+
+def copy(src: Path, dest: Path) -> None:
+    if src.is_file():
+        dest.write_bytes(src.read_bytes())
+    elif src.is_dir():
+        # TODO
+        print("Warning: directory copying isn't implemented yet, ignoring", file=sys.stderr)
+    else:
+        print("Warning: {} isn't a normal file or directory, ignoring".format(src), file=sys.stderr)
+
+
+def create_parent(dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
 
 
 def generate_desktop_file(applications_dir: Path, name: str, bin_content: str) -> None:
