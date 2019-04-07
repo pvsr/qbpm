@@ -1,7 +1,7 @@
 import sys
 import argparse
 from pathlib import Path
-from typing import Mapping, Optional, Callable, Dict
+from typing import Optional
 
 from jinja2 import (
     ChoiceLoader,
@@ -34,15 +34,17 @@ def dash_case(string: str) -> str:
     return string.lower().replace(" ", "-").replace("_", "-")
 
 
-def main() -> None:
+def parse():
     # TODO argparse for:
     ## Desktop info: generic name, types, keywords
     ## arbitrary qutebrowser options for ssb.py?
     parser = argparse.ArgumentParser(description="program desc")
+
     parser.add_argument(
         "name",
-        help='user-friendly name of your qutebrowser profile, e.g. "Python" or "My Cool Webapp"',
+        help="user-friendly name of your qutebrowser profile, e.g. 'Python' or 'My Cool Webapp'",
     )
+
     # TODO get default from config file?
     parser.add_argument(
         "-p",
@@ -50,17 +52,26 @@ def main() -> None:
         metavar="DIR",
         type=Path,
         default=Path(BaseDirectory.save_data_path("qute-profiles")),
-        help="location of qute-profile configurations, defaults to $XDG_DATA_HOME/qute-profiles",
+        help="location of qute-profile configurations. defaults to $XDG_DATA_HOME/qute-profiles",
     )
 
-    parser.add_argument(
+    prefix = parser.add_mutually_exclusive_group()
+    prefix.add_argument(
         "--prefix",
         metavar="DIR",
         nargs="?",
         default="qute-profiles",
         help="group qute-profile binaries and desktop files in a directory called DIR."
-        + ' defaults to "qute-profiles", call without an argument to disable',
+        + " defaults to 'qute-profiles'",
     )
+    prefix.add_argument(
+        "--no-prefix",
+        dest="prefix",
+        action="store_const",
+        const=None,
+        help="disable prefix directory",
+    )
+
     binary = parser.add_mutually_exclusive_group()
     binary.add_argument(
         "-b",
@@ -71,22 +82,23 @@ def main() -> None:
         help="directory to store binaries in. defaults to $HOME/bin",
     )
     binary.add_argument(
-        "-B", "--no-bin", action="store_true", help="disable binary generation"
-    )
-    parser.add_argument(
-        "-D",
-        "--no-desktop",
-        action="store_true",
-        help="disable desktop file generation",
+        "--no-bin",
+        dest="bin",
+        action="store_const",
+        const=None,
+        help="disable binary generation",
     )
 
     parser.add_argument(
-        "-t",
-        "--copy-type",
-        choices=["symlink", "copy"],
-        default="symlink",
-        help="how to reference files from the source profile. defaults to symlink",
+        "-D",
+        "--no-desktop",
+        dest="desktop",
+        action="store_const",
+        const=None,
+        default=Path(BaseDirectory.save_data_path("applications")),
+        help="disable desktop file generation",
     )
+
     profile = parser.add_mutually_exclusive_group()
     profile.add_argument(
         "-s",
@@ -98,121 +110,168 @@ def main() -> None:
         "-c",
         "--custom-profile",
         type=argparse.FileType("r"),
-        help="custom qutebrowser configuration file",
+        help="use custom qutebrowser configuration file",
     )
+
     parser.add_argument(
         "-C",
         "--custom-profile-location",
+        metavar="DIR",
         type=Path,
         default=Path(),
         help="location of custom profile, relative to base config dir",
     )
-    conf = parser.add_mutually_exclusive_group()
-    conf.add_argument("--no-copy-config", action="store_true", help="bin")
-    conf.add_argument(
+
+    parser.add_argument(
         "--qb-config-dir",
+        metavar="DIR",
         type=Path,
         default=Path(BaseDirectory.save_config_path("qutebrowser")),
-        help="bin",
+        help="source qutebrowser config dir. defaults to $XDG_CONFIG_HOME/qutebrowser",
     )
-    data = parser.add_mutually_exclusive_group()
-    data.add_argument("--no-copy-data", action="store_true", help="bin")
-    data.add_argument(
+
+    parser.add_argument(
         "--qb-data-dir",
+        metavar="DIR",
         type=Path,
         default=Path(BaseDirectory.save_data_path("qutebrowser")),
-        help="bin",
+        help="source qutebrowser data dir, defaults to $XDG_DATA_HOME/qutebrowser",
     )
 
-    parser.add_argument("-u", "--home-page", nargs="+", help="name")
-    # TODO dry run
-    parser.add_argument("-n", "--dry-run", action="store_true", help="dry-run")
-    # TODO debug
-    # TODO files to not copy/link. should probably be in a config too
-    # by default should probably include data/{sessions, webengine} at least
-    # maybe history should always be copied?
-    # parser.add_argument("-i", "--ignore")
-    args = parser.parse_args()
+    conf = parser.add_mutually_exclusive_group()
+    conf.add_argument(
+        "--link-to-config",
+        dest="config",
+        action="store_const",
+        const="symlink",
+        help="symlink original config.py/autoconfig.yml to new profile. default operation",
+    )
+    conf.add_argument(
+        "--copy-config",
+        dest="config",
+        action="store_const",
+        const="copy",
+        help="copy original config.py/autoconfig.yml to new profile",
+    )
+    conf.add_argument(
+        "--no-copy-config",
+        dest="config",
+        action="store_const",
+        const=None,
+        help="do not copy or link config.py/autoconfig.yml",
+    )
 
-    if args.no_desktop:
-        args.desktop = None
-    else:
-        args.desktop = Path(BaseDirectory.save_data_path("applications"))
-        if args.prefix:
-            args.desktop = args.desktop / args.prefix
+    parser.add_argument(
+        "--copy-history",
+        dest="history",
+        action="store_const",
+        const="copy",
+        help="copy original history database to new profile",
+    )
 
-    if args.no_bin:
-        args.bin = None
-    elif args.prefix:
-        args.bin = args.bin / args.prefix
+    bookmarks = parser.add_mutually_exclusive_group()
+    bookmarks.add_argument(
+        "--link-to-bookmarks",
+        dest="bookmarks",
+        action="store_const",
+        const="symlink",
+        help="symlink original bookmarks and quickmarks to new profile",
+    )
+    bookmarks.add_argument(
+        "--copy-bookmarks",
+        dest="bookmarks",
+        action="store_const",
+        const="copy",
+        help="copy original bookmarks and quickmarks to new profile",
+    )
+
+    parser.add_argument(
+        "-u", "--home-page", nargs="+", help="pages to show when starting profile"
+    )
+
+    # TODO
+    parser.add_argument(
+        "-n", "--dry-run", action="store_true", help="NOT IMPLEMENTED YET"
+    )
+
+    # TODO debug option
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse()
+
+    if args.prefix:
+        # apply prefix to desktop and bin dirs if enabled
+        args.desktop = args.desktop and args.desktop / args.prefix
+        args.bin = args.bin and args.bin / args.prefix
 
     ENV.globals = {"urls": args.home_page}
 
-    dest = args.profile_location / args.name
-    if dest.exists():
-        print("Error: {} already exists".format(dest), file=sys.stderr)
+    dest_root = args.profile_location / dash_case(args.name)
+    if dest_root.exists():
+        print("Error: {} already exists".format(dest_root), file=sys.stderr)
         sys.exit(1)
 
-    bin_content = "qutebrowser --basedir \"{basedir}/{name}\"".format(
+    bin_content = 'qutebrowser --basedir "{basedir}/{name}"'.format(
         basedir=args.profile_location, name=dash_case(args.name)
     )
 
-    src_roots: Dict[str, Path] = {}
-    if not args.no_copy_config and args.qb_config_dir:
-        src_roots["config"] = args.qb_config_dir
-    if not args.no_copy_data and args.qb_data_dir:
-        src_roots["data"] = args.qb_data_dir
+    config_root = dest_root / "config"
 
-    dest = args.profile_location / dash_case(args.name)
-    if args.copy_type == "copy":
-        clone(dest, src_roots, copy)
-    elif args.copy_type == "symlink":
-        clone(dest, src_roots, lambda src, dest: dest.symlink_to(src))
+    clone(args.config, args.qb_config_dir, config_root, Path("config.py"))
+    clone(args.config, args.qb_config_dir, config_root, Path("autoconfig.yml"))
+
+    clone(args.bookmarks, args.qb_config_dir, config_root, Path("bookmarks/urls"))
+    clone(args.bookmarks, args.qb_config_dir, config_root, Path("quickmarks"))
+
+    data_root = dest_root / "config"
+    clone(args.history, args.qb_data_dir, data_root, Path("history.sqlite"))
 
     if args.ssb:
-        profile = dest / "config" / args.custom_profile_location / "profile.py"
+        profile = config_root / args.custom_profile_location / "profile.py"
         profile.parent.mkdir(parents=True, exist_ok=True)
-        profile.write_text(render("profile.py"))
-        with open(profile, "w") as f:
-            f.write(render("profile.py"))
+        contents = render("profile.py")
+        if contents:
+            profile.write_text(contents)
+        else:
+            # TODO
+            print("could not find ssb template", file=sys.stderr)
+            sys.exit(1)
     elif args.custom_profile:
-        profile = dest / "config" / args.custom_profile_location / "profile.py"
+        profile = config_root / args.custom_profile_location / "profile.py"
         profile.parent.mkdir(parents=True, exist_ok=True)
-        # TODO treat custom prof as template?
+        # TODO treat custom prof as template
         profile.write_text(args.custom_profile.read())
 
     if args.desktop:
         generate_desktop_file(args.desktop, args.name, bin_content)
 
 
-def copy(src: Path, dest: Path) -> None:
+# TODO return false if failed
+def clone(method: str, src_root: Path, dest_root: Path, rel: Path) -> bool:
+    src = src_root / rel
+    dest = dest_root / rel
+    if not method:
+        return True
+    if method == "symlink":
+        return symlink(src, dest)
+    if method == "copy":
+        return copy(src, dest)
+
+    print("should be unreachable", file=sys.stderr)
+    sys.exit(1)
+
+
+def symlink(src: Path, dest: Path) -> bool:
     dest.write_bytes(src.read_bytes())
+    return True
 
 
-def clone(
-    dest: Path, src_roots: Mapping[str, Path], file_op: Callable[[Path, Path], None]
-) -> None:
-    # TODO check src.is_dir()
-    for dirname, src_root in src_roots.items():
-        dest_root = dest / dirname
-        if dest_root.exists():
-            print("Error: {} already exists".format(dest_root), file=sys.stderr)
-            sys.exit(1)
-        else:
-            dest_root.mkdir(parents=True)
-            walk(src_root, dest_root, file_op)
-
-
-def walk(
-    src_root: Path, dest_root: Path, file_op: Callable[[Path, Path], None]
-) -> None:
-    # TODO subtract ignored
-    for src in src_root.expanduser().resolve().glob("**/*"):
-        dest = dest_root / src.relative_to(src_root)
-        if src.is_dir():
-            dest.mkdir()
-        else:
-            file_op(src, dest)
+def copy(src: Path, dest: Path) -> bool:
+    dest.write_bytes(src.read_bytes())
+    return True
 
 
 def generate_desktop_file(applications_dir: Path, name: str, bin_content: str) -> None:
