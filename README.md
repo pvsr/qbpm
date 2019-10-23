@@ -1,13 +1,9 @@
-# This is a WIP
-I have a working version that uses shell scripts, but this is the "real programming language" rewrite.
+### This project is effectively dead
 
-# qute-ssb
-## Why?
-[Qutebrowser](https://github.com/qutebrowser/qutebrowser) is good.
-Site-specific browsers are good.
-Why not put them together?
-## But qutebrowser is poorly suited for a lot of single-page web apps
-Yes.
-For video players like Netflix or chat apps like Slack (*hiss*),
-you'll probably be using the keyboard to control the app more often than to control qutebrowser.
-But qutebrowser is better than Firefox and Chromium even in passthrough mode.
+`qute-ssb` (not an accurate name) is a qutebrowser profile creator.
+The main use case is sharing a single symlinked config between multiple profiles
+with separate histories and sessions. However, I'm no longer actively working on
+it, mainly because I haven't been able to come up with a sane interface.
+I still think it's a good idea and I might revisit it in the future, but this
+version is basically an overgrown script full of assumptions based on my own
+system, and about half of it is the command line specification.
