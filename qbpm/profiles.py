@@ -5,10 +5,14 @@ from typing import Optional, Union
 
 from xdg import BaseDirectory  # type: ignore
 
+from qbpm import conf
 from qbpm.utils import error
 
+# profile name or path
+Profile = Union[str, Path]
+
+
 main_config_dir = Path(BaseDirectory.save_config_path("qutebrowser"))
-profiles_dir = Path(BaseDirectory.save_data_path("qutebrowser-profiles"))
 
 if platform.system() == "Linux":
     main_data_dir = Path(BaseDirectory.save_data_path("qutebrowser"))
@@ -19,15 +23,15 @@ else:
     sys.exit(1)
 
 
-def get_profile_root(profile_name: str) -> Path:
-    return profiles_dir / profile_name
-
-
-def create_profile(profile: Union[str, Path]) -> Optional[Path]:
+def get_profile_root(profile: Profile) -> Path:
     if isinstance(profile, str):
-        profile_root = get_profile_root(profile)
+        return conf.profiles_dir / profile
     else:
-        profile_root = profile
+        return profile
+
+
+def create_profile(profile: Profile) -> Optional[Path]:
+    profile_root = get_profile_root(profile)
 
     if profile_root.exists():
         error(f"{profile_root} already exists")
@@ -43,20 +47,20 @@ def create_config(profile_root: Path) -> None:
         print(f"config.source('{main_config_dir / 'config.py'}')", file=conf)
 
 
-def ensure_profile_exists(profile_name: str, create: bool = True) -> Optional[Path]:
-    profile = get_profile_root(profile_name)
-    if profile.exists() and not profile.is_dir():
-        error(f"{profile} is not a directory")
+def ensure_profile_exists(profile: Profile, create: bool = True) -> Optional[Path]:
+    profile_root = get_profile_root(profile)
+    if profile_root.exists() and not profile_root.is_dir():
+        error(f"{profile_root} is not a directory")
         return None
-    if not profile.exists() and create:
-        return new_profile(profile)
-    if not profile.exists():
-        error(f"{profile} does not exist")
+    if not profile_root.exists() and create:
+        return new_profile(profile_root)
+    if not profile_root.exists():
+        error(f"{profile_root} does not exist")
         return None
-    return profile
+    return profile_root
 
 
-def new_profile(profile: Union[str, Path]) -> Optional[Path]:
+def new_profile(profile: Profile) -> Optional[Path]:
     profile_root = create_profile(profile)
     if profile_root:
         create_config(profile_root)

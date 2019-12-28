@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from qbpm import profiles
+from qbpm.profiles import Profile
 from qbpm.utils import error
 
 
@@ -27,16 +28,16 @@ def from_session(
     return profile_root
 
 
-def launch(profile_name: str, strict: bool, foreground: bool) -> bool:
-    profile = profiles.ensure_profile_exists(profile_name, not strict)
-    if not profile:
+def launch(profile: Profile, strict: bool, foreground: bool) -> bool:
+    profile_root = profiles.ensure_profile_exists(profile, not strict)
+    if not profile_root:
         return False
 
     if foreground:
-        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile))
+        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile_root))
     else:
         subprocess.Popen(
-            ["qutebrowser", "-B", str(profile)],
+            ["qutebrowser", "-B", str(profile_root)],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
