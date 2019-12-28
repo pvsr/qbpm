@@ -7,6 +7,7 @@ from qpm import conf, operations, profiles
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Qutebrowser profile manager")
+    parser.set_defaults(operation=lambda args: parser.print_help())
     parser.add_argument(
         "-P",
         "--profile-dir",
