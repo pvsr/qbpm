@@ -17,12 +17,14 @@ def main() -> None:
     )
 
     subparsers = parser.add_subparsers()
-    new = subparsers.add_parser("new")
+    new = subparsers.add_parser("new", help="create a new profile")
     new.set_defaults(operation=lambda args: profiles.new_profile(args.profile_name))
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     creator_args(new)
 
-    session = subparsers.add_parser("from-session")
+    session = subparsers.add_parser(
+        "from-session", help="create a new profile from a qutebrowser session"
+    )
     session.set_defaults(
         operation=lambda args: operations.from_session(args.session, args.profile_name),
     )
@@ -37,7 +39,9 @@ def main() -> None:
     )
     creator_args(session)
 
-    launch = subparsers.add_parser("launch", aliases=["run"])
+    launch = subparsers.add_parser(
+        "launch", aliases=["run"], help="launch qutebrowser with the given profile"
+    )
     launch.set_defaults(
         operations=lambda args: operations.launch(
             args.profile_name, args.strict, args.foreground
