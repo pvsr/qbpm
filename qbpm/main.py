@@ -25,7 +25,7 @@ def main():
         operation=lambda args: operations.from_session(args.session, args.profile_name)
     )
 
-    launch = subparsers.add_parser("launch")
+    launch = subparsers.add_parser("launch", aliases=["run"])
     launch.add_argument(
         "profile_name",
         metavar="name",
