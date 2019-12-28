@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from qbpm import operations
+from qbpm import operations, profiles
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new")
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
-    new.set_defaults(operation=lambda args: operations.new_profile(args.profile_name))
+    new.set_defaults(operation=lambda args: profiles.new_profile(args.profile_name))
 
     session = subparsers.add_parser("from-session")
     session.add_argument(
