@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 from typing import Callable, Optional
 
-from qbpm import conf, operations, profiles
+from qpm import conf, operations, profiles
 
 
 def main() -> None:

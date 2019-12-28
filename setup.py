@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(
-    name="qbpm",
+    name="qpm",
     version="0.1",
-    packages=["qbpm"],
-    entry_points={"console_scripts": ["qbpm = qbpm.main:main"]},
+    packages=["qpm"],
+    entry_points={"console_scripts": ["qpm = qpm.main:main"]},
     install_requires=["pyxdg"],
     author="Peter Rice",
     author_email="peter@peterrice.xyz",

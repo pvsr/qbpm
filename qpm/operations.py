@@ -4,9 +4,9 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
-from qbpm import profiles
-from qbpm.profiles import Profile
-from qbpm.utils import error
+from qpm import profiles
+from qpm.profiles import Profile
+from qpm.utils import error
 
 
 def from_session(

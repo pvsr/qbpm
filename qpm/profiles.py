@@ -5,8 +5,8 @@ from typing import Optional, Union
 
 from xdg import BaseDirectory  # type: ignore
 
-from qbpm import conf
-from qbpm.utils import error
+from qpm import conf
+from qpm.utils import error
 
 # profile name or path
 Profile = Union[str, Path]
