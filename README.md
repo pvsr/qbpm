@@ -37,6 +37,7 @@ qpm -P ~/dev/qpm launch profile
 ```
 
 ## Future work
+- Config file for default profile directory and more
 - More shared config and data (configurable)
 - Generated binaries and `.desktop` files
 - The ability to delete profiles (need tests first!)
