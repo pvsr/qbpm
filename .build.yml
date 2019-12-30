@@ -4,21 +4,12 @@ repositories:
 sources:
   - https://git.sr.ht/~pvsr/qpm
 tasks:
-  - py36: |
-      cd qpm
-      nix-shell --quiet -p python36 \
-        python36Packages.pyxdg \
-        python36Packages.pytest \
-        --run "python -m pytest"
-  - py37: |
-      cd qpm
-      nix-shell --quiet -p python37 \
-        python37Packages.pyxdg \
-        python37Packages.pytest \
-        --run "python -m pytest"
   - py38: |
       cd qpm
-      nix-shell --quiet -p python38 \
-        python38Packages.pyxdg \
-        python38Packages.pytest \
-        --run "python -m pytest"
+      ./nixos-test python38
+  - py37: |
+      cd qpm
+      ./nixos-test python37
+  - py36: |
+      cd qpm
+      ./nixos-test python36
