@@ -1,0 +1,18 @@
+image: nixos/19.09
+repositories:
+  nixpkgs: https://nixos.org/channels/nixos-19.09
+sources:
+  - https://git.sr.ht/~pvsr/qpm
+tasks:
+  - py36: |
+      cd qpm
+      nix-shell --quiet -p python36 \
+        python36Packages.pyxdg \
+        python36Packages.pytest \
+        --run "python -m pytest"
+  - py37: |
+      cd qpm
+      nix-shell --quiet -p python37 \
+        python37Packages.pyxdg \
+        python37Packages.pytest \
+        --run "python -m pytest"
