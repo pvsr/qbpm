@@ -1,5 +1,7 @@
 # `qpm`, a Qutebrowser Profile Manager
 
+[![builds.sr.ht status](https://builds.sr.ht/~pvsr/qpm.svg)](https://builds.sr.ht/~pvsr/qpm?)
+
 [Qutebrowser](https://github.com/qutebrowser/qutebrowser) is the best web
 browser out there, but it doesn't handle huge numbers of open tabs very well
 when it comes to memory usage and UI. I even found myself restarting qutebrowser
