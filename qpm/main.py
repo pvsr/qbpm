@@ -43,7 +43,7 @@ def main() -> None:
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
     )
     launch.set_defaults(
-        operations=lambda args: operations.launch(
+        operation=lambda args: operations.launch(
             args.profile_name, args.strict, args.foreground
         )
     )
