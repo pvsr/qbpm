@@ -18,25 +18,15 @@ always the risk that it will delete or mangle your data.
 
 To create and launch a new profile called "finance" in
 `$XDG_DATA_HOME/qutebrowser-profiles`, simply run:
-```bash
-qpm new finance --launch
-# or
-qpm launch finance
-```
+`qpm new finance --launch` or `qpm launch finance`
 
 If you want to convert the contents of a window into a new profile, run
 `session-save -o profile-name` in qutebrowser to create a session file for just
-the active window, then run:
-```bash
-qpm from-session profile-name
-```
+the active window, then run: `qpm from-session profile-name`
 
 I find it helpful to have a dedicated profile for each of my programming
-projects, so I keep a profile in the project dir.
-```bash
-qpm -P ~/dev/qpm new profile
-qpm -P ~/dev/qpm launch profile
-```
+projects, so I keep a profile in the project dir, using
+`qpm -P ~/dev/qpm new profile` and `qpm -P ~/dev/qpm launch profile`
 
 ## Future work
 - Config file for default profile directory and more
