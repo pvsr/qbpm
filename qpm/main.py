@@ -50,7 +50,6 @@ def main() -> None:
     launch.add_argument(
         "profile_name",
         metavar="name",
-        nargs="?",
         help="profile to launch. it will be created if it does not exist, unless -s is set",
     )
     launch.add_argument(
