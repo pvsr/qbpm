@@ -104,3 +104,7 @@ def then_launch(
     if profile:
         return operations.launch(profile, args.strict, args.foreground)
     return False
+
+
+if __name__ == "__main__":
+    main()
