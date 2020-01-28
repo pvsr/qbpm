@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Iterable
 
 from qpm import profiles, config
 from qpm.profiles import Profile
@@ -28,19 +28,25 @@ def from_session(
     return profile_root
 
 
-def launch(profile: Profile, strict: bool, foreground: bool) -> bool:
+def launch(profile: Profile, strict: bool, foreground: bool, args: Iterable[str]) -> bool:
     profile_root = profiles.ensure_profile_exists(profile, not strict)
     if not profile_root:
         return False
 
     if foreground:
-        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile_root))
+        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile_root), *args)
     else:
-        subprocess.Popen(
-            ["qutebrowser", "-B", str(profile_root)],
+        p = subprocess.Popen(
+            ["qutebrowser", "-B", str(profile_root), *args],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
         )
+        try:
+            # give qb a chance to validate input before returning to shell
+            stdout, stderr = p.communicate(timeout=0.1)
+            print(stderr.decode(errors="ignore"), end='')
+        except subprocess.TimeoutExpired:
+            pass
 
     return True
 
