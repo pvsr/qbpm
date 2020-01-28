@@ -2,9 +2,9 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Optional, Iterable
+from typing import Iterable, Optional
 
-from qpm import profiles, config
+from qpm import config, profiles
 from qpm.profiles import Profile
 from qpm.utils import error
 
@@ -28,7 +28,9 @@ def from_session(
     return profile_root
 
 
-def launch(profile: Profile, strict: bool, foreground: bool, args: Iterable[str]) -> bool:
+def launch(
+    profile: Profile, strict: bool, foreground: bool, args: Iterable[str]
+) -> bool:
     profile_root = profiles.ensure_profile_exists(profile, not strict)
     if not profile_root:
         return False
@@ -44,7 +46,7 @@ def launch(profile: Profile, strict: bool, foreground: bool, args: Iterable[str]
         try:
             # give qb a chance to validate input before returning to shell
             stdout, stderr = p.communicate(timeout=0.1)
-            print(stderr.decode(errors="ignore"), end='')
+            print(stderr.decode(errors="ignore"), end="")
         except subprocess.TimeoutExpired:
             pass
 
