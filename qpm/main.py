@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 from typing import Callable, Optional
 
-from qpm import conf, operations, profiles
+from qpm import config, operations, profiles
 
 
 def main() -> None:
@@ -67,7 +67,7 @@ def main() -> None:
 
     args = parser.parse_args()
     if args.profile_dir:
-        conf.profiles_dir = args.profile_dir
+        config.profiles_dir = args.profile_dir
     args.operation(args)
 
 

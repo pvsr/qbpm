@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 from xdg import BaseDirectory  # type: ignore
 
-from qpm import conf
+from qpm import config
 from qpm.utils import error
 
 # profile name or path
@@ -25,7 +25,7 @@ else:
 
 def get_profile_root(profile: Profile) -> Path:
     if isinstance(profile, str):
-        return conf.profiles_dir / profile
+        return config.profiles_dir / profile
     else:
         return profile
 
@@ -43,8 +43,8 @@ def create_profile(profile: Profile) -> Optional[Path]:
 
 
 def create_config(profile_root: Path) -> None:
-    with (profile_root / "config" / "config.py").open(mode="x") as conf:
-        print(f"config.source('{main_config_dir / 'config.py'}')", file=conf)
+    with (profile_root / "config" / "config.py").open(mode="x") as config:
+        print(f"config.source('{main_config_dir / 'config.py'}')", file=config)
 
 
 def ensure_profile_exists(profile: Profile, create: bool = True) -> Optional[Path]:
