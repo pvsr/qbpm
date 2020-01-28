@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
-from qpm import profiles
+from qpm import profiles, config
 from qpm.profiles import Profile
 from qpm.utils import error
 
@@ -43,3 +43,8 @@ def launch(profile: Profile, strict: bool, foreground: bool) -> bool:
         )
 
     return True
+
+
+def list_() -> None:
+    for profile in config.profiles_dir.iterdir():
+        print(profile.name)
