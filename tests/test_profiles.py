@@ -45,6 +45,16 @@ def test_create_profile_conflict(tmp_path: Path):
     profile = profiles.create_profile("test")
     assert not profile
 
+def test_create_profile_parent(tmp_path: Path):
+    config.profiles_dir = tmp_path / "profiles"
+    profile = profiles.create_profile("../test")
+    assert not (tmp_path / "test").exists()
+
+def test_create_profile_nested_conflict(tmp_path: Path):
+    config.profiles_dir = tmp_path
+    assert profiles.create_profile("test")
+    assert not profiles.create_profile("test/a")
+
 def test_create_config(tmp_path: Path):
     config.profiles_dir = tmp_path
     config_dir = tmp_path / "config"

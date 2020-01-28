@@ -30,11 +30,26 @@ def get_profile_root(profile: Profile) -> Path:
         return profile
 
 
+def check_profile(profile_root: Path) -> bool:
+    if config.profiles_dir.resolve() not in profile_root.resolve().parents:
+        error("will not create profile outside of profile dir. consider using -P")
+        return False
+    if profile_root.exists():
+        error(f"{profile_root} already exists")
+        return False
+    for parent in profile_root.parents:
+        if parent == config.profiles_dir:
+            break
+        if parent.exists():
+            error(f"{parent} already exists")
+            return False
+    return True
+
+
 def create_profile(profile: Profile) -> Optional[Path]:
     profile_root = get_profile_root(profile)
 
-    if profile_root.exists():
-        error(f"{profile_root} already exists")
+    if not check_profile(profile_root):
         return None
 
     config_dir = profile_root / "config"
