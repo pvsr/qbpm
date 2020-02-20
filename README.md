@@ -1,40 +1,51 @@
-# `qpm`: Qutebrowser Profile Manager
+# `qpm`: qutebrowser profile manager
 
 [![builds.sr.ht status](https://builds.sr.ht/~pvsr/qpm.svg)](https://builds.sr.ht/~pvsr/qpm?)
 
-[Qutebrowser](https://github.com/qutebrowser/qutebrowser) is by farthe best web
-browser available, but if you're the type of person who accumulates a huge
-number of open tabs, you'll quickly notice two deficiencies: the tab bar becomes
-a lot less useful once it starts to overflow horizontally, and memory usage gets
-a bit out of control if you leave the browser open 24/7; I even find myself
-restarting qutebrowser to free up memory from time to time on machines with less
-RAM.  Unfortunately I've also noticed poor performance with multiple windows
-open<sup>[1](#footnote1)</sup>, which is annoying on its own and also means I
-can't split my tabs between multiple windows to improve the tab bar experience.
-So, inspired by qutebrowser's idea of sessions and Firefox's profile manager, I
-wrote `qpm` in order to better organize my mess of tabs by dividing them between
-separate qutebrowser instances, all sharing the same config file.
+[qutebrowser](https://github.com/qutebrowser/qutebrowser) is a web browser with
+vim-like keybindings. It's great! qpm is a tool for managing qutebrowser
+profiles. "Profiles" means starting qutebrowser with `--basedir`, which makes
+qutebrowser store all of its config and state in the given directory, the
+profile. qpm's main purposes are to configure profiles to share config,
+bookmarks, and more with you main qutebrowser session or other profiles' (WIP),
+and to make it easy to run these profiles as independent, persistent,
+qutebrowser sessions. Independent meaning multiple sessions can run at the same
+time without bothering each and persistent meaning open tabs can be saved to
+disk and reloaded at any time.
 
-<a name="footnote1">1</a>: For the record, based on other issues in the past I
-suspect this is a rendering bug in QtWebEngine, not qutebrowser itself.
+## Use cases
+ - Use a "work" profile to isolate your work logins from your personal ones.
+   Especially important if you have a work account on Google or Github!
+ - Project-based profiles. I have a "qpm" profile which has library
+   documentation, qutebrowser config, CI results, issues and PRs, and everything
+   I need to work on qpm.
+ - So qutebrowser is great, but if you leave a lot of tabs open 24/7 you might
+   notice that qutebrowser leaks a little bit of memory.  I use profiles both to
+   organize my browsing and keep the number of open tabs and memory usage low.
+   Since profiles are very quick to stop and start I open tabs when I need them
+   and I close them when I don't, and I know I won't lose them.
 
-## Examples
+## Usage
+```
+# create and launch a new profile called "finance" in $XDG_DATA_HOME/qutebrowser-profiles
+$ qpm new finance --launch
+# or
+$ qpm launch finance
 
-To create and launch a new profile called "finance" in
-`$XDG_DATA_HOME/qutebrowser-profiles`, simply run:
-`qpm new finance --launch` or `qpm launch finance`
+# convert the contents of a window into a new profile
+# in qutebrowser, run: "session-save -o profile-name"
+$ qpm from-session profile-name
 
-If you want to convert the contents of a window into a new profile, run
-`session-save -o profile-name` in qutebrowser to create a session file for just
-the active window, then run: `qpm from-session profile-name`
+# you can keep profiles anywhere, such as project dirs
+$ qpm -P ~/dev/qpm new profile-name
+$ cd ~/dev/qpm
+$ qpm -P . launch profile-name
 
-I find it helpful to have a dedicated profile for each of my programming
-projects, so I keep a profile in the project dir, using:
-`qpm -P ~/dev/qpm new profile` and `qpm -P ~/dev/qpm launch profile`
-
-Arguments that `qpm` doesn't recognize will be passed to qutebrowser, so you can
-do stuff like:
-`qpm launch python docs.python.org --target window --loglevel info`
+# arguments that qpm doesn't recognize will be passed to qutebrowser
+$ qpm launch python docs.python.org --target window --loglevel info
+# is functionally equivalent to:
+$ qutebrowser -B ~/$XDG_DATA_HOME/qutebrowser-profiles/python docs.python.org --target window --loglevel info
+```
 
 ## Disclaimer
 This is alpha-quality software. Even though it doesn't do anything particularly
