@@ -58,9 +58,10 @@ def test_create_profile_nested_conflict(tmp_path: Path):
 
 def test_create_config(tmp_path: Path):
     config.profiles_dir = tmp_path
-    config_dir = tmp_path / "config"
-    config_dir.mkdir()
-    profiles.create_config(tmp_path)
+    profile = Profile("test")
+    config_dir = profile.root / "config"
+    config_dir.mkdir(parents=True)
+    profiles.create_config(profile)
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
 
 
