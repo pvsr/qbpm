@@ -11,35 +11,34 @@ from qpm.utils import error
 
 def from_session(
     session_name: str, profile_name: Optional[str] = None
-) -> Optional[Path]:
+) -> Optional[Profile]:
     session = profiles.main_data_dir / "sessions" / (session_name + ".yml")
     if not session.is_file():
         error(f"{session} is not a file")
         return None
 
-    profile_root = profiles.new_profile(profile_name or session_name)
-    if not profile_root:
+    profile = Profile(profile_name or session_name)
+    if not profiles.new_profile(profile):
         return None
 
-    session_dir = profile_root / "data" / "sessions"
+    session_dir = profile.root / "data" / "sessions"
     session_dir.mkdir(parents=True)
     shutil.copy(session, session_dir / "_autosave.yml")
 
-    return profile_root
+    return profile
 
 
 def launch(
     profile: Profile, strict: bool, foreground: bool, args: Iterable[str]
 ) -> bool:
-    profile_root = profiles.ensure_profile_exists(profile, not strict)
-    if not profile_root:
+    if not profiles.ensure_profile_exists(profile, not strict):
         return False
 
     if foreground:
-        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile_root), *args)
+        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile.root), *args)
     else:
         p = subprocess.Popen(
-            ["qutebrowser", "-B", str(profile_root), *args],
+            ["qutebrowser", "-B", str(profile.root), *args],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
         )

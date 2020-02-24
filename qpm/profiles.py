@@ -8,8 +8,14 @@ from xdg import BaseDirectory  # type: ignore
 from qpm import config
 from qpm.utils import error
 
-# profile name or path
-Profile = Union[str, Path]
+
+class Profile:
+    name: str
+    root: Path
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.root = config.profiles_dir / name
 
 
 main_config_dir = Path(BaseDirectory.save_config_path("qutebrowser"))
@@ -24,6 +30,7 @@ else:
 
 
 def get_profile_root(profile: Profile) -> Path:
+    return profile.root
     if isinstance(profile, str):
         return config.profiles_dir / profile
     else:
@@ -46,38 +53,39 @@ def check_profile(profile_root: Path) -> bool:
     return True
 
 
-def create_profile(profile: Profile) -> Optional[Path]:
-    profile_root = get_profile_root(profile)
+def create_profile(profile: Profile) -> bool:
+    if not check_profile(profile.root):
+        return False
 
-    if not check_profile(profile_root):
-        return None
-
-    config_dir = profile_root / "config"
+    config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
-    return profile_root
+    return True
 
 
 def create_config(profile_root: Path) -> None:
     with (profile_root / "config" / "config.py").open(mode="x") as config:
+        # print(
+        #     "c.window.title_format = '{perc}{current_title}{title_sep}"
+        #     + f"{profile_root}'",
+        #     file=config,
+        # )
         print(f"config.source('{main_config_dir / 'config.py'}')", file=config)
 
 
-def ensure_profile_exists(profile: Profile, create: bool = True) -> Optional[Path]:
-    profile_root = get_profile_root(profile)
-    if profile_root.exists() and not profile_root.is_dir():
-        error(f"{profile_root} is not a directory")
-        return None
-    if not profile_root.exists() and create:
-        return new_profile(profile_root)
-    if not profile_root.exists():
-        error(f"{profile_root} does not exist")
-        return None
-    return profile_root
+def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
+    if profile.root.exists() and not profile.root.is_dir():
+        error(f"{profile.root} is not a directory")
+        return False
+    if not profile.root.exists() and create:
+        return new_profile(profile)
+    if not profile.root.exists():
+        error(f"{profile.root} does not exist")
+        return False
+    return True
 
 
-def new_profile(profile: Profile) -> Optional[Path]:
-    profile_root = create_profile(profile)
-    if profile_root:
-        create_config(profile_root)
-
-    return profile_root
+def new_profile(profile: Profile) -> bool:
+    if create_profile(profile):
+        create_config(profile.root)
+        return True
+    return False

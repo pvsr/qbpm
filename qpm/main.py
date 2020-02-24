@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from qpm import config, operations, profiles
+from qpm.profiles import Profile
 
 
 def main() -> None:
@@ -18,7 +19,11 @@ def main() -> None:
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
-    new.set_defaults(operation=lambda args: profiles.new_profile(args.profile_name))
+    new.set_defaults(
+        operation=lambda args: wrap_op(
+            lambda profile: profiles.new_profile(profile), args.profile_name
+        )
+    )
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     creator_args(new)
 
@@ -43,8 +48,11 @@ def main() -> None:
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
     )
     launch.set_defaults(
-        operation=lambda args: operations.launch(
-            args.profile_name, args.strict, args.foreground, args.qb_args or []
+        operation=lambda args: wrap_op(
+            lambda profile: operations.launch(
+                profile, args.strict, args.foreground, args.qb_args or []
+            ),
+            args.profile_name,
         )
     )
     launch.add_argument(
@@ -90,6 +98,11 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def wrap_op(op: Callable[[Profile], bool], profile_name: str) -> Optional[Profile]:
+    profile = Profile(profile_name)
+    return profile if op(profile) else None
+
+
 class ThenLaunchAction(argparse.Action):
     def __init__(self, option_strings, dest, nargs=0, **kwargs):
         super(ThenLaunchAction, self).__init__(
@@ -104,11 +117,12 @@ class ThenLaunchAction(argparse.Action):
 
 
 def then_launch(
-    args: argparse.Namespace, operation: Callable[[argparse.Namespace], Optional[Path]]
+    args: argparse.Namespace,
+    operation: Callable[[argparse.Namespace], Optional[Profile]],
 ) -> bool:
     profile = operation(args)
     if profile:
-        return operations.launch(profile, args.strict, args.foreground)
+        return operations.launch(profile, args.strict, args.foreground, [])
     return False
 
 
