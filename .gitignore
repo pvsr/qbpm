@@ -6,4 +6,5 @@ include/
 lib/
 build/
 dist/
-qbpm.egg-info
+qpm.egg-info/
+.tox/
