@@ -4,14 +4,12 @@
 
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) is a web browser with
 vim-like keybindings. It's great! qpm is a tool for managing qutebrowser
-profiles. "Profiles" means starting qutebrowser with `--basedir`, which makes
-qutebrowser store all of its config and state in the given directory, the
-profile. qpm's main purposes are to configure profiles to share config,
-bookmarks, and more with you main qutebrowser session or other profiles' (WIP),
-and to make it easy to run these profiles as independent, persistent,
-qutebrowser sessions. Independent meaning multiple sessions can run at the same
-time without bothering each and persistent meaning open tabs can be saved to
-disk and reloaded at any time.
+profiles. qutebrowser "profiles" are actually independent qutebrowser base
+directories, each with their own cache, config, and storage. qutebrowser can be
+configured to use these profiles instead of its normal config and data
+directories using the `--basedir` flag.  qpm makes it easy to create qutebrowser
+profiles, from scratch or as copies of your main profile, and to run these
+profiles as independent, persistent, qutebrowser sessions.
 
 ## Use cases
  - Use a "work" profile to isolate your work logins from your personal ones.
