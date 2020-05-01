@@ -1,7 +1,6 @@
 import platform
 import sys
 from pathlib import Path
-from typing import Optional, Union
 
 from xdg import BaseDirectory  # type: ignore
 

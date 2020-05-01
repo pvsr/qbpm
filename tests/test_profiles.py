@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from qpm import config, operations, profiles
+from qpm import config, profiles
 from qpm.profiles import Profile
 
 
