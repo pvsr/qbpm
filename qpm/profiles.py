@@ -29,14 +29,6 @@ else:
     sys.exit(1)
 
 
-def get_profile_root(profile: Profile) -> Path:
-    return profile.root
-    if isinstance(profile, str):
-        return config.profiles_dir / profile
-    else:
-        return profile
-
-
 def check_profile(profile_root: Path) -> bool:
     if config.profiles_dir.resolve() not in profile_root.resolve().parents:
         error("will not create profile outside of profile dir. consider using -P")
