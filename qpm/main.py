@@ -20,9 +20,7 @@ def main() -> None:
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
     new.set_defaults(
-        operation=lambda args: wrap_op(
-            lambda profile: profiles.new_profile(profile), args.profile_name
-        )
+        operation=lambda args: wrap_op(profiles.new_profile, args.profile_name)
     )
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     creator_args(new)
