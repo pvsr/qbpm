@@ -20,7 +20,7 @@ def main() -> None:
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
     new.set_defaults(
-        operation=lambda args: wrap_op(profiles.new_profile, args.profile_name)
+        operation=lambda args: wrap_op(args.profile_name, profiles.new_profile)
     )
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     creator_args(new)
@@ -47,10 +47,10 @@ def main() -> None:
     )
     launch.set_defaults(
         operation=lambda args: wrap_op(
+            args.profile_name,
             lambda profile: operations.launch(
                 profile, args.strict, args.foreground, args.qb_args or []
             ),
-            args.profile_name,
         )
     )
     launch.add_argument(
@@ -96,7 +96,7 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def wrap_op(op: Callable[[Profile], bool], profile_name: str) -> Optional[Profile]:
+def wrap_op(profile_name: str, op: Callable[[Profile], bool]) -> Optional[Profile]:
     profile = Profile(profile_name)
     return profile if op(profile) else None
 
