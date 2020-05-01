@@ -63,13 +63,15 @@ def create_profile(profile: Profile) -> bool:
 
 
 def create_config(profile: Profile) -> None:
-    with (profile.root / "config" / "config.py").open(mode="x") as config:
+    with (profile.root / "config" / "config.py").open(mode="x") as dest_config:
         print(
             "c.window.title_format = '{perc}{current_title}{title_sep}"
             + f"qutebrowser ({profile.name})'",
-            file=config,
+            file=dest_config,
         )
-        print(f"config.source('{main_config_dir / 'config.py'}')", file=config)
+        print(f"config.source('{main_config_dir / 'config.py'}')", file=dest_config)
+        for conf in main_config_dir.glob("conf.d/*.py"):
+            print(f"config.source('{conf}')", file=dest_config)
 
 
 def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
