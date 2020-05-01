@@ -75,7 +75,6 @@ def main() -> None:
 
     list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
     list_.set_defaults(operation=lambda args: operations.list_())
-    creator_args(list_)
 
     args = parser.parse_known_args()
     args[0].qb_args = args[1]
@@ -91,7 +90,7 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         "--launch",
         action=ThenLaunchAction,
         dest="operation",
-        help="name of the new profile. if unset the session name will be used",
+        help="launch the profile after creating",
     )
     parser.set_defaults(
         strict=True, foreground=False,
