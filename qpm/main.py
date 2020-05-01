@@ -77,9 +77,9 @@ def main() -> None:
     list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
     list_.set_defaults(operation=lambda args: operations.list_())
 
-    args = parser.parse_known_args()
-    args[0].qb_args = args[1]
-    args = args[0]
+    raw_args = parser.parse_known_args()
+    args = raw_args[0]
+    args.qb_args = raw_args[1]
     if args.profile_dir:
         config.profiles_dir = args.profile_dir
     args.operation(args)
