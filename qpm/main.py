@@ -61,10 +61,11 @@ def main() -> None:
         help="profile to launch. it will be created if it does not exist, unless -s is set",
     )
     launch.add_argument(
-        "-s",
-        "--strict",
-        action="store_true",
-        help="return an error if the profile does not exist",
+        "-n",
+        "--new",
+        action="store_false",
+        dest="strict",
+        help="create the profile if it doesn't exist",
     )
     launch.add_argument(
         "-f",

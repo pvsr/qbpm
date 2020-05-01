@@ -30,7 +30,7 @@ and closed independently. They're very useful!
 # create and launch a new profile called "finance" in $XDG_DATA_HOME/qutebrowser-profiles:
 $ qpm new finance --launch
 # or
-$ qpm launch finance
+$ qpm launch --new finance
 
 # convert the contents of a window into a new profile:
 # in qutebrowser, run: "session-save -o profile-name"
