@@ -54,6 +54,11 @@ This is alpha-quality software. Even though it doesn't do anything particularly
 dangerous to the filesystem, there is always the risk that it will mangle your
 data.
 
+## Version 0.2
+- More qb config flags (e.g. home page)
+- Interactive profile creation
+- Installation instructions
+
 ## Future work
 - More shared config and data (configurable)
 - Generated binaries and `.desktop` files
