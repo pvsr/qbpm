@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from qpm import config, profiles
+from qpm import profiles
 from qpm.profiles import Profile
 
 
@@ -24,41 +24,35 @@ def check_new_profile(profile: Profile):
 
 
 def test_set_profile(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    assert Profile("test").root == tmp_path / "test"
+    assert Profile("test", tmp_path).root == tmp_path / "test"
 
 
 def test_create_profile(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     assert profiles.create_profile(profile)
     assert list(tmp_path.iterdir()) == [profile.root]
     check_empty_profile(profile)
 
 
 def test_create_profile_conflict(tmp_path: Path):
-    config.profiles_dir = tmp_path
     (tmp_path / "test").touch()
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     assert not profiles.create_profile(profile)
 
 
 def test_create_profile_parent(tmp_path: Path):
-    config.profiles_dir = tmp_path / "profiles"
-    profile = Profile("../test")
+    profile = Profile("../test", tmp_path / "profiles")
     assert not profiles.create_profile(profile)
     assert not (tmp_path / "test").exists()
 
 
 def test_create_profile_nested_conflict(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    assert profiles.create_profile(Profile("test"))
-    assert not profiles.create_profile(Profile("test/a"))
+    assert profiles.create_profile(Profile("test", tmp_path))
+    assert not profiles.create_profile(Profile("test/a", tmp_path))
 
 
 def test_create_config(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
     profiles.create_config(profile)
@@ -66,8 +60,7 @@ def test_create_config(tmp_path: Path):
 
 
 def test_ensure_profile_exists_exists(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     profile.root.mkdir()
     assert profiles.ensure_profile_exists(profile, False)
     assert profiles.ensure_profile_exists(profile, True)
@@ -75,28 +68,24 @@ def test_ensure_profile_exists_exists(tmp_path: Path):
 
 
 def test_ensure_profile_exists_does_not_exist(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    assert not profiles.ensure_profile_exists(Profile("test"), False)
+    assert not profiles.ensure_profile_exists(Profile("test", tmp_path), False)
     check_is_empty(tmp_path)
 
 
 def test_ensure_profile_exists_not_dir(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     profile.root.touch()
     assert not profiles.ensure_profile_exists(profile, False)
     assert not profiles.ensure_profile_exists(profile, True)
 
 
 def test_ensure_profile_exists_create(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     assert profiles.ensure_profile_exists(profile, True)
     check_new_profile(profile)
 
 
 def test_new_profile(tmp_path: Path):
-    config.profiles_dir = tmp_path
-    profile = Profile("test")
+    profile = Profile("test", tmp_path)
     assert profiles.new_profile(profile)
     check_new_profile(profile)

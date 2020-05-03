@@ -3,7 +3,7 @@ import shutil
 import subprocess
 from typing import Iterable, Optional
 
-from qpm import config, profiles
+from qpm import profiles
 from qpm.profiles import Profile
 from qpm.utils import error
 
@@ -16,7 +16,7 @@ def from_session(
         error(f"{session} is not a file")
         return None
 
-    profile = Profile(profile_name or session_name)
+    profile = Profile(profile_name or session_name, None)
     if not profiles.new_profile(profile):
         return None
 
@@ -28,16 +28,16 @@ def from_session(
 
 
 def launch(
-    profile: Profile, strict: bool, foreground: bool, args: Iterable[str]
+    profile: Profile, strict: bool, foreground: bool, qb_args: Iterable[str]
 ) -> bool:
     if not profiles.ensure_profile_exists(profile, not strict):
         return False
 
     if foreground:
-        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile.root), *args)
+        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile.root), *qb_args)
     else:
         p = subprocess.Popen(
-            ["qutebrowser", "-B", str(profile.root), *args],
+            ["qutebrowser", "-B", str(profile.root), *qb_args],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
         )

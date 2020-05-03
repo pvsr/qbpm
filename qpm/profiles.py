@@ -1,20 +1,42 @@
 import platform
 import sys
 from pathlib import Path
+from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 
-from qpm import config
 from qpm.utils import error
 
 
 class Profile:
     name: str
+    profile_dir: Path
     root: Path
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
         self.name = name
-        self.root = config.profiles_dir / name
+        self.profile_dir = profile_dir or Path(
+            BaseDirectory.save_data_path("qutebrowser-profiles")
+        )
+        self.root = self.profile_dir / name
+
+    def check(self) -> Optional["Profile"]:
+        if not self.profile_dir.resolve().is_dir():
+            error("{self.profile_dir} is not a directory")
+            return None
+        if self.profile_dir.resolve() not in self.root.resolve().parents:
+            error("will not create profile outside of profile dir. consider using -P")
+            return None
+        if self.root.exists():
+            error(f"{self.root} already exists")
+            return None
+        for parent in self.root.parents:
+            if parent == self.profile_dir:
+                break
+            if parent.exists():
+                error(f"{parent} already exists")
+                return None
+        return self
 
 
 main_config_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
@@ -28,24 +50,8 @@ else:
     sys.exit(1)
 
 
-def check_profile(profile_root: Path) -> bool:
-    if config.profiles_dir.resolve() not in profile_root.resolve().parents:
-        error("will not create profile outside of profile dir. consider using -P")
-        return False
-    if profile_root.exists():
-        error(f"{profile_root} already exists")
-        return False
-    for parent in profile_root.parents:
-        if parent == config.profiles_dir:
-            break
-        if parent.exists():
-            error(f"{parent} already exists")
-            return False
-    return True
-
-
 def create_profile(profile: Profile) -> bool:
-    if not check_profile(profile.root):
+    if not profile.check():
         return False
 
     config_dir = profile.root / "config"

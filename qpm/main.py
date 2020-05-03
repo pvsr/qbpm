@@ -1,16 +1,15 @@
 import argparse
-import sys
+from argparse import Namespace
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Set
 
-from qpm import config, operations, profiles
+from qpm import operations, profiles
 from qpm.profiles import Profile
-from qpm.utils import error
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Qutebrowser profile manager")
-    parser.set_defaults(operation=lambda args: parser.print_help())
+    parser = argparse.ArgumentParser(description="qutebrowser profile manager")
+    parser.set_defaults(operation=parser.print_help)
     parser.add_argument(
         "-P",
         "--profile-dir",
@@ -21,18 +20,14 @@ def main() -> None:
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
-    new.set_defaults(
-        operation=lambda args: wrap_op(args.profile_name, profiles.new_profile)
-    )
+    new.set_defaults(operation=wrap_op(profiles.new_profile, set()))
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     creator_args(new)
 
     session = subparsers.add_parser(
         "from-session", help="create a new profile from a qutebrowser session"
     )
-    session.set_defaults(
-        operation=lambda args: operations.from_session(args.session, args.profile_name),
-    )
+    session.set_defaults(operation=lambda args: operations.from_session(**vars(args)))
     session.add_argument(
         "session", help="session to create a new profile from",
     )
@@ -48,12 +43,7 @@ def main() -> None:
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
     )
     launch.set_defaults(
-        operation=lambda args: wrap_op(
-            args.profile_name,
-            lambda profile: operations.launch(
-                profile, args.strict, args.foreground, args.qb_args or []
-            ),
-        )
+        operation=wrap_op(operations.launch, {"strict", "foreground", "qb_args"})
     )
     launch.add_argument(
         "profile_name",
@@ -77,11 +67,6 @@ def main() -> None:
     raw_args = parser.parse_known_args()
     args = raw_args[0]
     args.qb_args = raw_args[1]
-    if args.profile_dir:
-        if not args.profile_dir.is_dir():
-            error(f"{args.profile_dir} is not a directory")
-            sys.exit(1)
-        config.profiles_dir = args.profile_dir
     args.operation(args)
 
 
@@ -96,11 +81,6 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(
         strict=True, foreground=False,
     )
-
-
-def wrap_op(profile_name: str, op: Callable[[Profile], bool]) -> Optional[Profile]:
-    profile = Profile(profile_name)
-    return profile if op(profile) else None
 
 
 class ThenLaunchAction(argparse.Action):
@@ -124,6 +104,17 @@ def then_launch(
     if profile:
         return operations.launch(profile, args.strict, args.foreground, [])
     return False
+
+
+def wrap_op(
+    op: Callable[..., bool], wanted: Set[str]
+) -> Callable[[Namespace], Optional[Profile]]:
+    def f(args) -> Optional[Profile]:
+        profile = Profile(args.profile_name, args.profile_dir)
+        kwargs = {k: v for (k, v) in vars(args).items() if k in wanted}
+        return profile if op(profile=profile, **kwargs) else None
+
+    return f
 
 
 if __name__ == "__main__":
