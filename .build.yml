@@ -6,10 +6,10 @@ sources:
 tasks:
   - py38: |
       cd qpm
-      nix run --argstr python python38 -c pytest
+      nix-shell --argstr python python38 --run pytest
   - py37: |
       cd qpm
-      nix run --argstr python python37 -c pytest
+      nix-shell --argstr python python37 --run pytest
   - py36: |
       cd qpm
-      nix run --argstr python python36 -c pytest
+      nix-shell --argstr python python36 --run pytest
