@@ -6,10 +6,10 @@ sources:
 tasks:
   - py38: |
       cd qpm
-      scripts/nixos-test.sh python38
+      nix run --argstr python python38 -c pytest
   - py37: |
       cd qpm
-      scripts/nixos-test.sh python37
+      nix run --argstr python python37 -c pytest
   - py36: |
       cd qpm
-      scripts/nixos-test.sh python36
+      nix run --argstr python python36 -c pytest

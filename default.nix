@@ -1,9 +1,16 @@
-with import <nixpkgs> {};
+{ pkgs ? import <nixpkgs> {}
+, python ? "python3"
+, pythonPackages ? builtins.getAttr (python + "Packages") pkgs }:
 
-python3.pkgs.buildPythonPackage rec {
+with pythonPackages;
+buildPythonPackage rec {
   pname = "qpm";
   version = "0.1.0";
   src = ./.;
-  doCheck = false;
-  propagatedBuildInputs = [ python3.pkgs.pyxdg ];
+  doCheck = true;
+  preCheck = ''
+    export HOME=$PWD/test-home
+  '';
+  propagatedBuildInputs = [ pyxdg ];
+  checkInputs = [ pytest ];
 }
