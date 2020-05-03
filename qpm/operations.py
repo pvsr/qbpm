@@ -49,8 +49,3 @@ def launch(
             pass
 
     return True
-
-
-def list_() -> None:
-    for profile in config.profiles_dir.iterdir():
-        print(profile.name)
