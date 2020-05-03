@@ -5,7 +5,7 @@
 with pythonPackages;
 buildPythonPackage rec {
   pname = "qpm";
-  version = "0.1.0";
+  version = "0.1";
   src = ./.;
   doCheck = true;
   propagatedBuildInputs = [ pyxdg ];
