@@ -1,9 +1,11 @@
 import argparse
+import sys
 from pathlib import Path
 from typing import Callable, Optional
 
 from qpm import config, operations, profiles
 from qpm.profiles import Profile
+from qpm.utils import error
 
 
 def main() -> None:
@@ -79,6 +81,9 @@ def main() -> None:
     args = raw_args[0]
     args.qb_args = raw_args[1]
     if args.profile_dir:
+        if not args.profile_dir.is_dir():
+            error(f"{args.profile_dir} is not a directory")
+            sys.exit(1)
         config.profiles_dir = args.profile_dir
     args.operation(args)
 

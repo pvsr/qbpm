@@ -8,9 +8,6 @@ buildPythonPackage rec {
   version = "0.1.0";
   src = ./.;
   doCheck = true;
-  preCheck = ''
-    export HOME=$PWD/test-home
-  '';
   propagatedBuildInputs = [ pyxdg ];
   checkInputs = [ pytest ];
 }

@@ -17,10 +17,10 @@ class Profile:
         self.root = config.profiles_dir / name
 
 
-main_config_dir = Path(BaseDirectory.save_config_path("qutebrowser"))
+main_config_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
 
 if platform.system() == "Linux":
-    main_data_dir = Path(BaseDirectory.save_data_path("qutebrowser"))
+    main_data_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
 elif platform.system() == "Darwin":
     main_data_dir = Path.home() / "Library" / "Application Support" / "qutebrowser"
 else:
