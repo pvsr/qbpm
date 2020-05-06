@@ -64,6 +64,9 @@ def main() -> None:
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
     )
 
+    list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
+    list_.set_defaults(operation=lambda args: operations.list_())
+
     raw_args = parser.parse_known_args()
     args = raw_args[0]
     args.qb_args = raw_args[1]

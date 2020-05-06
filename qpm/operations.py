@@ -1,7 +1,10 @@
 import os
 import shutil
 import subprocess
+from pathlib import Path
 from typing import Iterable, Optional
+
+from xdg import BaseDirectory
 
 from qpm import profiles
 from qpm.profiles import Profile
@@ -49,3 +52,11 @@ def launch(
             pass
 
     return True
+
+
+DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
+
+
+def list_() -> None:
+    for profile in DEFAULT_PROFILE_DIR.iterdir():
+        print(profile.name)
