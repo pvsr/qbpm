@@ -22,8 +22,8 @@ and closed independently. They're very useful!
    bit of memory. If you leave it open 24/7 that can become a lot.  I use
    profiles both to organize my browsing and to keep my number of open tabs
    down, especially on machines with less memory. Since profiles open and close
-   very quickly and keep a persisent sesion, I can open sets of tabs when I need
-   them and close them when I don't, knowing I won't lose them.
+   very quickly and keep a persisent session, I can open sets of tabs when I
+   need them and close them when I don't, knowing I won't lose them.
 
 ## Usage
 ```
