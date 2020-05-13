@@ -39,7 +39,7 @@ class Profile:
         return self
 
 
-main_config_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
+main_config_dir = Path(BaseDirectory.xdg_config_home) / "qutebrowser"
 
 if platform.system() == "Linux":
     main_data_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
