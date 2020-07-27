@@ -60,7 +60,10 @@ def create_profile(profile: Profile) -> bool:
 
 
 def create_config(profile: Profile) -> None:
-    with (profile.root / "config" / "config.py").open(mode="x") as dest_config:
+    user_config = profile.root / "config" / "config.py"
+    if not user_config.is_file():
+        error(f"{user_config} is not a file")
+    with user_config.open(mode="x") as dest_config:
         print(
             "c.window.title_format = '{perc}{current_title}{title_sep}"
             + f"qutebrowser ({profile.name})'",
