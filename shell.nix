@@ -5,6 +5,8 @@ mkShell {
     (python3.withPackages (ps: with ps; [
       pyxdg
       pytest
+      pylint
+      mypy
     ]))
   ];
 }
