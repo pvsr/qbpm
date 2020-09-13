@@ -4,6 +4,15 @@ repositories:
 sources:
   - https://git.sr.ht/~pvsr/qpm
 tasks:
+  - deps: |
+      cd qpm
+      nix-shell --quiet --run exit
+  - format: |
+      cd qpm
+      nix-shell --run 'black --diff --check qpm tests'
+  - mypy: |
+      cd qpm
+      nix-shell --run 'mypy qpm tests'
   - py38: |
       cd qpm
       nix-shell --argstr python python38 --run pytest

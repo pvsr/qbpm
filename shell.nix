@@ -7,6 +7,7 @@ mkShell {
       pytest
       pylint
       mypy
+      black
     ]))
   ];
 }
