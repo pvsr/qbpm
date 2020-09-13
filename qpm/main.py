@@ -20,8 +20,9 @@ def main() -> None:
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
-    new.set_defaults(operation=wrap_op(profiles.new_profile, set()))
+    new.set_defaults(operation=wrap_op(profiles.new_profile, {"home_page"}))
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
+    new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     creator_args(new)
 
     session = subparsers.add_parser(

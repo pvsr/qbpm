@@ -2,6 +2,7 @@ import platform
 import sys
 from pathlib import Path
 from typing import Optional
+from textwrap import dedent
 
 from xdg import BaseDirectory  # type: ignore
 
@@ -59,14 +60,17 @@ def create_profile(profile: Profile) -> bool:
     return True
 
 
-def create_config(profile: Profile) -> None:
+def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
     user_config = profile.root / "config" / "config.py"
     with user_config.open(mode="x") as dest_config:
-        print(
-            "c.window.title_format = '{perc}{current_title}{title_sep}"
-            + f"qutebrowser ({profile.name})'",
-            file=dest_config,
+        title_prefix = "{perc}{current_title}{title_sep}"
+        config = (
+            f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'"
         )
+        if home_page:
+            config = config + f"\nc.url.default_page = '{home_page}'"
+            config = config + f"\nc.url.start_pages = ['{home_page}']"
+        print(dedent(config), file=dest_config)
         print(f"config.source('{main_config_dir / 'config.py'}')", file=dest_config)
         for conf in main_config_dir.glob("conf.d/*.py"):
             print(f"config.source('{conf}')", file=dest_config)
@@ -84,8 +88,8 @@ def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
     return True
 
 
-def new_profile(profile: Profile) -> bool:
+def new_profile(profile: Profile, home_page: Optional[str] = None) -> bool:
     if create_profile(profile):
-        create_config(profile)
+        create_config(profile, home_page)
         return True
     return False
