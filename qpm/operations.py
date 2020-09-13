@@ -12,13 +12,18 @@ from qpm.utils import error
 
 
 def from_session(
-    session_name: str,
+    session: str,
     profile_name: Optional[str] = None,
     profile_dir: Optional[Path] = None,
 ) -> Optional[Profile]:
-    session = profiles.main_data_dir / "sessions" / (session_name + ".yml")
-    if not session.is_file():
-        error(f"{session} is not a file")
+    if session.endswith(".yml"):
+        session_file = Path(session).expanduser()
+        session_name = session_file.stem
+    else:
+        session_name = session
+        session_file = profiles.main_data_dir / "sessions" / (session_name + ".yml")
+    if not session_file.is_file():
+        error(f"{session_file} is not a file")
         return None
 
     profile = Profile(profile_name or session_name, profile_dir)
@@ -27,7 +32,7 @@ def from_session(
 
     session_dir = profile.root / "data" / "sessions"
     session_dir.mkdir(parents=True)
-    shutil.copy(session, session_dir / "_autosave.yml")
+    shutil.copy(session_file, session_dir / "_autosave.yml")
 
     return profile
 

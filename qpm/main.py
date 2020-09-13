@@ -33,7 +33,9 @@ def main(mock_args=None) -> None:
         "from-session", help="create a new profile from a qutebrowser session"
     )
     session.add_argument(
-        "session", help="session to create a new profile from",
+        "session",
+        help="path to session file or name of session. "
+        "e.g. ~/.local/share/qutebrowser/sessions/example.yml or example",
     )
     session.add_argument(
         "profile_name",
