@@ -1,4 +1,5 @@
 import argparse
+from os import environ
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -81,6 +82,8 @@ def main() -> None:
     raw_args = parser.parse_known_args()
     args = raw_args[0]
     args.qb_args = raw_args[1]
+    if not args.profile_dir and (env_dir := environ.get("QPM_PROFILE_DIR")):
+        args.profile_dir = Path(env_dir)
     args.operation(args)
 
 
