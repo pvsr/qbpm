@@ -23,7 +23,7 @@ class Profile:
 
     def check(self) -> Optional["Profile"]:
         if not self.profile_dir.resolve().is_dir():
-            error("{self.profile_dir} is not a directory")
+            error(f"{self.profile_dir} is not a directory")
             return None
         if self.profile_dir.resolve() not in self.root.resolve().parents:
             error("will not create profile outside of profile dir. consider using -P")
