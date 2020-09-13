@@ -42,7 +42,9 @@ def main(mock_args=None) -> None:
         help="name of the new profile. if unset the session name will be used",
     )
     session.set_defaults(
-        operation=lambda args: operations.from_session(args.session, args.profile_name)
+        operation=lambda args: operations.from_session(
+            args.session, args.profile_name, args.profile_dir
+        )
     )
     creator_args(session)
 

@@ -12,14 +12,16 @@ from qpm.utils import error
 
 
 def from_session(
-    session_name: str, profile_name: Optional[str] = None
+    session_name: str,
+    profile_name: Optional[str] = None,
+    profile_dir: Optional[Path] = None,
 ) -> Optional[Profile]:
     session = profiles.main_data_dir / "sessions" / (session_name + ".yml")
     if not session.is_file():
         error(f"{session} is not a file")
         return None
 
-    profile = Profile(profile_name or session_name, None)
+    profile = Profile(profile_name or session_name, profile_dir)
     if not profiles.new_profile(profile):
         return None
 
