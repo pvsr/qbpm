@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Iterable, Optional
 
-from xdg import BaseDirectory
+from xdg import BaseDirectory  # type: ignore
 
 from qpm import profiles
 from qpm.profiles import Profile
