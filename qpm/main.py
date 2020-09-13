@@ -1,7 +1,6 @@
 import argparse
-from argparse import Namespace
 from pathlib import Path
-from typing import Callable, Optional, Set
+from typing import Callable, Optional
 
 from qpm import operations, profiles
 from qpm.profiles import Profile
@@ -20,15 +19,18 @@ def main() -> None:
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
-    new.set_defaults(operation=wrap_op(profiles.new_profile, {"home_page"}))
     new.add_argument("profile_name", metavar="name", help="name of the new profile")
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
+    new.set_defaults(
+        operation=lambda args: profiles.new_profile(
+            Profile(args.profile_name, args.profile_dir), args.home_page
+        )
+    )
     creator_args(new)
 
     session = subparsers.add_parser(
         "from-session", help="create a new profile from a qutebrowser session"
     )
-    session.set_defaults(operation=lambda args: operations.from_session(**vars(args)))
     session.add_argument(
         "session", help="session to create a new profile from",
     )
@@ -38,13 +40,13 @@ def main() -> None:
         nargs="?",
         help="name of the new profile. if unset the session name will be used",
     )
+    session.set_defaults(
+        operation=lambda args: operations.from_session(args.session, args.profile_name)
+    )
     creator_args(session)
 
     launch = subparsers.add_parser(
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
-    )
-    launch.set_defaults(
-        operation=wrap_op(operations.launch, {"strict", "foreground", "qb_args"})
     )
     launch.add_argument(
         "profile_name",
@@ -63,6 +65,14 @@ def main() -> None:
         "--foreground",
         action="store_true",
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
+    )
+    launch.set_defaults(
+        operation=lambda args: operations.launch(
+            Profile(args.profile_name, args.profile_dir),
+            args.strict,
+            args.foreground,
+            args.qb_args,
+        )
     )
 
     list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
@@ -108,17 +118,6 @@ def then_launch(
     if profile:
         return operations.launch(profile, args.strict, args.foreground, [])
     return False
-
-
-def wrap_op(
-    op: Callable[..., bool], wanted: Set[str]
-) -> Callable[[Namespace], Optional[Profile]]:
-    def f(args) -> Optional[Profile]:
-        profile = Profile(args.profile_name, args.profile_dir)
-        kwargs = {k: v for (k, v) in vars(args).items() if k in wanted}
-        return profile if op(profile=profile, **kwargs) else None
-
-    return f
 
 
 if __name__ == "__main__":
