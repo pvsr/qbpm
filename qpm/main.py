@@ -7,7 +7,7 @@ from qpm import operations, profiles
 from qpm.profiles import Profile
 
 
-def main() -> None:
+def main(mock_args=None) -> None:
     parser = argparse.ArgumentParser(description="qutebrowser profile manager")
     parser.set_defaults(operation=parser.print_help)
     parser.add_argument(
@@ -79,7 +79,7 @@ def main() -> None:
     list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
     list_.set_defaults(operation=lambda args: operations.list_())
 
-    raw_args = parser.parse_known_args()
+    raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
     args.qb_args = raw_args[1]
     if not args.profile_dir and (env_dir := environ.get("QPM_PROFILE_DIR")):
