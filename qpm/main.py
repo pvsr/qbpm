@@ -1,7 +1,7 @@
 import argparse
 from os import environ
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from qpm import operations, profiles
 from qpm.profiles import Profile
@@ -99,9 +99,13 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         dest="operation",
         help="launch the profile after creating",
     )
-    parser.set_defaults(
-        strict=True, foreground=False,
+    parser.add_argument(
+        "-f",
+        "--foreground",
+        action="store_true",
+        help="if --launch is set, launch qutebrowser in the foreground",
     )
+    parser.set_defaults(strict=True)
 
 
 class ThenLaunchAction(argparse.Action):
@@ -111,19 +115,19 @@ class ThenLaunchAction(argparse.Action):
         )
 
     def __call__(self, parser, namespace, values, option_string=None):
-        operation = getattr(namespace, self.dest)
-        if operation:
-            composed = lambda args: then_launch(args, operation)
-            setattr(namespace, self.dest, composed)
+        if operation := getattr(namespace, self.dest):
+            setattr(namespace, self.dest, lambda args: then_launch(args, operation))
 
 
 def then_launch(
-    args: argparse.Namespace,
-    operation: Callable[[argparse.Namespace], Optional[Profile]],
+    args: argparse.Namespace, operation: Callable[[argparse.Namespace], Optional[Any]],
 ) -> bool:
-    profile = operation(args)
-    if profile:
-        return operations.launch(profile, args.strict, args.foreground, [])
+    if result := operation(args):
+        if isinstance(result, Profile):
+            profile = result
+        else:
+            profile = Profile(args.profile_name, args.profile_dir)
+        return operations.launch(profile, False, args.foreground, [],)
     return False
 
 
