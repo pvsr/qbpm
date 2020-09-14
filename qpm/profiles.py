@@ -22,6 +22,9 @@ class Profile:
         self.root = self.profile_dir / name
 
     def check(self) -> Optional["Profile"]:
+        if "/" in self.name:
+            error("profile name cannot contain slashes")
+            return None
         if not self.profile_dir.resolve().is_dir():
             error(f"{self.profile_dir} is not a directory")
             return None
