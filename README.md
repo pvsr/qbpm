@@ -10,70 +10,72 @@ config with your standard qutebrowser installation and run them using the
 `launch` subcommand, which wraps qutebrowser and points `--basedir` at your
 profile directory. qutebrowser sessions started with different base directories
 are entirely separate, have their own histories and sessions, and can be opened
-and closed independently. They're very useful!
+and closed independently.
 
 ## Use cases
  - Use a "work" profile to isolate your work logins from your personal ones.
    Especially important if you have a work account on Google or Github!
  - Project-based profiles. I have a "qpm" profile which has library
-   documentation, qutebrowser config, CI results, issues and PRs, and everything
-   I need to work on qpm.
- - Because web browsers are hideous monstrosities, qutebrowser leaks a little
-   bit of memory. If you leave it open 24/7 that can become a lot.  I use
+   documentation, qutebrowser config, CI results, and everything I need to work
+   on qpm.
+ - Web browsers use a lot of memory and qutebrowser is no exception. I use
    profiles both to organize my browsing and to keep my number of open tabs
-   down, especially on machines with less memory. Since profiles open and close
-   very quickly and keep a persisent session, I can open sets of tabs when I
-   need them and close them when I don't, knowing I won't lose them.
+   under control, especially on machines with less memory. Since profiles open
+   and close very quickly and keep a persisent session, I can open sets of tabs
+   when I need them and close them when I don't, knowing I won't lose them.
 
 ## Usage
+Create and launch a new profile called "python":
 ```
-# create and launch a new profile called "finance" in $XDG_DATA_HOME/qutebrowser-profiles:
-$ qpm new finance --launch
-# or
-$ qpm launch --new finance
+$ qpm new python
+$ qpm launch python docs.python.org
+```
 
-# convert the contents of a window into a new profile:
-# in qutebrowser, run: "session-save -o profile-name"
-$ qpm from-session profile-name
+Notice that `qpm launch` passes extra arguments directly to qutebrowser, so you
+can use it to open urls in your profile and use any options you would pass to
+qutebrowser:
+```
+$ qpm launch python duck.com --target window --loglevel info
+```
 
-# you can store profiles anywhere:
-$ qpm --profile-dir ~/dev/my-project new project-info
+`qpm from-session` can copy the tabs of a [saved qutebrowser
+session](https://qutebrowser.org/doc/help/commands.html#session-save) to a new
+profile. If you have a window full of tabs related to planning a vacation, you
+could save it to a session called "vacation" using `:session-save -o vacation`
+in qutebrowser, then create a new profile with those tabs:
+```
+$ qpm from-session vacation
+```
+
+The default profile directory is `$XDG_DATA_HOME/qutebrowser-profiles`, where
+`$XDG_DATA_HOME` is usually `$HOME/.local/share`, but you can keep profiles
+anywhere using `--profile-dir`/`-P`: 
+```
+$ qpm --profile-dir ~/dev/my-project new qb-profile
 $ cd ~/dev/my-project
-$ qpm --profile-dir . launch project-info
+$ qpm -P . launch qb-profile
 # or
-$ qutebrowser --basedir profile-name
-
-# launch passes arguments it doesn't recognize to qutebrowser:
-$ qpm launch python docs.python.org --target window --loglevel info
-# is functionally equivalent to:
-$ qutebrowser --basedir $XDG_DATA_HOME/qutebrowser-profiles/python docs.python.org --target window --loglevel info
+$ qutebrowser --basedir qb-profile
 ```
 
-## Disclaimer
-This is alpha-quality software. Even though it doesn't do anything particularly
-dangerous to the filesystem, there is always the risk that it will mangle your
-data.
-
-## Version 0.2
-- More qb config flags (e.g. home page)
-- Interactive profile creation
+## Future ideas that may or may not happen
+- Edit flag and/or subcommand to edit the generated `config.py`
 - Installation instructions
-
-## Future work
-- More shared config and data (configurable)
-- Generated binaries and `.desktop` files
-- Delete profiles?
+- More shared or copied config and data
+- Generate `.desktop` files
 - Use any profile as a base for new profiles (currently only the main config in
   `$XDG_CONFIG_HOME` is supported)
 - Source `autoconfig.yml` instead of `config.py`
-- Customizable config sourcing for those who like to split their config into
-  multiple files
 - Bundled config file optimized for single-site browsing
 - `qpm.conf` to configure the features above
 - Someday: qutebrowser plugin
 
+Patches accepted!
+
 ## Known limitations
-- If your config relies on `config.configdir` to dynamically source other config
-  files (I may be the only person who does this), those config files will not be
-  present in `qpm`-created profiles There are plenty of workarounds, such as
-  hardcoding your main config dir instead of using `config.configdir`.
+If your `config.py` relies on `config.configdir` to dynamically source other
+config files ([like
+this](https://github.com/pvsr/dotfiles/blob/34531d7be9e0c409be84ba8875c22c7e03a13b3d/qutebrowser/.config/qutebrowser/config.py#L97-L98)),
+those config files will not be present in `qpm`-created profiles. There are
+plenty of workarounds, such as hardcoding your main config dir instead of using
+`config.configdir`.
