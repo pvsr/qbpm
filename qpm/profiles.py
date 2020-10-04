@@ -60,6 +60,7 @@ def create_profile(profile: Profile) -> bool:
 
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
+    print(profile.root)
     return True
 
 
