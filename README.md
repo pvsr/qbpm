@@ -62,7 +62,6 @@ $ qutebrowser --basedir qb-profile
 - Edit flag and/or subcommand to edit the generated `config.py`
 - Installation instructions
 - More shared or copied config and data
-- Generate `.desktop` files
 - Use any profile as a base for new profiles (currently only the main config in
   `$XDG_CONFIG_HOME` is supported)
 - Source `autoconfig.yml` instead of `config.py`
