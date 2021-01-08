@@ -62,6 +62,13 @@ def launch(
     return True
 
 
+def desktop(profile: Profile):
+    if profile.exists():
+        profiles.create_desktop_file(profile)
+    else:
+        error(f"profile {profile.name} not found at {profile.root}")
+
+
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 

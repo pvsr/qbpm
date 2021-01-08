@@ -1,11 +1,11 @@
 import platform
 import sys
 from pathlib import Path
-from typing import Optional
 from textwrap import dedent
+from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
-from xdg.DesktopEntry import DesktopEntry
+from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
 from qpm.utils import error
 
@@ -42,6 +42,9 @@ class Profile:
                 error(f"{parent} already exists")
                 return None
         return self
+
+    def exists(self) -> bool:
+        return self.root.exists() and self.root.is_dir()
 
 
 main_config_dir = Path(BaseDirectory.xdg_config_home) / "qutebrowser"

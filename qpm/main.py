@@ -52,6 +52,18 @@ def main(mock_args=None) -> None:
     )
     creator_args(session)
 
+    desktop = subparsers.add_parser(
+        "desktop", help="create a desktop file for an existing profile"
+    )
+    desktop.add_argument(
+        "profile_name", metavar="name", help="profile to create a desktop file for"
+    )
+    desktop.set_defaults(
+        operation=lambda args: operations.desktop(
+            Profile(args.profile_name, args.profile_dir)
+        )
+    )
+
     launch = subparsers.add_parser(
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
     )
