@@ -15,6 +15,7 @@ def from_session(
     session: str,
     profile_name: Optional[str] = None,
     profile_dir: Optional[Path] = None,
+    desktop_file: bool = True,
 ) -> Optional[Profile]:
     if session.endswith(".yml"):
         session_file = Path(session).expanduser()
@@ -27,7 +28,7 @@ def from_session(
         return None
 
     profile = Profile(profile_name or session_name, profile_dir)
-    if not profiles.new_profile(profile):
+    if not profiles.new_profile(profile, desktop_file=desktop_file):
         return None
 
     session_dir = profile.root / "data" / "sessions"

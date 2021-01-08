@@ -24,7 +24,9 @@ def main(mock_args=None) -> None:
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     new.set_defaults(
         operation=lambda args: profiles.new_profile(
-            Profile(args.profile_name, args.profile_dir), args.home_page
+            Profile(args.profile_name, args.profile_dir),
+            args.home_page,
+            args.desktop_file,
         )
     )
     creator_args(new)
@@ -45,7 +47,7 @@ def main(mock_args=None) -> None:
     )
     session.set_defaults(
         operation=lambda args: operations.from_session(
-            args.session, args.profile_name, args.profile_dir
+            args.session, args.profile_name, args.profile_dir, args.desktop_file
         )
     )
     creator_args(session)
@@ -105,6 +107,12 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="if --launch is set, launch qutebrowser in the foreground",
     )
+    parser.add_argument(
+        "--desktop-file",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="generate a desktop file for the profile",
+    )
     parser.set_defaults(strict=True)
 
 
@@ -120,14 +128,20 @@ class ThenLaunchAction(argparse.Action):
 
 
 def then_launch(
-    args: argparse.Namespace, operation: Callable[[argparse.Namespace], Optional[Any]],
+    args: argparse.Namespace,
+    operation: Callable[[argparse.Namespace], Optional[Any]],
 ) -> bool:
     if result := operation(args):
         if isinstance(result, Profile):
             profile = result
         else:
             profile = Profile(args.profile_name, args.profile_dir)
-        return operations.launch(profile, False, args.foreground, [],)
+        return operations.launch(
+            profile,
+            False,
+            args.foreground,
+            [],
+        )
     return False
 
 

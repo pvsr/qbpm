@@ -108,9 +108,12 @@ def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
     return True
 
 
-def new_profile(profile: Profile, home_page: Optional[str] = None) -> bool:
+def new_profile(
+    profile: Profile, home_page: Optional[str] = None, desktop_file: bool = True
+) -> bool:
     if create_profile(profile):
         create_config(profile, home_page)
-        create_desktop_file(profile)
+        if desktop_file:
+            create_desktop_file(profile)
         return True
     return False
