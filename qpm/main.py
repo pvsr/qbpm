@@ -9,7 +9,7 @@ from qpm.profiles import Profile
 
 def main(mock_args=None) -> None:
     parser = argparse.ArgumentParser(description="qutebrowser profile manager")
-    parser.set_defaults(operation=parser.print_help)
+    parser.set_defaults(operation=lambda args: parser.print_help())
     parser.add_argument(
         "-P",
         "--profile-dir",
