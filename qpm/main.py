@@ -120,10 +120,10 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         help="if --launch is set, launch qutebrowser in the foreground",
     )
     parser.add_argument(
-        "--desktop-file",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-        help="generate a desktop file for the profile",
+        "--no-desktop-file",
+        dest="desktop_file",
+        action="store_false",
+        help="do not generate a desktop file for the profile",
     )
     parser.set_defaults(strict=True)
 
