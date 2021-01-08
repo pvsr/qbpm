@@ -20,7 +20,7 @@ def main(mock_args=None) -> None:
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
-    new.add_argument("profile_name", metavar="name", help="name of the new profile")
+    new.add_argument("profile_name", metavar="profile", help="name of the new profile")
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     new.set_defaults(
         operation=lambda args: profiles.new_profile(
@@ -41,7 +41,7 @@ def main(mock_args=None) -> None:
     )
     session.add_argument(
         "profile_name",
-        metavar="name",
+        metavar="profile",
         nargs="?",
         help="name of the new profile. if unset the session name will be used",
     )
@@ -56,7 +56,7 @@ def main(mock_args=None) -> None:
         "desktop", help="create a desktop file for an existing profile"
     )
     desktop.add_argument(
-        "profile_name", metavar="name", help="profile to create a desktop file for"
+        "profile_name", metavar="profile", help="profile to create a desktop file for"
     )
     desktop.set_defaults(
         operation=lambda args: operations.desktop(
@@ -69,7 +69,7 @@ def main(mock_args=None) -> None:
     )
     launch.add_argument(
         "profile_name",
-        metavar="name",
+        metavar="profile",
         help="profile to launch. it will be created if it does not exist, unless -s is set",
     )
     launch.add_argument(
