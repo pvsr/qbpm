@@ -5,6 +5,7 @@ from typing import Optional
 from textwrap import dedent
 
 from xdg import BaseDirectory  # type: ignore
+from xdg.DesktopEntry import DesktopEntry
 
 from qpm.utils import error
 
@@ -80,6 +81,21 @@ def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
             print(f"config.source('{conf}')", file=dest_config)
 
 
+application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qpm"
+
+
+def create_desktop_file(profile: Profile):
+    desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
+    desktop.set("Name", f"{profile.name} (qutebrowser profile)")
+    # TODO allow passing in an icon value
+    desktop.set("Icon", "qutebrowser")
+    desktop.set("Exec", f"qutebrowser --basedir {profile.root} %u")
+    desktop.set("Categories", ["Network"])
+    desktop.set("Terminal", False)
+    desktop.set("StartupNotify", True)
+    desktop.write()
+
+
 def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
     if profile.root.exists() and not profile.root.is_dir():
         error(f"{profile.root} is not a directory")
@@ -95,5 +111,6 @@ def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
 def new_profile(profile: Profile, home_page: Optional[str] = None) -> bool:
     if create_profile(profile):
         create_config(profile, home_page)
+        create_desktop_file(profile)
         return True
     return False
