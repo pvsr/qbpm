@@ -73,5 +73,5 @@ DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 
 def list_() -> None:
-    for profile in DEFAULT_PROFILE_DIR.iterdir():
+    for profile in sorted(DEFAULT_PROFILE_DIR.iterdir()):
         print(profile.name)
