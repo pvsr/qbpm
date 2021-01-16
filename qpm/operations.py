@@ -75,3 +75,11 @@ DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 def list_() -> None:
     for profile in sorted(DEFAULT_PROFILE_DIR.iterdir()):
         print(profile.name)
+
+
+def edit(profile: Profile):
+    if not profile.exists():
+        error(f"profile {profile.name} not found at {profile.root}")
+        return
+    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR") or "vim"
+    os.execlp(editor, editor, str(profile.root / "config" / "config.py"))

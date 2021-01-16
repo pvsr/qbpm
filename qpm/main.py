@@ -94,8 +94,18 @@ def main(mock_args=None) -> None:
         )
     )
 
-    list_ = subparsers.add_parser("list", help="list existing qutebrowser profiles")
+    list_ = subparsers.add_parser("list", help="list existing profiles")
     list_.set_defaults(operation=lambda args: operations.list_())
+
+    edit = subparsers.add_parser(
+        "edit", help="edit a profile's config.py using $EDITOR"
+    )
+    edit.add_argument("profile_name", metavar="profile", help="profile to edit")
+    edit.set_defaults(
+        operation=lambda args: operations.edit(
+            Profile(args.profile_name, args.profile_dir)
+        )
+    )
 
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
