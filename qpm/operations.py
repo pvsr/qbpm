@@ -8,7 +8,7 @@ from xdg import BaseDirectory  # type: ignore
 
 from qpm import profiles
 from qpm.profiles import Profile
-from qpm.utils import error
+from qpm.utils import error, user_data_dir
 
 
 def from_session(
@@ -22,7 +22,7 @@ def from_session(
         session_name = session_file.stem
     else:
         session_name = session
-        session_file = profiles.main_data_dir / "sessions" / (session_name + ".yml")
+        session_file = user_data_dir() / "sessions" / (session_name + ".yml")
     if not session_file.is_file():
         error(f"{session_file} is not a file")
         return None

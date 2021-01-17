@@ -1,5 +1,3 @@
-import platform
-import sys
 from pathlib import Path
 from textwrap import dedent
 from typing import Optional
@@ -7,7 +5,7 @@ from typing import Optional
 from xdg import BaseDirectory  # type: ignore
 from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
-from qpm.utils import error
+from qpm.utils import error, user_config_dir
 
 
 class Profile:
@@ -47,17 +45,6 @@ class Profile:
         return self.root.exists() and self.root.is_dir()
 
 
-main_config_dir = Path(BaseDirectory.xdg_config_home) / "qutebrowser"
-
-if platform.system() == "Linux":
-    main_data_dir = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
-elif platform.system() == "Darwin":
-    main_data_dir = Path.home() / "Library" / "Application Support" / "qutebrowser"
-else:
-    error("lol")
-    sys.exit(1)
-
-
 def create_profile(profile: Profile) -> bool:
     if not profile.check():
         return False
@@ -78,6 +65,7 @@ def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
         if home_page:
             config = config + f"\nc.url.default_page = '{home_page}'"
             config = config + f"\nc.url.start_pages = ['{home_page}']"
+        main_config_dir = user_config_dir()
         print(dedent(config), file=dest_config)
         print(f"config.source('{main_config_dir / 'config.py'}')", file=dest_config)
         for conf in main_config_dir.glob("conf.d/*.py"):
