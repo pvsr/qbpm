@@ -25,9 +25,10 @@ and closed independently.
    when I need them and close them when I don't, knowing I won't lose them.
 
 ## Usage
-Create and launch a new profile called "python":
+Create a new profile called "python", edit its `config.py`, then launch it:
 ```
 $ qpm new python
+$ qpm edit python
 $ qpm launch python docs.python.org
 ```
 
