@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="qpm",
-    version="0.1",
+    version="0.2",
     url="https://git.sr.ht/~pvsr/qpm",
     packages=find_packages(),
     entry_points={"console_scripts": ["qpm = qpm.main:main"]},
