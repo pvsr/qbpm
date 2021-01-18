@@ -48,7 +48,7 @@ def launch(
     if foreground:
         os.execlp("qutebrowser", *args)
     else:
-        p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,)
+        p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         try:
             # give qb a chance to validate input before returning to shell
             stdout, stderr = p.communicate(timeout=0.1)

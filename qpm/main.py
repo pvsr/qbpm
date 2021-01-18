@@ -17,6 +17,11 @@ def main(mock_args=None) -> None:
         type=Path,
         help="directory in which profiles are stored",
     )
+    parser.add_argument(
+        "--set-app-id",
+        action="store_true",
+        help="set wayland app_id to this profile's name. requires a recent qutebrowser version that supports --desktop-file-name (unreleased as of writing)",
+    )
 
     subparsers = parser.add_subparsers()
     new = subparsers.add_parser("new", help="create a new profile")
@@ -24,9 +29,7 @@ def main(mock_args=None) -> None:
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     new.set_defaults(
         operation=lambda args: profiles.new_profile(
-            Profile(args.profile_name, args.profile_dir),
-            args.home_page,
-            args.desktop_file,
+            build_profile(args), args.home_page, args.desktop_file,
         )
     )
     creator_args(new)
@@ -58,11 +61,7 @@ def main(mock_args=None) -> None:
     desktop.add_argument(
         "profile_name", metavar="profile", help="profile to create a desktop file for"
     )
-    desktop.set_defaults(
-        operation=lambda args: operations.desktop(
-            Profile(args.profile_name, args.profile_dir)
-        )
-    )
+    desktop.set_defaults(operation=lambda args: operations.desktop(build_profile(args)))
 
     launch = subparsers.add_parser(
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
@@ -87,10 +86,7 @@ def main(mock_args=None) -> None:
     )
     launch.set_defaults(
         operation=lambda args: operations.launch(
-            Profile(args.profile_name, args.profile_dir),
-            args.strict,
-            args.foreground,
-            args.qb_args,
+            build_profile(args), args.strict, args.foreground, args.qb_args
         )
     )
 
@@ -101,11 +97,7 @@ def main(mock_args=None) -> None:
         "edit", help="edit a profile's config.py using $EDITOR"
     )
     edit.add_argument("profile_name", metavar="profile", help="profile to edit")
-    edit.set_defaults(
-        operation=lambda args: operations.edit(
-            Profile(args.profile_name, args.profile_dir)
-        )
-    )
+    edit.set_defaults(operation=lambda args: operations.edit(build_profile(args)))
 
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
@@ -156,9 +148,13 @@ def then_launch(
         if isinstance(result, Profile):
             profile = result
         else:
-            profile = Profile(args.profile_name, args.profile_dir)
-        return operations.launch(profile, False, args.foreground, [],)
+            profile = build_profile(args)
+        return operations.launch(profile, False, args.foreground, [])
     return False
+
+
+def build_profile(args: argparse.Namespace) -> Profile:
+    return Profile(args.profile_name, args.profile_dir, args.set_app_id)
 
 
 if __name__ == "__main__":

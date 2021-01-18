@@ -11,13 +11,17 @@ from qpm.utils import error, user_config_dir
 class Profile:
     name: str
     profile_dir: Path
+    set_app_id: bool
     root: Path
 
-    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
+    def __init__(
+        self, name: str, profile_dir: Optional[Path], set_app_id: bool = False
+    ) -> None:
         self.name = name
         self.profile_dir = profile_dir or Path(
             BaseDirectory.save_data_path("qutebrowser-profiles")
         )
+        self.set_app_id = set_app_id
         self.root = self.profile_dir / name
 
     def check(self) -> Optional["Profile"]:
@@ -45,14 +49,9 @@ class Profile:
         return self.root.exists() and self.root.is_dir()
 
     def cmdline(self) -> List[str]:
-        return [
-            "qutebrowser",
-            "-B",
-            str(self.root),
-            "--qt-arg",
-            "name",
-            str(self.name),
-        ]
+        return ["qutebrowser", "-B", str(self.root), "--qt-arg", "name", self.name] + (
+            ["--desktop-file-name", self.name] if self.set_app_id else []
+        )
 
 
 def create_profile(profile: Profile) -> bool:
