@@ -1,6 +1,6 @@
 from pathlib import Path
 from textwrap import dedent
-from typing import Optional
+from typing import List, Optional
 
 from xdg import BaseDirectory  # type: ignore
 from xdg.DesktopEntry import DesktopEntry  # type: ignore
@@ -44,6 +44,16 @@ class Profile:
     def exists(self) -> bool:
         return self.root.exists() and self.root.is_dir()
 
+    def cmdline(self) -> List[str]:
+        return [
+            "qutebrowser",
+            "-B",
+            str(self.root),
+            "--qt-arg",
+            "name",
+            str(self.name),
+        ]
+
 
 def create_profile(profile: Profile) -> bool:
     if not profile.check():
@@ -80,7 +90,7 @@ def create_desktop_file(profile: Profile):
     desktop.set("Name", f"{profile.name} (qutebrowser profile)")
     # TODO allow passing in an icon value
     desktop.set("Icon", "qutebrowser")
-    desktop.set("Exec", f"qutebrowser --basedir {profile.root} %u")
+    desktop.set("Exec", " ".join(profile.cmdline()) + " %u")
     desktop.set("Categories", ["Network"])
     desktop.set("Terminal", False)
     desktop.set("StartupNotify", True)

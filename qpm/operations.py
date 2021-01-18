@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import List, Optional
 
 from xdg import BaseDirectory  # type: ignore
 
@@ -39,19 +39,16 @@ def from_session(
 
 
 def launch(
-    profile: Profile, strict: bool, foreground: bool, qb_args: Iterable[str]
+    profile: Profile, strict: bool, foreground: bool, qb_args: List[str]
 ) -> bool:
     if not profiles.ensure_profile_exists(profile, not strict):
         return False
 
+    args = profile.cmdline() + qb_args
     if foreground:
-        os.execlp("qutebrowser", "qutebrowser", "-B", str(profile.root), *qb_args)
+        os.execlp("qutebrowser", *args)
     else:
-        p = subprocess.Popen(
-            ["qutebrowser", "-B", str(profile.root), *qb_args],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-        )
+        p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,)
         try:
             # give qb a chance to validate input before returning to shell
             stdout, stderr = p.communicate(timeout=0.1)

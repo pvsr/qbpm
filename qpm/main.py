@@ -150,20 +150,14 @@ class ThenLaunchAction(argparse.Action):
 
 
 def then_launch(
-    args: argparse.Namespace,
-    operation: Callable[[argparse.Namespace], Optional[Any]],
+    args: argparse.Namespace, operation: Callable[[argparse.Namespace], Optional[Any]],
 ) -> bool:
     if result := operation(args):
         if isinstance(result, Profile):
             profile = result
         else:
             profile = Profile(args.profile_name, args.profile_dir)
-        return operations.launch(
-            profile,
-            False,
-            args.foreground,
-            [],
-        )
+        return operations.launch(profile, False, args.foreground, [],)
     return False
 
 
