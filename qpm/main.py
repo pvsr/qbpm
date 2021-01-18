@@ -29,7 +29,9 @@ def main(mock_args=None) -> None:
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     new.set_defaults(
         operation=lambda args: profiles.new_profile(
-            build_profile(args), args.home_page, args.desktop_file,
+            build_profile(args),
+            args.home_page,
+            args.desktop_file,
         )
     )
     creator_args(new)
@@ -142,7 +144,8 @@ class ThenLaunchAction(argparse.Action):
 
 
 def then_launch(
-    args: argparse.Namespace, operation: Callable[[argparse.Namespace], Optional[Any]],
+    args: argparse.Namespace,
+    operation: Callable[[argparse.Namespace], Optional[Any]],
 ) -> bool:
     if result := operation(args):
         if isinstance(result, Profile):
