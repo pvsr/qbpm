@@ -72,7 +72,6 @@ def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
             f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'"
         )
         if home_page:
-            config = config + f"\nc.url.default_page = '{home_page}'"
             config = config + f"\nc.url.start_pages = ['{home_page}']"
         main_config_dir = user_config_dir()
         print(dedent(config), file=dest_config)
