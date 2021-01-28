@@ -20,7 +20,7 @@ def main(mock_args=None) -> None:
     parser.add_argument(
         "--set-app-id",
         action="store_true",
-        help="set wayland app_id to this profile's name. requires a recent qutebrowser version that supports --desktop-file-name (unreleased as of writing)",
+        help="set wayland app_id to this profile's name. requires qutebrowser v2.0.0+",
     )
 
     subparsers = parser.add_subparsers()
