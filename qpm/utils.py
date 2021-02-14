@@ -17,7 +17,7 @@ def user_data_dir() -> Path:
     error("This operation is only implemented for linux and macOS.")
     print(
         "If you're interested in adding support for another OS, send a PR "
-        "to github.com/pvsr/qpm adding the location of qutebrowser data such "
+        "to github.com/pvsr/qbpm adding the location of qutebrowser data such "
         "as history.sqlite on your OS to user_data_dir() in qpm/utils.py.",
         file=stderr,
     )

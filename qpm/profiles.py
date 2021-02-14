@@ -80,7 +80,7 @@ def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
             print(f"config.source('{conf}')", file=dest_config)
 
 
-application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qpm"
+application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
 def create_desktop_file(profile: Profile):

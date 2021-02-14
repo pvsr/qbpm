@@ -4,8 +4,8 @@
 
 with pythonPackages;
 buildPythonPackage rec {
-  pname = "qpm";
-  version = "0.2";
+  pname = "qbpm";
+  version = "0.3";
   src = ./.;
   doCheck = true;
   propagatedBuildInputs = [ pyxdg ];
