@@ -46,6 +46,8 @@ $ qbpm -P . launch qb-profile
 $ qutebrowser --basedir qb-profile
 ```
 
+`qbpm` isn't the easiest command to type, so personally I use `qpm` as an alias.
+
 ## Future ideas that may or may not happen
 - Installation instructions
 - More shared or copied config and data
