@@ -48,8 +48,12 @@ $ qutebrowser --basedir qb-profile
 
 `qbpm` isn't the easiest command to type, so personally I use `qpm` as an alias.
 
+## Installation
+ - Arch: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git) in the AUR
+ - Nix: clone the repository and run `nix-env -if default.nix`
+
 ## Future ideas that may or may not happen
-- Installation instructions
+- Release through github
 - More shared or copied config and data
 - Use any profile as a base for new profiles (currently only the main config in
   `$XDG_CONFIG_HOME` is supported)
@@ -57,5 +61,3 @@ $ qutebrowser --basedir qb-profile
 - Bundled config file optimized for single-site browsing
 - `qbpm.conf` to configure the features above
 - Someday: qutebrowser plugin
-
-Patches accepted!
