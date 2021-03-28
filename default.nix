@@ -10,4 +10,8 @@ buildPythonPackage rec {
   doCheck = true;
   propagatedBuildInputs = [ pyxdg ];
   checkInputs = [ pytest ];
+  postInstall = ''
+    mkdir -p $out/share/fish/vendor_completions.d
+    cp completions/qbpm.fish $out/share/fish/vendor_completions.d/
+  '';
 }
