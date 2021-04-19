@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 from textwrap import dedent
 from typing import List, Optional
@@ -67,17 +68,16 @@ def create_profile(profile: Profile) -> bool:
 def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
     user_config = profile.root / "config" / "config.py"
     with user_config.open(mode="x") as dest_config:
+        out = partial(print, file=dest_config)
+        out("config.load_autoconfig()")
         title_prefix = "{perc}{current_title}{title_sep}"
-        config = (
-            f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'"
-        )
+        out(f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'")
         if home_page:
-            config = config + f"\nc.url.start_pages = ['{home_page}']"
+            out(f"c.url.start_pages = ['{home_page}']")
         main_config_dir = user_config_dir()
-        print(dedent(config), file=dest_config)
-        print(f"config.source('{main_config_dir / 'config.py'}')", file=dest_config)
+        out(f"config.source('{main_config_dir / 'config.py'}')")
         for conf in main_config_dir.glob("conf.d/*.py"):
-            print(f"config.source('{conf}')", file=dest_config)
+            out(f"config.source('{conf}')")
 
 
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
