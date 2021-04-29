@@ -8,6 +8,10 @@
     };
 
     defaultPackage.x86_64-linux = self.packages.x86_64-linux.qbpm;
-
+    apps.x86_64-linux.qbpm = {
+      type = "app";
+      program = "${self.packages.x86_64-linux.qbpm}/bin/qbpm";
+    };
+    defaultApp.x86_64-linux = self.apps.x86_64-linux.qbpm;
   };
 }
