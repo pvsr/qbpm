@@ -13,5 +13,8 @@
       program = "${self.packages.x86_64-linux.qbpm}/bin/qbpm";
     };
     defaultApp.x86_64-linux = self.apps.x86_64-linux.qbpm;
+    devShell.x86_64-linux = import ./shell.nix {
+      pkgs = import nixpkgs { system = "x86_64-linux"; };
+    };
   };
 }
