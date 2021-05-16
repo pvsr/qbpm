@@ -1,20 +1,18 @@
 {
   description = "A tool for creating and managing qutebrowser profiles";
 
-  outputs = { self, nixpkgs }: {
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-    packages.x86_64-linux.qbpm = import ./. {
-      pkgs = import nixpkgs { system = "x86_64-linux"; };
-    };
-
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.qbpm;
-    apps.x86_64-linux.qbpm = {
-      type = "app";
-      program = "${self.packages.x86_64-linux.qbpm}/bin/qbpm";
-    };
-    defaultApp.x86_64-linux = self.apps.x86_64-linux.qbpm;
-    devShell.x86_64-linux = import ./shell.nix {
-      pkgs = import nixpkgs { system = "x86_64-linux"; };
-    };
-  };
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = nixpkgs.legacyPackages.${system}; in
+      rec {
+        packages = flake-utils.lib.flattenTree {
+          qbpm = import ./. { inherit pkgs; };
+        };
+        defaultPackage = packages.qbpm;
+        apps.qbpm = flake-utils.lib.mkApp { drv = packages.qbpm; };
+        defaultApp = apps.qbpm;
+      }
+    );
 }
