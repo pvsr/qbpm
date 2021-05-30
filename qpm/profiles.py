@@ -33,9 +33,6 @@ class Profile:
         if not self.profile_dir.resolve().is_dir():
             error(f"{self.profile_dir} is not a directory")
             return None
-        if self.profile_dir.resolve() not in self.root.resolve().parents:
-            error("will not create profile outside of profile dir. consider using -P")
-            return None
         if self.root.exists():
             error(f"{self.root} already exists")
             return None
