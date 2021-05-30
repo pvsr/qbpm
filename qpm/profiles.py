@@ -1,5 +1,6 @@
 from functools import partial
 from pathlib import Path
+from sys import platform
 from textwrap import dedent
 from typing import List, Optional
 
@@ -50,7 +51,9 @@ class Profile:
         return self.root.exists() and self.root.is_dir()
 
     def cmdline(self) -> List[str]:
-        return ["qutebrowser", "-B", str(self.root), "--qt-arg", "name", self.name] + (
+        return ["qutebrowser" if platform != "darwin" else
+                "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser",
+                "-B", str(self.root), "--qt-arg", "name", self.name] + (
             ["--desktop-file-name", self.name] if self.set_app_id else []
         )
 
