@@ -8,3 +8,4 @@ build/
 dist/
 qpm.egg-info/
 .tox/
+qpm/version.py

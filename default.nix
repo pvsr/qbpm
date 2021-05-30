@@ -8,6 +8,8 @@ buildPythonPackage rec {
   version = "0.3";
   src = ./.;
   doCheck = true;
+  SETUPTOOLS_SCM_PRETEND_VERSION = version;
+  nativeBuildInputs = [ setuptools-scm ];
   propagatedBuildInputs = [ pyxdg ];
   checkInputs = [ pytest ];
   postInstall = ''

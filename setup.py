@@ -10,4 +10,8 @@ setup(
     author="Peter Rice",
     author_email="peter@peterrice.xyz",
     description="qutebrowser profile manager",
+    use_scm_version={
+        "write_to": "qpm/version.py"
+    },
+    setup_requires=['setuptools_scm'],
 )

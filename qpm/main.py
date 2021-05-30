@@ -3,7 +3,7 @@ from os import environ
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from qpm import operations, profiles
+from qpm import __version__, operations, profiles
 from qpm.profiles import Profile
 
 
@@ -21,6 +21,11 @@ def main(mock_args=None) -> None:
         "--set-app-id",
         action="store_true",
         help="set wayland app_id to this profile's name. requires qutebrowser v2.0.0+",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=__version__,
     )
 
     subparsers = parser.add_subparsers()
