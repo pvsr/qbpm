@@ -16,6 +16,7 @@ def from_session(
     profile_name: Optional[str] = None,
     profile_dir: Optional[Path] = None,
     desktop_file: bool = True,
+    overwrite: bool = False,
 ) -> Optional[Profile]:
     if session.endswith(".yml"):
         session_file = Path(session).expanduser()
@@ -28,11 +29,11 @@ def from_session(
         return None
 
     profile = Profile(profile_name or session_name, profile_dir)
-    if not profiles.new_profile(profile, desktop_file=desktop_file):
+    if not profiles.new_profile(profile, None, desktop_file, overwrite):
         return None
 
     session_dir = profile.root / "data" / "sessions"
-    session_dir.mkdir(parents=True)
+    session_dir.mkdir(parents=True, exist_ok=overwrite)
     shutil.copy(session_file, session_dir / "_autosave.yml")
 
     return profile

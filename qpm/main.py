@@ -32,6 +32,7 @@ def main(mock_args=None) -> None:
             build_profile(args),
             args.home_page,
             args.desktop_file,
+            args.overwrite,
         )
     )
     creator_args(new)
@@ -52,7 +53,11 @@ def main(mock_args=None) -> None:
     )
     session.set_defaults(
         operation=lambda args: operations.from_session(
-            args.session, args.profile_name, args.profile_dir, args.desktop_file
+            args.session,
+            args.profile_name,
+            args.profile_dir,
+            args.desktop_file,
+            args.overwrite,
         )
     )
     creator_args(session)
@@ -128,6 +133,11 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         dest="desktop_file",
         action="store_false",
         help="do not generate a desktop file for the profile",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="replace existing profile config",
     )
     parser.set_defaults(strict=True)
 

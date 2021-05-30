@@ -1,7 +1,6 @@
 from functools import partial
 from pathlib import Path
 from sys import platform
-from textwrap import dedent
 from typing import List, Optional
 
 from xdg import BaseDirectory  # type: ignore
@@ -33,15 +32,6 @@ class Profile:
         if not self.profile_dir.resolve().is_dir():
             error(f"{self.profile_dir} is not a directory")
             return None
-        if self.root.exists():
-            error(f"{self.root} already exists")
-            return None
-        for parent in self.root.parents:
-            if parent == self.profile_dir:
-                break
-            if parent.exists():
-                error(f"{parent} already exists")
-                return None
         return self
 
     def exists(self) -> bool:
@@ -58,19 +48,25 @@ class Profile:
         )
 
 
-def create_profile(profile: Profile) -> bool:
+def create_profile(profile: Profile, overwrite: bool = False) -> bool:
     if not profile.check():
         return False
 
+    if not overwrite and profile.root.exists():
+        error(f"{profile.root} already exists")
+        return False
+
     config_dir = profile.root / "config"
-    config_dir.mkdir(parents=True)
+    config_dir.mkdir(parents=True, exist_ok=overwrite)
     print(profile.root)
     return True
 
 
-def create_config(profile: Profile, home_page: Optional[str] = None) -> None:
+def create_config(
+    profile: Profile, home_page: Optional[str] = None, overwrite: bool = False
+) -> None:
     user_config = profile.root / "config" / "config.py"
-    with user_config.open(mode="x") as dest_config:
+    with user_config.open(mode="w" if overwrite else "x") as dest_config:
         out = partial(print, file=dest_config)
         out("config.load_autoconfig()")
         title_prefix = "{perc}{current_title}{title_sep}"
@@ -111,10 +107,13 @@ def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
 
 
 def new_profile(
-    profile: Profile, home_page: Optional[str] = None, desktop_file: bool = True
+    profile: Profile,
+    home_page: Optional[str] = None,
+    desktop_file: bool = True,
+    overwrite: bool = False,
 ) -> bool:
-    if create_profile(profile):
-        create_config(profile, home_page)
+    if create_profile(profile, overwrite):
+        create_config(profile, home_page, overwrite)
         if desktop_file:
             create_desktop_file(profile)
         return True

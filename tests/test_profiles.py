@@ -59,6 +59,21 @@ def test_create_config(tmp_path: Path):
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
 
 
+def test_overwrite_config(tmp_path: Path):
+    profile = Profile("test", tmp_path)
+    url = "http://example.com"
+    config_dir = profile.root / "config"
+    config_dir.mkdir(parents=True)
+    profiles.create_config(profile)
+    profiles.create_config(profile, url, True)
+    assert list(config_dir.iterdir()) == [config_dir / "config.py"]
+    with open(config_dir / "config.py") as conf:
+        for line in conf:
+            if url in line:
+                return
+    assert False
+
+
 def test_ensure_profile_exists_exists(tmp_path: Path):
     profile = Profile("test", tmp_path)
     profile.root.mkdir()
