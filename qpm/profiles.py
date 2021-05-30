@@ -51,9 +51,12 @@ class Profile:
         return self.root.exists() and self.root.is_dir()
 
     def cmdline(self) -> List[str]:
-        return ["qutebrowser" if platform != "darwin" else
-                "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser",
-                "-B", str(self.root), "--qt-arg", "name", self.name] + (
+        macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
+        if platform == "darwin" and Path(macos_app).exists():
+            qb = macos_app
+        else:
+            qb = "qutebrowser"
+        return [qb, "-B", str(self.root), "--qt-arg", "name", self.name] + (
             ["--desktop-file-name", self.name] if self.set_app_id else []
         )
 
