@@ -1,8 +1,11 @@
+import subprocess
 import platform
+import sys
 from pathlib import Path
 from sys import exit, stderr
 
 from xdg import BaseDirectory  # type: ignore
+from typing import Optional
 
 
 def error(msg: str) -> None:
@@ -26,3 +29,18 @@ def user_data_dir() -> Path:
 
 def user_config_dir() -> Path:
     return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
+
+
+def get_default_menu() -> Optional[str]:
+    if sys.platform == "darwin":
+        return "applescript"
+    for menu_cmd in ["rofi", "dmenu"]:
+        if check_path(menu_cmd):
+            return menu_cmd
+
+
+def check_path(command: str) -> bool:
+    check_cmd = subprocess.Popen(["which", command], stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL)
+    check_cmd.communicate()
+    return check_cmd.returncode == 0
