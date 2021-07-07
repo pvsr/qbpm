@@ -43,7 +43,7 @@
 	<key>Overwrite</key>
 	<false/>
 	<key>PromptForFileOnLaunch</key>
-	<true/>
+	<false/>
 	<key>RemainRunning</key>
 	<false/>
 	<key>RunInBackground</key>
