@@ -1,6 +1,7 @@
 import subprocess
 import platform
 import sys
+from shutil import which
 from pathlib import Path
 from sys import exit, stderr
 
@@ -35,12 +36,5 @@ def get_default_menu() -> Optional[str]:
     if sys.platform == "darwin":
         return "applescript"
     for menu_cmd in ["rofi", "dmenu"]:
-        if check_path(menu_cmd):
+        if which(menu_cmd) is not None:
             return menu_cmd
-
-
-def check_path(command: str) -> bool:
-    check_cmd = subprocess.Popen(["which", command], stdout=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL)
-    check_cmd.communicate()
-    return check_cmd.returncode == 0
