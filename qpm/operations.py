@@ -11,7 +11,7 @@ from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
 from qpm import profiles
 from qpm.profiles import Profile
-from qpm.utils import error, user_data_dir, check_path, get_default_menu
+from qpm.utils import error, user_data_dir, get_default_menu
 
 
 def from_session(
@@ -106,7 +106,7 @@ def choose(args: argparse.Namespace) -> None:
     elif args.menu == "applescript" and platform != "darwin":
         error(f'Menu applescript cannot be used on a {platform} host')
         return None
-    elif check_path(args.menu):
+    elif shutil.which(args.menu) is not None:
         error(f"{args.menu} not found on path")
 
     profile_list = '\n'.join([profile.name for profile
