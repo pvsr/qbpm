@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=qbpm
+Icon=qutebrowser
+Exec=qbpm choose %u
+Categories=['Network']
+Terminal=False
+StartupNotify=True

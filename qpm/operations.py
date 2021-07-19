@@ -66,23 +66,11 @@ def launch(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def desktop(profile_list: list[Profile], args: argparse.Namespace):
-    for profile in profile_list:
-        if profile.exists():
-            profiles.create_desktop_file(profile)
-        else:
-            error(f"profile {profile.name} not found at {profile.root}")
-    if args.choose:
-        desktop = DesktopEntry(str(application_dir / f"qbpm.desktop"))
-        desktop.set("Name", f"qbpm")
-        # TODO allow passing in an icon value
-        desktop.set("Icon", "qutebrowser")
-        desktop.set("Exec", "qbpm choose %u")
-        desktop.set("Categories", ["Network"])
-        desktop.set("Terminal", False)
-        desktop.set("StartupNotify", True)
-        desktop.write()
-
+def desktop(profile: Profile):
+    if profile.exists():
+        profiles.create_desktop_file(profile)
+    else:
+        error(f"profile {profile.name} not found at {profile.root}")
 
 
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
