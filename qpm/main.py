@@ -75,6 +75,7 @@ def main(mock_args=None) -> None:
     )
     desktop.set_defaults(operation=lambda args: operations.desktop(build_profile(args)))
 
+
     launch = subparsers.add_parser(
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
     )
@@ -104,6 +105,21 @@ def main(mock_args=None) -> None:
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
     list_.set_defaults(operation=lambda args: operations.list_())
+
+    choose = subparsers.add_parser("choose",
+                                   help="choose profile using rofi, dmenu, or an applescript dialog")
+    choose.add_argument(
+        "-m",
+        "--menu",
+        help="select which menu application to use",
+    )
+    choose.add_argument(
+        "-f",
+        "--foreground",
+        action="store_true",
+        help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
+    )
+    choose.set_defaults(operation=lambda args: operations.choose(args))
 
     edit = subparsers.add_parser(
         "edit", help="edit a profile's config.py using $EDITOR"
