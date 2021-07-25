@@ -31,9 +31,11 @@
 	<key>InterfaceType</key>
 	<string>None</string>
 	<key>InterpreterArgs</key>
-	<array/>
+	<array>
+		<string>-l</string>
+	</array>
 	<key>InterpreterPath</key>
-	<string>/bin/sh</string>
+	<string>/bin/bash</string>
 	<key>Name</key>
 	<string>qbpm</string>
 	<key>NibPath</key>
