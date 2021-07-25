@@ -62,6 +62,9 @@ $ qutebrowser --basedir qb-profile
    issue](https://github.com/qutebrowser/qutebrowser/issues/3719) with
    qutebrowser itself that results in unnecessary `file:///*` tabs being
    opened.
+ - If you're on linux, you can copy `contrib/qbpm.desktop` to `~/.local/share/applications`.
+   That desktop entry will run `qbpm choose`, which shows an application
+   launcher (dmenu or rofi) with your qutebrowser profiles as the options.
 
 ## Future ideas that may or may not happen
 - Release through github
