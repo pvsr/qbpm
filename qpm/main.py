@@ -3,8 +3,12 @@ from os import environ
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from xdg import BaseDirectory  # type: ignore
+
 from qpm import __version__, operations, profiles
 from qpm.profiles import Profile
+
+DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 
 def main(mock_args=None) -> None:
@@ -103,7 +107,7 @@ def main(mock_args=None) -> None:
     )
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
-    list_.set_defaults(operation=lambda args: operations.list_())
+    list_.set_defaults(operation=lambda args: operations.list_(args))
 
     choose = subparsers.add_parser(
         "choose", help="choose profile using rofi, dmenu, or an applescript dialog"
@@ -130,8 +134,8 @@ def main(mock_args=None) -> None:
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
     args.qb_args = raw_args[1]
-    if not args.profile_dir and (env_dir := environ.get("QPM_PROFILE_DIR")):
-        args.profile_dir = Path(env_dir)
+    if not args.profile_dir:
+        args.profile_dir = Path(environ.get("QPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
     args.operation(args)
 
 

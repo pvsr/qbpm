@@ -73,11 +73,8 @@ def desktop(profile: Profile):
         error(f"profile {profile.name} not found at {profile.root}")
 
 
-DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
-
-
-def list_() -> None:
-    for profile in sorted(DEFAULT_PROFILE_DIR.iterdir()):
+def list_(args: argparse.Namespace) -> None:
+    for profile in sorted(args.profile_dir.iterdir()):
         print(profile.name)
 
 
@@ -102,7 +99,7 @@ def choose(args: argparse.Namespace) -> None:
         return None
 
     profile_list = "\n".join(
-        [profile.name for profile in sorted(DEFAULT_PROFILE_DIR.iterdir())]
+        [profile.name for profile in sorted(args.profile_dir.iterdir())]
     )
     if not profile_list:
         error("No existing profiles found, create a profile first with qbpm new")
