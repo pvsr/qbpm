@@ -93,11 +93,13 @@ def choose(args: argparse.Namespace) -> None:
         error(
             f"{args.menu} is not a valid menu program, please specify one of rofi, dmenu, or applescript"
         )
+        return None
     elif args.menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return None
     elif shutil.which(args.menu) is None:
         error(f"{args.menu} not found on path")
+        return None
 
     profile_list = "\n".join(
         [profile.name for profile in sorted(DEFAULT_PROFILE_DIR.iterdir())]
