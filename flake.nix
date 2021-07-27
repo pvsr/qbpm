@@ -13,6 +13,7 @@
         defaultPackage = packages.qbpm;
         apps.qbpm = flake-utils.lib.mkApp { drv = packages.qbpm; };
         defaultApp = apps.qbpm;
+        devShell = import ./shell.nix { inherit pkgs; };
       }
     );
 }
