@@ -38,3 +38,4 @@ def get_default_menu() -> Optional[str]:
     for menu_cmd in ["rofi", "dmenu"]:
         if which(menu_cmd) is not None:
             return menu_cmd
+    return None
