@@ -1,11 +1,12 @@
-{ pkgs ? import <nixpkgs> {}
+{ pkgs ? import <nixpkgs> { }
 , python ? "python3"
-, pythonPackages ? builtins.getAttr (python + "Packages") pkgs }:
+, pythonPackages ? builtins.getAttr (python + "Packages") pkgs
+}:
 
 with pythonPackages;
 buildPythonPackage rec {
   pname = "qbpm";
-  version = "0.3";
+  version = "0.4";
   src = ./.;
   doCheck = true;
   SETUPTOOLS_SCM_PRETEND_VERSION = version;
