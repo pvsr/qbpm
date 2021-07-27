@@ -1,12 +1,12 @@
-import subprocess
 import platform
+import subprocess
 import sys
-from shutil import which
 from pathlib import Path
+from shutil import which
 from sys import exit, stderr
+from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
-from typing import Optional
 
 
 def error(msg: str) -> None:
