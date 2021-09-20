@@ -1,19 +1,17 @@
 image: nixos/unstable
 sources:
   - https://git.sr.ht/~pvsr/qpm
-environment:
-  NIX_CMD: nix --experimental-features 'nix-command flakes'
 tasks:
   - build: |
       cd qpm
-      $NIX_CMD build
+      nix build
   - format: |
       cd qpm
-      $NIX_CMD develop -c -- black --diff --check qpm tests
+      nix develop - -- black --diff --check qpm tests
   - mypy: |
       cd qpm
-      $NIX_CMD develop -c -- python setup.py --version
-      $NIX_CMD develop -c -- mypy qpm tests
+      nix develop -c python setup.py --version
+      nix develop -c mypy qpm tests
   - pytest: |
       cd qpm
-      $NIX_CMD develop -c -- pytest
+      nix develop -c pytest
