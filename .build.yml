@@ -1,19 +1,17 @@
 image: nixos/unstable
-repositories:
-  nixpkgs: https://nixos.org/channels/nixos-unstable
 sources:
   - https://git.sr.ht/~pvsr/qpm
 tasks:
-  - deps: |
+  - build: |
       cd qpm
-      nix-shell --quiet --run exit
+      nix build
   - format: |
       cd qpm
-      nix-shell --run 'black --diff --check qpm tests'
+      nix develop - -- black --diff --check qpm tests
   - mypy: |
       cd qpm
-      nix-shell --run 'python setup.py --version'
-      nix-shell --run 'mypy qpm tests'
+      nix develop -c python setup.py --version
+      nix develop -c mypy qpm tests
   - pytest: |
       cd qpm
-      nix-shell --run pytest
+      nix develop -c pytest
