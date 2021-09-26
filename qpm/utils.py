@@ -35,7 +35,7 @@ def user_config_dir() -> Path:
 def get_default_menu() -> Optional[str]:
     if sys.platform == "darwin":
         return "applescript"
-    for menu_cmd in ["rofi", "dmenu"]:
+    for menu_cmd in ["rofi", "dmenu-wl", "dmenu"]:
         if which(menu_cmd) is not None:
             return menu_cmd
     return None

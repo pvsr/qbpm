@@ -108,8 +108,8 @@ def choose(args: argparse.Namespace) -> None:
     if args.menu == "rofi":
         arg_string = " ".join(args.qb_args)
         cmd_string = f'echo "{profile_list}" | rofi -dmenu -no-custom -p qutebrowser -mesg {arg_string}'
-    elif args.menu == "dmenu":
-        cmd_string = f'echo "{profile_list}" | dmenu -p qutebrowser'
+    elif args.menu in ["dmenu", "dmenu-wl"]:
+        cmd_string = f'echo "{profile_list}" | {args.menu} -p qutebrowser'
     elif args.menu == "applescript":
         profile_list = '", "'.join(profile_list.split("\n"))
         arg_string = " ".join(args.qb_args)
