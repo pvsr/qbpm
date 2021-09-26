@@ -7,6 +7,7 @@ from xdg import BaseDirectory  # type: ignore
 
 from qpm import __version__, operations, profiles
 from qpm.profiles import Profile
+from qpm.utils import SUPPORTED_MENUS
 
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
@@ -115,7 +116,7 @@ def main(mock_args=None) -> None:
     choose.add_argument(
         "-m",
         "--menu",
-        help="select which menu application to use",
+        help=f"select which menu application to use (options: {SUPPORTED_MENUS})",
     )
     choose.add_argument(
         "--dmenu",

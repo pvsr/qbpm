@@ -11,7 +11,7 @@ from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
 from qpm import profiles
 from qpm.profiles import Profile
-from qpm.utils import error, get_default_menu, user_data_dir
+from qpm.utils import SUPPORTED_MENUS, error, get_default_menu, user_data_dir
 
 
 def from_session(
@@ -84,9 +84,9 @@ def choose(args: argparse.Namespace) -> None:
         if not args.menu:
             error("No suitable menu program found, please install rofi or dmenu")
             return None
-    elif args.menu not in ["rofi", "dmenu", "applescript"]:
+    elif args.menu not in SUPPORTED_MENUS:
         error(
-            f"{args.menu} is not a valid menu program, please specify one of rofi, dmenu, or applescript"
+            f"'{args.menu}' is not a valid menu program, please specify one of: {SUPPORTED_MENUS}"
         )
         return None
     elif args.menu == "applescript" and platform != "darwin":

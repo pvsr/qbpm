@@ -8,6 +8,8 @@ from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 
+SUPPORTED_MENUS = ["rofi", "dmenu", "dmenu-wl", "applescript"]
+
 
 def error(msg: str) -> None:
     print(f"Error: {msg}", file=stderr)
