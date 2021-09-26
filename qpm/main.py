@@ -107,7 +107,7 @@ def main(mock_args=None) -> None:
     )
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
-    list_.set_defaults(operation=lambda args: operations.list_(args))
+    list_.set_defaults(operation=operations.list_)
 
     choose = subparsers.add_parser(
         "choose", help="choose profile using rofi, dmenu, or an applescript dialog"
@@ -123,7 +123,7 @@ def main(mock_args=None) -> None:
         action="store_true",
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
     )
-    choose.set_defaults(operation=lambda args: operations.choose(args))
+    choose.set_defaults(operation=operations.choose)
 
     edit = subparsers.add_parser(
         "edit", help="edit a profile's config.py using $EDITOR"
