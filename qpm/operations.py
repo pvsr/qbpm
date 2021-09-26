@@ -80,10 +80,8 @@ def list_(args: argparse.Namespace) -> None:
 
 def choose(args: argparse.Namespace) -> None:
     if not args.menu:
-        default_menu = get_default_menu()
-        if default_menu:
-            args.menu = default_menu
-        else:
+        args.menu = "dmenu" if args.dmenu else get_default_menu()
+        if not args.menu:
             error("No suitable menu program found, please install rofi or dmenu")
             return None
     elif args.menu not in ["rofi", "dmenu", "applescript"]:
@@ -94,6 +92,8 @@ def choose(args: argparse.Namespace) -> None:
     elif args.menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return None
+    elif args.dmenu:
+        args.menu = "dmenu"
     elif shutil.which(args.menu) is None:
         error(f"{args.menu} not found on path")
         return None
@@ -109,7 +109,8 @@ def choose(args: argparse.Namespace) -> None:
         arg_string = " ".join(args.qb_args)
         cmd_string = f'echo "{profile_list}" | rofi -dmenu -no-custom -p qutebrowser -mesg {arg_string}'
     elif args.menu in ["dmenu", "dmenu-wl"]:
-        cmd_string = f'echo "{profile_list}" | {args.menu} -p qutebrowser'
+        dmenu_command = args.dmenu or f"{args.menu} -p qutebrowser"
+        cmd_string = f'echo "{profile_list}" | {dmenu_command}'
     elif args.menu == "applescript":
         profile_list = '", "'.join(profile_list.split("\n"))
         arg_string = " ".join(args.qb_args)
