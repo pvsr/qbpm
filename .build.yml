@@ -5,15 +5,15 @@ sources:
   - https://git.sr.ht/~pvsr/qpm
 tasks:
   - deps: |
-      cd qpm
+      cd qbpm
       nix-shell --quiet --run exit
   - format: |
-      cd qpm
-      nix-shell --run 'black --diff --check qpm tests'
+      cd qbpm
+      nix-shell --run 'black --diff --check qbpm tests'
   - mypy: |
-      cd qpm
+      cd qbpm
       nix-shell --run 'python setup.py --version'
-      nix-shell --run 'mypy qpm tests'
+      nix-shell --run 'mypy qbpm tests'
   - pytest: |
-      cd qpm
+      cd qbpm
       nix-shell --run pytest

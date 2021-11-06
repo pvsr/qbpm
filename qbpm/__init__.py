@@ -1,4 +1,4 @@
 try:
-    from qpm.version import version as __version__
+    from qbpm.version import version as __version__
 except ImportError:
     __version__ = "unknown"

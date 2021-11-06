@@ -46,8 +46,6 @@ $ qbpm -P . launch qb-profile
 $ qutebrowser --basedir qb-profile
 ```
 
-`qbpm` isn't the easiest command to type, so personally I use `qpm` as an alias.
-
 ## Installation
  - Pip: `pip install git+https://github.com/pvsr/qbpm.git#egg=qbpm`
  - Arch: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git) in the AUR

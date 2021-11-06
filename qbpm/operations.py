@@ -9,9 +9,9 @@ from typing import List, Optional
 from xdg import BaseDirectory  # type: ignore
 from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
-from qpm import profiles
-from qpm.profiles import Profile
-from qpm.utils import SUPPORTED_MENUS, error, get_default_menu, user_data_dir
+from qbpm import profiles
+from qbpm.profiles import Profile
+from qbpm.utils import SUPPORTED_MENUS, error, get_default_menu, user_data_dir
 
 
 def from_session(
