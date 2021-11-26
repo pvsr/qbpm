@@ -121,7 +121,7 @@ def main(mock_args=None) -> None:
     choose.add_argument(
         "--dmenu",
         metavar="DMENU_CMD",
-        help='command used to invoke dmenu (e.g. "dmenu -i -p qbpm", "/path/to/dmenu-wl")',
+        help='command used to invoke dmenu (e.g. "dmenu -i -p qbpm" or "/path/to/my-dmenu")',
     )
     choose.add_argument(
         "-f",
