@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from sys import platform
+from sys import platform, stderr
 from typing import List, Optional
 
 from xdg import BaseDirectory  # type: ignore
@@ -97,7 +97,7 @@ def choose(args: argparse.Namespace) -> None:
 
     command = menu_command(menu, profiles, args)
     selection_cmd = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     out = selection_cmd.stdout
     if not out:
@@ -110,6 +110,11 @@ def choose(args: argparse.Namespace) -> None:
         launch(profile, True, args.foreground, args.qb_args)
     else:
         error("No profile selected")
+        if err := selection_cmd.stderr:
+            msg = err.read().decode(errors="ignore").rstrip("\n")
+            if msg:
+                for line in msg.split("\n"):
+                    print(f"stderr: {line}", file=stderr)
 
 
 def menu_command(menu: str, profiles, args: argparse.Namespace) -> str:
