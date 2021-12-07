@@ -111,12 +111,13 @@ def main(mock_args=None) -> None:
     list_.set_defaults(operation=operations.list_)
 
     choose = subparsers.add_parser(
-        "choose", help="choose profile using rofi, dmenu, or an applescript dialog"
+        "choose", help="choose profile using a dmenu-compatible launcher or an applescript dialog"
     )
+    menus = sorted(SUPPORTED_MENUS)
     choose.add_argument(
         "-m",
         "--menu",
-        help=f"select which menu application to use (options: {SUPPORTED_MENUS})",
+        help=f'menu application to use. this may be any dmenu-compatible command (e.g. "dmenu -i -p qbpm" or "/path/to/rofi -d") or one of the following menus with built-in support: {menus}',
     )
     choose.add_argument(
         "--dmenu",
