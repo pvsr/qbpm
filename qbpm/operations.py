@@ -79,51 +79,29 @@ def list_(args: argparse.Namespace) -> None:
 
 
 def choose(args: argparse.Namespace) -> None:
-    if not args.menu:
-        args.menu = "dmenu" if args.dmenu else get_default_menu()
-        if not args.menu:
-            error("No suitable menu program found, please install rofi or dmenu")
-            return None
-    elif args.menu not in SUPPORTED_MENUS:
-        error(
-            f"'{args.menu}' is not a valid menu program, please specify one of: {SUPPORTED_MENUS}"
-        )
+    menu = args.dmenu or args.menu or get_default_menu()
+    if not menu:
+        error("No suitable menu program found, please install one of: {SUPPORTED_MENUS}")
         return None
-    elif args.menu == "applescript" and platform != "darwin":
+    if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return None
-    elif args.dmenu:
-        args.menu = "dmenu"
-    elif shutil.which(args.menu) is None:
-        error(f"{args.menu} not found on path")
+    if len(menu.split(" ")) == 1 and not shutil.which(menu):
+        error(f"'{menu}' not found on path")
         return None
 
-    profile_list = "\n".join(
-        [profile.name for profile in sorted(args.profile_dir.iterdir())]
-    )
-    if not profile_list:
-        error("No existing profiles found, create a profile first with qbpm new")
+    profiles = [profile.name for profile in sorted(args.profile_dir.iterdir())]
+    if len(profiles) == 0:
+        error("No profiles")
         return None
 
-    if args.menu == "rofi":
-        arg_string = " ".join(args.qb_args)
-        cmd_string = f'echo "{profile_list}" | rofi -dmenu -no-custom -p qutebrowser -mesg {arg_string}'
-    elif args.menu in ["dmenu", "dmenu-wl"]:
-        dmenu_command = args.dmenu or f"{args.menu} -p qutebrowser"
-        cmd_string = f'echo "{profile_list}" | {dmenu_command}'
-    elif args.menu == "applescript":
-        profile_list = '", "'.join(profile_list.split("\n"))
-        arg_string = " ".join(args.qb_args)
-        cmd_string = f"""osascript -e \'set profiles to {{"{profile_list}"}}
-set profile to choose from list profiles with prompt "qutebrowser: {arg_string}" default items {{item 1 of profiles}}
-item 1 of profile\'"""
-
+    command = menu_command(menu, profiles, args)
     selection_cmd = subprocess.Popen(
-        cmd_string, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
     )
     out = selection_cmd.stdout
     if not out:
-        error(f"Could not read {args.menu} stdout")
+        error(f"Could not read stdout from {command}")
         return None
     selection = out.read().decode(errors="ignore").rstrip("\n")
 
@@ -132,6 +110,28 @@ item 1 of profile\'"""
         launch(profile, True, args.foreground, args.qb_args)
     else:
         error("No profile selected")
+
+
+def menu_command(menu: str, profiles, args: argparse.Namespace) -> str:
+    arg_string = " ".join(args.qb_args)
+    if menu == "applescript":
+        profile_list = '", "'.join(profiles)
+        return f"""osascript -e \'set profiles to {{"{profile_list}"}}
+set profile to choose from list profiles with prompt "qutebrowser: {arg_string}" default items {{item 1 of profiles}}
+item 1 of profile\'"""
+
+    prompt = "-p qutebrowser"
+    program = Path(menu).name
+    if program == "rofi":
+        command = f"rofi -dmenu -no-custom {prompt} -mesg {arg_string}"
+    elif program == "wofi":
+        command = f"wofi --dmenu {prompt}"
+    elif program in ["dmenu", "dmenu-wl"]:
+        command = f"{menu} {prompt}"
+    else:
+        command = menu
+    profile_list = "\n".join(profiles)
+    return f'echo "{profile_list}" | {command}'
 
 
 def edit(profile: Profile):
