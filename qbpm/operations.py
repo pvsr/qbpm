@@ -81,9 +81,7 @@ def list_(args: argparse.Namespace) -> None:
 def choose(args: argparse.Namespace) -> None:
     menu = args.menu or get_default_menu()
     if not menu:
-        error(
-            "No suitable menu program found, please install one of: {SUPPORTED_MENUS}"
-        )
+        error(f"No menu program found, please install one of: {SUPPORTED_MENUS}")
         return None
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
