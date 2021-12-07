@@ -4,12 +4,19 @@
 
 qutebrowser profile manager (qbpm) is a tool for creating and managing
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) profiles. There isn't
-any built in concept of profiles in qutebrowser, but there is a `--basedir`
-flag which allows you to use any random directory to store qutebrowser config
-and data. By default qbpm creates profiles that source your main qutebrowser
-configuration, but have their own history, bookmarks, etc. qutebrowser sessions
-started from separate profiles are entirely isolated from each other, and can be
-opened and closed independently.
+any built in concept of profiles in qutebrowser, but there is a `--basedir` flag
+which allows you to use any directory as the location of qutebrowser's config
+and data. qbpm creates `--basedir` profiles that symlink to your main
+qutebrowser config files but have their own separate bookmarks, cookies,
+history, and other data. It also acts as a wrapper around qutebrowser that sets
+up `--basedir` for you, so you can treat `qbpm launch` as an alias for
+`qutebrowser`, such as to open a url: `qbpm launch my-profile example.org`.
+
+qutebrowser shares session depending on the basedir, so launching the same
+profile twice will result in two windows sharing a session, which means running
+`:quit` in one will exit both and launching the profile again will reopen both
+windows. But launching two distinct profiles will start two entirely separate
+instances of qutebrowser which can be opened and closed independently.
 
 ## Usage
 Create a new profile called "python", edit its `config.py`, then launch it:
@@ -17,13 +24,7 @@ Create a new profile called "python", edit its `config.py`, then launch it:
 $ qbpm new python
 $ qbpm edit python
 $ qbpm launch python docs.python.org
-```
-
-Notice that `qbpm launch` passes extra arguments directly to qutebrowser, so you
-can use it to open urls in your profile and use any options you would pass to
-qutebrowser:
-```
-$ qbpm launch python duck.com --target window --loglevel info
+$ qbpm choose # run dmenu or another launcher to pick a profile
 ```
 
 `qbpm from-session` can copy the tabs of a [saved qutebrowser
