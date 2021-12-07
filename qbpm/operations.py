@@ -86,8 +86,9 @@ def choose(args: argparse.Namespace) -> None:
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return None
-    if len(menu.split(" ")) == 1 and not shutil.which(menu):
-        error(f"'{menu}' not found on path")
+    program = menu.split(" ")[0]
+    if not shutil.which(program):
+        error(f"'{program}' not found on path")
         return None
 
     profiles = [profile.name for profile in sorted(args.profile_dir.iterdir())]
