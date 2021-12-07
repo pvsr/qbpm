@@ -79,7 +79,7 @@ def list_(args: argparse.Namespace) -> None:
 
 
 def choose(args: argparse.Namespace) -> None:
-    menu = args.dmenu or args.menu or get_default_menu()
+    menu = args.menu or get_default_menu()
     if not menu:
         error("No suitable menu program found, please install one of: {SUPPORTED_MENUS}")
         return None

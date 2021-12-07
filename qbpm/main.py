@@ -120,11 +120,6 @@ def main(mock_args=None) -> None:
         help=f'menu application to use. this may be any dmenu-compatible command (e.g. "dmenu -i -p qbpm" or "/path/to/rofi -d") or one of the following menus with built-in support: {menus}',
     )
     choose.add_argument(
-        "--dmenu",
-        metavar="DMENU_CMD",
-        help='command used to invoke dmenu (e.g. "dmenu -i -p qbpm" or "/path/to/my-dmenu")',
-    )
-    choose.add_argument(
         "-f",
         "--foreground",
         action="store_true",
