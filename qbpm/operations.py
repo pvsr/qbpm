@@ -121,15 +121,15 @@ set profile to choose from list profiles with prompt "qutebrowser: {arg_string}"
 item 1 of profile\'"""
 
     prompt = "-p qutebrowser"
-    program = Path(menu).name
-    if program == "rofi":
-        command = f"rofi -dmenu -no-custom {prompt} -mesg {arg_string}"
-    elif program == "wofi":
-        command = f"wofi --dmenu {prompt}"
-    elif program in ["dmenu", "dmenu-wl"]:
-        command = f"{menu} {prompt}"
-    else:
-        command = menu
+    command = menu
+    if len(menu.split(" ")) == 1:
+        program = Path(menu).name
+        if program == "rofi":
+            command = f"{menu} -dmenu -no-custom {prompt} -mesg {arg_string}"
+        elif program == "wofi":
+            command = f"{menu} --dmenu {prompt}"
+        elif program in ["dmenu", "dmenu-wl"]:
+            command = f"{menu} {prompt}"
     profile_list = "\n".join(profiles)
     return f'echo "{profile_list}" | {command}'
 
