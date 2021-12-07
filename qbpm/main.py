@@ -111,7 +111,8 @@ def main(mock_args=None) -> None:
     list_.set_defaults(operation=operations.list_)
 
     choose = subparsers.add_parser(
-        "choose", help="choose profile using a dmenu-compatible launcher or an applescript dialog"
+        "choose",
+        help="choose profile using a dmenu-compatible launcher or an applescript dialog",
     )
     menus = sorted(SUPPORTED_MENUS)
     choose.add_argument(
