@@ -49,6 +49,10 @@ def launch(
         return False
 
     args = profile.cmdline() + qb_args
+    if not shutil.which(args[0]):
+        error("qutebrowser is not installed")
+        return False
+
     if foreground:
         os.execlp("qutebrowser", *args)
     else:
