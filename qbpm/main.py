@@ -14,7 +14,7 @@ DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 def main(mock_args=None) -> None:
     parser = argparse.ArgumentParser(description="qutebrowser profile manager")
-    parser.set_defaults(operation=lambda args: parser.print_help())
+    parser.set_defaults(operation=lambda args: parser.print_help(), passthrough=False)
     parser.add_argument(
         "-P",
         "--profile-dir",
@@ -104,7 +104,8 @@ def main(mock_args=None) -> None:
     launch.set_defaults(
         operation=lambda args: operations.launch(
             build_profile(args), args.strict, args.foreground, args.qb_args
-        )
+        ),
+        passthrough=True,
     )
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
@@ -126,7 +127,7 @@ def main(mock_args=None) -> None:
         action="store_true",
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
     )
-    choose.set_defaults(operation=operations.choose)
+    choose.set_defaults(operation=operations.choose, passthrough=True)
 
     edit = subparsers.add_parser(
         "edit", help="edit a profile's config.py using $EDITOR"
@@ -136,7 +137,10 @@ def main(mock_args=None) -> None:
 
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
-    args.qb_args = raw_args[1]
+    if args.passthrough:
+        args.qb_args = raw_args[1]
+    else:
+        parser.parse_args(mock_args)
     if not args.profile_dir:
         args.profile_dir = Path(environ.get("QBPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
     if not args.operation(args):
@@ -180,6 +184,7 @@ class ThenLaunchAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if operation := getattr(namespace, self.dest):
             setattr(namespace, self.dest, lambda args: then_launch(args, operation))
+        setattr(namespace, "passthrough", True)
 
 
 def then_launch(
@@ -191,7 +196,7 @@ def then_launch(
             profile = result
         else:
             profile = build_profile(args)
-        return operations.launch(profile, False, args.foreground, [])
+        return operations.launch(profile, False, args.foreground, args.qb_args)
     return False
 
 
