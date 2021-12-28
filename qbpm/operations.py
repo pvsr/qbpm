@@ -70,35 +70,38 @@ def launch(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def desktop(profile: Profile):
-    if profile.exists():
+def desktop(profile: Profile) -> bool:
+    exists = profile.exists()
+    if exists:
         profiles.create_desktop_file(profile)
     else:
         error(f"profile {profile.name} not found at {profile.root}")
+    return exists
 
 
-def list_(args: argparse.Namespace) -> None:
+def list_(args: argparse.Namespace) -> bool:
     for profile in sorted(args.profile_dir.iterdir()):
         print(profile.name)
+    return True
 
 
-def choose(args: argparse.Namespace) -> None:
+def choose(args: argparse.Namespace) -> bool:
     menu = args.menu or get_default_menu()
     if not menu:
         error(f"No menu program found, please install one of: {SUPPORTED_MENUS}")
-        return None
+        return False
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
-        return None
+        return False
     program = menu.split(" ")[0]
     if not shutil.which(program):
         error(f"'{program}' not found on path")
-        return None
+        return False
 
     profiles = [profile.name for profile in sorted(args.profile_dir.iterdir())]
     if len(profiles) == 0:
         error("No profiles")
-        return None
+        return False
 
     command = menu_command(menu, profiles, args)
     selection_cmd = subprocess.Popen(
@@ -107,7 +110,7 @@ def choose(args: argparse.Namespace) -> None:
     out = selection_cmd.stdout
     if not out:
         error(f"Could not read stdout from {command}")
-        return None
+        return False
     selection = out.read().decode(errors="ignore").rstrip("\n")
 
     if selection:
@@ -120,6 +123,7 @@ def choose(args: argparse.Namespace) -> None:
             if msg:
                 for line in msg.split("\n"):
                     print(f"stderr: {line}", file=stderr)
+    return True
 
 
 def menu_command(menu: str, profiles, args: argparse.Namespace) -> str:
@@ -144,9 +148,10 @@ item 1 of profile\'"""
     return f'echo "{profile_list}" | {command}'
 
 
-def edit(profile: Profile):
+def edit(profile: Profile) -> bool:
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
-        return
+        return False
     editor = os.environ.get("VISUAL") or os.environ.get("EDITOR") or "vim"
     os.execlp(editor, editor, str(profile.root / "config" / "config.py"))
+    return True
