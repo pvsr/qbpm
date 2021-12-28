@@ -54,7 +54,8 @@ def launch(
         return False
 
     if foreground:
-        os.execlp("qutebrowser", *args)
+        p = subprocess.run(args)
+        return p.returncode == 0
     else:
         p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         try:
