@@ -93,17 +93,17 @@ def choose(args: argparse.Namespace) -> bool:
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return False
-    program = menu.split(" ")[0]
-    if not shutil.which(program):
-        error(f"'{program}' not found on path")
-        return False
-
     profiles = [profile.name for profile in sorted(args.profile_dir.iterdir())]
     if len(profiles) == 0:
         error("No profiles")
         return False
 
     command = menu_command(menu, profiles, args)
+    program = command.split(" ")[0]
+    if not shutil.which(program):
+        error(f"'{program}' not found on path")
+        return False
+
     selection_cmd = subprocess.Popen(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
