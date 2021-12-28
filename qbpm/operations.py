@@ -123,6 +123,7 @@ def choose(args: argparse.Namespace) -> bool:
             if msg:
                 for line in msg.split("\n"):
                     print(f"stderr: {line}", file=stderr)
+        return False
     return True
 
 
