@@ -12,7 +12,7 @@ SUPPORTED_MENUS = ["wofi", "rofi", "dmenu", "dmenu-wl", "applescript"]
 
 
 def error(msg: str) -> None:
-    print(f"Error: {msg}", file=stderr)
+    print(f"error: {msg}", file=stderr)
 
 
 def user_data_dir() -> Path:
