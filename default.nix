@@ -6,7 +6,7 @@
 with pythonPackages;
 buildPythonPackage rec {
   pname = "qbpm";
-  version = "0.4";
+  version = "0.6";
   src = ./.;
   doCheck = true;
   SETUPTOOLS_SCM_PRETEND_VERSION = version;
