@@ -5,9 +5,9 @@
 qutebrowser profile manager (qbpm) is a tool for creating and managing
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) profiles. There isn't
 any built in concept of profiles in qutebrowser, but there is a `--basedir` flag
-which allows you to use any directory as the location of qutebrowser's config
-and data. qbpm creates `--basedir` profiles that symlink to your main
-qutebrowser config files but have their own separate bookmarks, cookies,
+which allows qutebrowser to use any directory as the location of its config and
+data and effectively act as a profile. qbpm creates profiles that source your
+main qutebrowser `config.py`, but have their own separate `autoconfig.yml`, bookmarks, cookies,
 history, and other data. It also acts as a wrapper around qutebrowser that sets
 up `--basedir` for you, so you can treat `qbpm launch` as an alias for
 `qutebrowser`, such as to open a url: `qbpm launch my-profile example.org`.
