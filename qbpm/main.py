@@ -7,7 +7,7 @@ from xdg import BaseDirectory  # type: ignore
 
 from qbpm import __version__, operations, profiles
 from qbpm.profiles import Profile
-from qbpm.utils import SUPPORTED_MENUS
+from qbpm.utils import SUPPORTED_MENUS, error
 
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
@@ -139,8 +139,10 @@ def main(mock_args=None) -> None:
     args = raw_args[0]
     if args.passthrough:
         args.qb_args = raw_args[1]
-    else:
-        parser.parse_args(mock_args)
+    elif len(raw_args[1]) > 0:
+        error(f"unrecognized arguments: {' '.join(raw_args[1])}")
+        exit(1)
+
     if not args.profile_dir:
         args.profile_dir = Path(environ.get("QBPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
     if not args.operation(args):
