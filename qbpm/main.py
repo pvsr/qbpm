@@ -139,7 +139,8 @@ def main(mock_args=None) -> None:
     args.qb_args = raw_args[1]
     if not args.profile_dir:
         args.profile_dir = Path(environ.get("QPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
-    args.operation(args)
+    if not args.operation(args):
+        exit(1)
 
 
 def creator_args(parser: argparse.ArgumentParser) -> None:
