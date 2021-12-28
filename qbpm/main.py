@@ -138,7 +138,7 @@ def main(mock_args=None) -> None:
     args = raw_args[0]
     args.qb_args = raw_args[1]
     if not args.profile_dir:
-        args.profile_dir = Path(environ.get("QPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
+        args.profile_dir = Path(environ.get("QBPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
     if not args.operation(args):
         exit(1)
 
