@@ -23,11 +23,6 @@ def main(mock_args=None) -> None:
         help="directory in which profiles are stored",
     )
     parser.add_argument(
-        "--set-app-id",
-        action="store_true",
-        help="set wayland app_id to this profile's name. requires qutebrowser v2.0.0+",
-    )
-    parser.add_argument(
         "--version",
         action="version",
         version=__version__,
@@ -203,7 +198,7 @@ def then_launch(
 
 
 def build_profile(args: argparse.Namespace) -> Profile:
-    return Profile(args.profile_name, args.profile_dir, args.set_app_id)
+    return Profile(args.profile_name, args.profile_dir)
 
 
 if __name__ == "__main__":

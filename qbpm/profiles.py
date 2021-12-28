@@ -12,17 +12,13 @@ from qbpm.utils import error, user_config_dir
 class Profile:
     name: str
     profile_dir: Path
-    set_app_id: bool
     root: Path
 
-    def __init__(
-        self, name: str, profile_dir: Optional[Path], set_app_id: bool = False
-    ) -> None:
+    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
         self.name = name
         self.profile_dir = profile_dir or Path(
             BaseDirectory.save_data_path("qutebrowser-profiles")
         )
-        self.set_app_id = set_app_id
         self.root = self.profile_dir / name
 
     def check(self) -> Optional["Profile"]:
@@ -43,9 +39,16 @@ class Profile:
             qb = macos_app
         else:
             qb = "qutebrowser"
-        return [qb, "-B", str(self.root), "--qt-arg", "name", self.name] + (
-            ["--desktop-file-name", self.name] if self.set_app_id else []
-        )
+        return [
+            qb,
+            "-B",
+            str(self.root),
+            "--qt-arg",
+            "name",
+            self.name,
+            "--desktop-file-name",
+            self.name,
+        ]
 
 
 def create_profile(profile: Profile, overwrite: bool = False) -> bool:

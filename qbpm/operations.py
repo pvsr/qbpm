@@ -115,7 +115,7 @@ def choose(args: argparse.Namespace) -> bool:
     selection = out.read().decode(errors="ignore").rstrip("\n")
 
     if selection:
-        profile = Profile(selection, args.profile_dir, args.set_app_id)
+        profile = Profile(selection, args.profile_dir)
         launch(profile, True, args.foreground, args.qb_args)
     else:
         error("No profile selected")
