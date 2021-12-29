@@ -6,7 +6,6 @@ function __fish_qbpm
   argparse -si P/profile-dir= -- $cmd 2>/dev/null
   set -q _flag_P
   and set global_args "-P $_flag_P"
-  echo qbpm $global_args $saved_args > /tmp/cmplog
   eval qbpm $global_args $saved_args
 end
 
