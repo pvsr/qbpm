@@ -181,7 +181,6 @@ class ThenLaunchAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if operation := getattr(namespace, self.dest):
             setattr(namespace, self.dest, lambda args: then_launch(args, operation))
-        setattr(namespace, "passthrough", True)
 
 
 def then_launch(
