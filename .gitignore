@@ -6,6 +6,7 @@ include/
 lib/
 build/
 dist/
+result
 qbpm.egg-info/
 .tox/
 qbpm/version.py
