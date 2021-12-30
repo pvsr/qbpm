@@ -34,7 +34,7 @@ $HOME/.local/share), but this can be set to another directory by passing
 
 # COMMANDS
 
-*new* [options] <profile> [url]
+*new* [options] <profile> [<url>]
 	Create a new qutebrowser profile named _profile_. If _url_ is present it will
 	be used as the profile's home page. By default, a .desktop file will be
 	created for the profile in $XDG_DATA_HOME/applications/qbpm/.
