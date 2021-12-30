@@ -1,6 +1,6 @@
 # qutebrowser profile manager
 
-[![builds.sr.ht status](https://builds.sr.ht/~pvsr/qpm.svg)](https://builds.sr.ht/~pvsr/qpm?)
+[![builds.sr.ht status](https://builds.sr.ht/~pvsr/qbpm.svg)](https://builds.sr.ht/~pvsr/qbpm?)
 
 qutebrowser profile manager (qbpm) is a tool for creating and managing
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) profiles. There isn't
