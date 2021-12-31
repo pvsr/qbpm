@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "qbpm"
+version = "0.6"
+description = "qutebrowser profile manager"
+authors = ["Peter Rice <peter@peterrice.xyz>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/pvsr/qpm"
+repository = "https://github.com/pvsr/qpm"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyxdg = "^0.27"
+
+# [tool.poetry.dev-dependencies]
+# mypy = "^0.930"
+# black = "^21.12b0"
+# pytest = "^6.2.5"
+# pylint = "^2.12.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+qbpm = "qbpm.main:main"
+
+[tool.setuptools_scm]
+write_to = "qbpm/version.py"
