@@ -8,6 +8,7 @@ buildPythonPackage rec {
   pname = "qbpm";
   version = "0.6";
   src = ./.;
+  format = "pyproject";
   doCheck = true;
   SETUPTOOLS_SCM_PRETEND_VERSION = version;
   nativeBuildInputs = [ pkgs.scdoc poetry-core setuptools-scm ];
