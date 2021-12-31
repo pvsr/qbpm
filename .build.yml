@@ -12,7 +12,6 @@ tasks:
       nix-shell --run 'black --diff --check qbpm tests'
   - mypy: |
       cd qbpm
-      nix-shell --run 'python setup.py --version'
       nix-shell --run 'mypy qbpm tests'
   - pytest: |
       cd qbpm
