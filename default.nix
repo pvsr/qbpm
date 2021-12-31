@@ -10,7 +10,7 @@ buildPythonPackage rec {
   src = ./.;
   doCheck = true;
   SETUPTOOLS_SCM_PRETEND_VERSION = version;
-  nativeBuildInputs = [ pkgs.scdoc setuptools-scm ];
+  nativeBuildInputs = [ pkgs.scdoc poetry-core setuptools-scm ];
   propagatedBuildInputs = [ pyxdg ];
   checkInputs = [ pytest ];
   postInstall = ''
