@@ -25,9 +25,6 @@ class Profile:
         if "/" in self.name:
             error("profile name cannot contain slashes")
             return None
-        if not self.profile_dir.resolve().is_dir():
-            error(f"{self.profile_dir} is not a directory")
-            return None
         return self
 
     def exists(self) -> bool:
