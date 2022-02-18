@@ -21,6 +21,19 @@ class Profile:
         )
         self.root = self.profile_dir / name
 
+    def of(args: object) -> "Profile":
+        args = vars(args)
+        name = args.get("profile_name")
+        assert isinstance(name, str)
+        return Profile(
+            name,
+            args.get(
+                "profile_dir",
+                Path(BaseDirectory.save_data_path("qutebrowser-profiles")),
+            ),
+            args.get("set_app_id", False),
+        )
+
     def check(self) -> Optional["Profile"]:
         if "/" in self.name:
             error("profile name cannot contain slashes")

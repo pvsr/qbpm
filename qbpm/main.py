@@ -34,7 +34,7 @@ def main(mock_args=None) -> None:
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
     new.set_defaults(
         operation=lambda args: profiles.new_profile(
-            build_profile(args),
+            Profile.of(args),
             args.home_page,
             args.desktop_file,
             args.overwrite,
@@ -73,7 +73,7 @@ def main(mock_args=None) -> None:
     desktop.add_argument(
         "profile_name", metavar="profile", help="profile to create a desktop file for"
     )
-    desktop.set_defaults(operation=lambda args: operations.desktop(build_profile(args)))
+    desktop.set_defaults(operation=lambda args: operations.desktop(Profile.of(args)))
 
     launch = subparsers.add_parser(
         "launch", aliases=["run"], help="launch qutebrowser with the given profile"
@@ -98,7 +98,7 @@ def main(mock_args=None) -> None:
     )
     launch.set_defaults(
         operation=lambda args: operations.launch(
-            build_profile(args), args.strict, args.foreground, args.qb_args
+            Profile.of(args), args.strict, args.foreground, args.qb_args
         ),
         passthrough=True,
     )
@@ -128,7 +128,7 @@ def main(mock_args=None) -> None:
         "edit", help="edit a profile's config.py using $EDITOR"
     )
     edit.add_argument("profile_name", metavar="profile", help="profile to edit")
-    edit.set_defaults(operation=lambda args: operations.edit(build_profile(args)))
+    edit.set_defaults(operation=lambda args: operations.edit(Profile.of(args)))
 
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
@@ -191,13 +191,9 @@ def then_launch(
         if isinstance(result, Profile):
             profile = result
         else:
-            profile = build_profile(args)
+            profile = Profile.of(args)
         return operations.launch(profile, False, args.foreground, args.qb_args)
     return False
-
-
-def build_profile(args: argparse.Namespace) -> Profile:
-    return Profile(args.profile_name, args.profile_dir)
 
 
 if __name__ == "__main__":
