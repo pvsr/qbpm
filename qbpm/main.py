@@ -76,7 +76,7 @@ def main(mock_args=None) -> None:
     desktop.set_defaults(operation=lambda args: operations.desktop(Profile.of(args)))
 
     launch = subparsers.add_parser(
-        "launch", aliases=["run"], help="launch qutebrowser with the given profile"
+        "launch", help="launch qutebrowser with the given profile"
     )
     launch.add_argument(
         "profile_name",

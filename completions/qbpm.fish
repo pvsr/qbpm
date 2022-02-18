@@ -9,7 +9,7 @@ function __fish_qbpm
   eval qbpm $global_args $saved_args
 end
 
-set -l commands new from-session desktop launch run list edit choose
+set -l commands new from-session desktop launch list edit choose
 
 complete -c qbpm -f
 complete -c qbpm -n "not __fish_seen_subcommand_from $commands" -a "$commands"
