@@ -1,4 +1,5 @@
 import argparse
+import inspect
 from os import environ
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -32,14 +33,7 @@ def main(mock_args=None) -> None:
     new = subparsers.add_parser("new", help="create a new profile")
     new.add_argument("profile_name", metavar="profile", help="name of the new profile")
     new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
-    new.set_defaults(
-        operation=lambda args: profiles.new_profile(
-            Profile.of(args),
-            args.home_page,
-            args.desktop_file,
-            args.overwrite,
-        )
-    )
+    new.set_defaults(operation=build_op(profiles.new_profile))
     creator_args(new)
 
     session = subparsers.add_parser(
@@ -56,15 +50,7 @@ def main(mock_args=None) -> None:
         nargs="?",
         help="name of the new profile. if unset the session name will be used",
     )
-    session.set_defaults(
-        operation=lambda args: operations.from_session(
-            args.session,
-            args.profile_name,
-            args.profile_dir,
-            args.desktop_file,
-            args.overwrite,
-        )
-    )
+    session.set_defaults(operation=build_op(operations.from_session))
     creator_args(session)
 
     desktop = subparsers.add_parser(
@@ -73,7 +59,7 @@ def main(mock_args=None) -> None:
     desktop.add_argument(
         "profile_name", metavar="profile", help="profile to create a desktop file for"
     )
-    desktop.set_defaults(operation=lambda args: operations.desktop(Profile.of(args)))
+    desktop.set_defaults(operation=build_op(operations.desktop))
 
     launch = subparsers.add_parser(
         "launch", help="launch qutebrowser with the given profile"
@@ -96,12 +82,16 @@ def main(mock_args=None) -> None:
         action="store_true",
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
     )
+<<<<<<< HEAD
     launch.set_defaults(
         operation=lambda args: operations.launch(
             Profile.of(args), args.strict, args.foreground, args.qb_args
         ),
         passthrough=True,
     )
+=======
+    launch.set_defaults(operation=build_op(operations.launch))
+>>>>>>> 85637cb (pass args to operations automatically)
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
     list_.set_defaults(operation=operations.list_)
@@ -128,7 +118,7 @@ def main(mock_args=None) -> None:
         "edit", help="edit a profile's config.py using $EDITOR"
     )
     edit.add_argument("profile_name", metavar="profile", help="profile to edit")
-    edit.set_defaults(operation=lambda args: operations.edit(Profile.of(args)))
+    edit.set_defaults(operation=build_op(operations.edit))
 
     raw_args = parser.parse_known_args(mock_args)
     args = raw_args[0]
@@ -188,12 +178,23 @@ def then_launch(
     operation: Callable[[argparse.Namespace], Optional[Any]],
 ) -> bool:
     if result := operation(args):
-        if isinstance(result, Profile):
-            profile = result
-        else:
-            profile = Profile.of(args)
+        profile = result if isinstance(result, Profile) else Profile.of(args)
         return operations.launch(profile, False, args.foreground, args.qb_args)
     return False
+
+
+def build_op(operation: Callable[..., Any]) -> Callable[[argparse.Namespace], Any]:
+    def op(args: argparse.Namespace) -> Any:
+        params = [
+            param.name
+            for param in inspect.signature(operation).parameters.values()
+            if param.kind == param.POSITIONAL_OR_KEYWORD
+        ]
+        kwargs = {param: getattr(args, param, None) for param in params}
+        kwargs["profile"] = Profile.of(args)
+        return operation(**kwargs)
+
+    return op
 
 
 if __name__ == "__main__":
