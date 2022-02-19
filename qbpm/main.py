@@ -183,7 +183,8 @@ def build_op(operation: Callable[..., Any]) -> Callable[[argparse.Namespace], An
             if param.kind == param.POSITIONAL_OR_KEYWORD
         ]
         kwargs = {param: getattr(args, param, None) for param in params}
-        kwargs["profile"] = Profile.of(args)
+        if "profile" in params:
+            kwargs["profile"] = Profile.of(args)
         return operation(**kwargs)
 
     return op
