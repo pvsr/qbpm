@@ -82,16 +82,7 @@ def main(mock_args=None) -> None:
         action="store_true",
         help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
     )
-<<<<<<< HEAD
-    launch.set_defaults(
-        operation=lambda args: operations.launch(
-            Profile.of(args), args.strict, args.foreground, args.qb_args
-        ),
-        passthrough=True,
-    )
-=======
-    launch.set_defaults(operation=build_op(operations.launch))
->>>>>>> 85637cb (pass args to operations automatically)
+    launch.set_defaults(operation=build_op(operations.launch), passthrough=True)
 
     list_ = subparsers.add_parser("list", help="list existing profiles")
     list_.set_defaults(operation=operations.list_)
