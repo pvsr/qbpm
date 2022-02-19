@@ -31,7 +31,6 @@ class Profile:
                 "profile_dir",
                 Path(BaseDirectory.save_data_path("qutebrowser-profiles")),
             ),
-            args.get("set_app_id", False),
         )
 
     def check(self) -> Optional["Profile"]:
