@@ -13,7 +13,7 @@ from qbpm.utils import SUPPORTED_MENUS, error
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 
-def main(mock_args=None) -> None:
+def main(mock_args: Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser(description="qutebrowser profile manager")
     parser.set_defaults(operation=lambda args: parser.print_help(), passthrough=False)
     parser.add_argument(
@@ -154,12 +154,12 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
 
 
 class ThenLaunchAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=0, **kwargs):
+    def __init__(self, option_strings, dest, nargs=0, **kwargs) -> None:
         super(ThenLaunchAction, self).__init__(
             option_strings, dest, nargs=nargs, **kwargs
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         setattr(namespace, "passthrough", True)
         if operation := getattr(namespace, self.dest):
             setattr(namespace, self.dest, lambda args: then_launch(args, operation))

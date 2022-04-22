@@ -127,7 +127,7 @@ def choose(args: argparse.Namespace) -> bool:
     return True
 
 
-def menu_command(menu: str, profiles, args: argparse.Namespace) -> str:
+def menu_command(menu: str, profiles: List[str], args: argparse.Namespace) -> str:
     arg_string = " ".join(args.qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)

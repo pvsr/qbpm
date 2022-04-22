@@ -1,7 +1,7 @@
 from functools import partial
 from pathlib import Path
 from sys import platform
-from typing import List, Optional
+from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 from xdg.DesktopEntry import DesktopEntry  # type: ignore
@@ -42,7 +42,7 @@ class Profile:
     def exists(self) -> bool:
         return self.root.exists() and self.root.is_dir()
 
-    def cmdline(self) -> List[str]:
+    def cmdline(self) -> list[str]:
         macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
         if platform == "darwin" and Path(macos_app).exists():
             qb = macos_app
@@ -94,7 +94,7 @@ def create_config(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def create_desktop_file(profile: Profile):
+def create_desktop_file(profile: Profile) -> None:
     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
     desktop.set("Name", f"{profile.name} (qutebrowser profile)")
     # TODO allow passing in an icon value
