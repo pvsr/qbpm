@@ -1,0 +1,7 @@
+image: archlinux
+sources:
+  - https://github.com/pvsr/qbpm
+tasks:
+  - makepkg: |
+      cd qbpm/contrib
+      makepkg -s --noconfirm
