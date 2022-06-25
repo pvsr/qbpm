@@ -4,4 +4,5 @@ sources:
 tasks:
   - makepkg: |
       cd qbpm/contrib
+      sudo pacman -Sy
       makepkg -s --noconfirm
