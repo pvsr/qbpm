@@ -99,9 +99,7 @@ def choose(args: argparse.Namespace) -> bool:
         return False
 
     command = menu_command(menu, profiles, args)
-    program = command.split(" ")[0]
-    if not shutil.which(program):
-        error(f"'{program}' not found on path")
+    if not command:
         return False
 
     selection_cmd = subprocess.Popen(
@@ -127,7 +125,7 @@ def choose(args: argparse.Namespace) -> bool:
     return True
 
 
-def menu_command(menu: str, profiles: List[str], args: argparse.Namespace) -> str:
+def menu_command(menu: str, profiles: List[str], args: argparse.Namespace) -> Optional[str]:
     arg_string = " ".join(args.qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)
@@ -145,6 +143,10 @@ item 1 of profile\'"""
             command = f"{menu} --dmenu {prompt}"
         elif program in ["dmenu", "dmenu-wl"]:
             command = f"{menu} {prompt}"
+    exe = command.split(" ")[0]
+    if not shutil.which(exe):
+        error(f"command '{exe}' not found")
+        return None
     profile_list = "\n".join(profiles)
     return f'echo "{profile_list}" | {command}'
 
