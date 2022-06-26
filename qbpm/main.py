@@ -89,7 +89,7 @@ def main(mock_args: Optional[list[str]] = None) -> None:
 
     choose = subparsers.add_parser(
         "choose",
-        help="choose profile using a dmenu-compatible launcher or an applescript dialog",
+        help="interactively choose a profile to launch",
     )
     menus = sorted(SUPPORTED_MENUS)
     choose.add_argument(
@@ -105,9 +105,7 @@ def main(mock_args: Optional[list[str]] = None) -> None:
     )
     choose.set_defaults(operation=operations.choose, passthrough=True)
 
-    edit = subparsers.add_parser(
-        "edit", help="edit a profile's config.py using $EDITOR"
-    )
+    edit = subparsers.add_parser("edit", help="edit a profile's config.py")
     edit.add_argument("profile_name", metavar="profile", help="profile to edit")
     edit.set_defaults(operation=build_op(operations.edit))
 

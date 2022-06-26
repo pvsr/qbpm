@@ -8,7 +8,8 @@ from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 
-SUPPORTED_MENUS = ["wofi", "rofi", "dmenu", "dmenu-wl", "applescript"]
+AUTO_MENUS = ["wofi", "rofi", "dmenu", "dmenu-wl"]
+SUPPORTED_MENUS = AUTO_MENUS + ["fzf", "applescript"]
 
 
 def error(msg: str) -> None:
@@ -37,9 +38,7 @@ def user_config_dir() -> Path:
 def get_default_menu() -> Optional[str]:
     if sys.platform == "darwin":
         return "applescript"
-    for menu_cmd in SUPPORTED_MENUS:
-        if menu_cmd == "applescript":
-            continue
+    for menu_cmd in AUTO_MENUS:
         if which(menu_cmd) is not None:
             return menu_cmd
     return None

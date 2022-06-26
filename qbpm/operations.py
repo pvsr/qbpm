@@ -11,7 +11,7 @@ from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
 from qbpm import profiles
 from qbpm.profiles import Profile
-from qbpm.utils import SUPPORTED_MENUS, error, get_default_menu, user_data_dir
+from qbpm.utils import AUTO_MENUS, error, get_default_menu, user_data_dir
 
 
 def from_session(
@@ -88,7 +88,7 @@ def list_(args: argparse.Namespace) -> bool:
 def choose(args: argparse.Namespace) -> bool:
     menu = args.menu or get_default_menu()
     if not menu:
-        error(f"No menu program found, please install one of: {SUPPORTED_MENUS}")
+        error(f"No menu program found, please install one of: {AUTO_MENUS}")
         return False
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
@@ -140,6 +140,8 @@ item 1 of profile\'"""
             command = f"{menu} --dmenu {prompt}"
         elif program in ["dmenu", "dmenu-wl"]:
             command = f"{menu} {prompt}"
+        elif program == "fzf":
+            command = f"{menu} --prompt 'qutebrowser '"
     exe = command.split(" ")[0]
     if not shutil.which(exe):
         error(f"command '{exe}' not found")
