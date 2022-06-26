@@ -103,24 +103,19 @@ def choose(args: argparse.Namespace) -> bool:
         return False
 
     selection_cmd = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=None,
     )
     out = selection_cmd.stdout
-    if not out:
-        error(f"Could not read stdout from {command}")
-        return False
-    selection = out.read().decode(errors="ignore").rstrip("\n")
+    selection = out and out.read().decode(errors="ignore").rstrip("\n")
 
     if selection:
         profile = Profile(selection, args.profile_dir)
         launch(profile, True, args.foreground, args.qb_args)
     else:
         error("No profile selected")
-        if err := selection_cmd.stderr:
-            msg = err.read().decode(errors="ignore").rstrip("\n")
-            if msg:
-                for line in msg.split("\n"):
-                    print(f"stderr: {line}", file=stderr)
         return False
     return True
 
