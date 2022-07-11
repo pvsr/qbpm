@@ -142,6 +142,8 @@ item 1 of profile\'"""
             command = f"{menu} {prompt}"
         elif program == "fzf":
             command = f"{menu} --prompt 'qutebrowser '"
+        elif program == "fuzzel":
+            command = f"{menu} -d"
     exe = command.split(" ")[0]
     if not shutil.which(exe):
         error(f"command '{exe}' not found")

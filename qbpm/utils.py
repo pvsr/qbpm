@@ -8,7 +8,7 @@ from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 
-AUTO_MENUS = ["wofi", "rofi", "dmenu", "dmenu-wl"]
+AUTO_MENUS = ["fuzzel", "wofi", "rofi", "dmenu-wl", "dmenu"]
 SUPPORTED_MENUS = AUTO_MENUS + ["fzf", "applescript"]
 
 
