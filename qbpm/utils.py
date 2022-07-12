@@ -1,6 +1,5 @@
 import platform
-import subprocess
-import sys
+from os import environ
 from pathlib import Path
 from shutil import which
 from sys import exit, stderr
@@ -8,7 +7,9 @@ from typing import Optional
 
 from xdg import BaseDirectory  # type: ignore
 
-AUTO_MENUS = ["fuzzel", "wofi", "rofi", "dmenu-wl", "dmenu"]
+WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
+X11_MENUS = ["rofi", "dmenu"]
+AUTO_MENUS = WAYLAND_MENUS + X11_MENUS
 SUPPORTED_MENUS = AUTO_MENUS + ["fzf", "applescript"]
 
 
@@ -36,9 +37,22 @@ def user_config_dir() -> Path:
 
 
 def get_default_menu() -> Optional[str]:
-    if sys.platform == "darwin":
+    if platform.system() == "Darwin":
         return "applescript"
-    for menu_cmd in AUTO_MENUS:
-        if which(menu_cmd) is not None:
-            return menu_cmd
+    if environ.get("WAYLAND_DISPLAY"):
+        for menu_cmd in WAYLAND_MENUS:
+            if which(menu_cmd) is not None:
+                return menu_cmd
+    elif environ.get("DISPLAY"):
+        for menu_cmd in X11_MENUS:
+            if which(menu_cmd) is not None:
+                return menu_cmd
+    else:
+        # TODO can we detect whether we're in a term so we can run fzf?
+        error(
+            "Neither $DISPLAY nor $WAYLAND_DISPLAY are set,"
+            + " cannot launch a graphical menu."
+            + " Consider passing `--menu fzf`"
+        )
+        exit(1)
     return None
