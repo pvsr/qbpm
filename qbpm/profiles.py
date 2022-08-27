@@ -3,8 +3,8 @@ from pathlib import Path
 from sys import platform
 from typing import Optional
 
-from xdg import BaseDirectory  # type: ignore
-from xdg.DesktopEntry import DesktopEntry  # type: ignore
+from xdg import BaseDirectory
+from xdg.DesktopEntry import DesktopEntry
 
 from .utils import error, user_config_dir
 

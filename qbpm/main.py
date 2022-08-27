@@ -4,7 +4,7 @@ from os import environ
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from xdg import BaseDirectory  # type: ignore
+from xdg import BaseDirectory
 
 from . import __version__, operations, profiles
 from .profiles import Profile

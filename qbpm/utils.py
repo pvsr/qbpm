@@ -5,7 +5,7 @@ from shutil import which
 from sys import exit, stderr
 from typing import Optional
 
-from xdg import BaseDirectory  # type: ignore
+from xdg import BaseDirectory
 
 WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
 X11_MENUS = ["rofi", "dmenu"]
