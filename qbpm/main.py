@@ -15,7 +15,9 @@ DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 
 def main(mock_args: Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser(description="qutebrowser profile manager")
-    parser.set_defaults(operation=lambda args: parser.print_help(), passthrough=False)
+    parser.set_defaults(
+        operation=lambda args: parser.print_help(), passthrough=False, launch=False
+    )
     parser.add_argument(
         "-P",
         "--profile-dir",
@@ -119,7 +121,14 @@ def main(mock_args: Optional[list[str]] = None) -> None:
 
     if not args.profile_dir:
         args.profile_dir = Path(environ.get("QBPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
-    if not args.operation(args):
+
+    result = args.operation(args)
+    if args.launch and result:
+        profile = result if isinstance(result, Profile) else Profile.of(args)
+        result = operations.launch(
+            profile, False, args.foreground, getattr(args, "qb_args", [])
+        )
+    if not result:
         exit(1)
 
 
@@ -127,8 +136,7 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-l",
         "--launch",
-        action=ThenLaunchAction,
-        dest="operation",
+        action="store_true",
         help="launch the profile after creating",
     )
     parser.add_argument(
@@ -149,28 +157,6 @@ def creator_args(parser: argparse.ArgumentParser) -> None:
         help="replace existing profile config",
     )
     parser.set_defaults(strict=True)
-
-
-class ThenLaunchAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=0, **kwargs) -> None:
-        super(ThenLaunchAction, self).__init__(
-            option_strings, dest, nargs=nargs, **kwargs
-        )
-
-    def __call__(self, parser, namespace, values, option_string=None) -> None:
-        setattr(namespace, "passthrough", True)
-        if operation := getattr(namespace, self.dest):
-            setattr(namespace, self.dest, lambda args: then_launch(args, operation))
-
-
-def then_launch(
-    args: argparse.Namespace,
-    operation: Callable[[argparse.Namespace], Optional[Any]],
-) -> bool:
-    if result := operation(args):
-        profile = result if isinstance(result, Profile) else Profile.of(args)
-        return operations.launch(profile, False, args.foreground, args.qb_args)
-    return False
 
 
 def build_op(operation: Callable[..., Any]) -> Callable[[argparse.Namespace], Any]:
