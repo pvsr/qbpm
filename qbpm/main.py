@@ -6,9 +6,9 @@ from typing import Any, Callable, Optional
 
 from xdg import BaseDirectory  # type: ignore
 
-from qbpm import __version__, operations, profiles
-from qbpm.profiles import Profile
-from qbpm.utils import SUPPORTED_MENUS, error
+from . import __version__, operations, profiles
+from .profiles import Profile
+from .utils import SUPPORTED_MENUS, error
 
 DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
 

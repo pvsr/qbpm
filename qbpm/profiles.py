@@ -6,7 +6,7 @@ from typing import Optional
 from xdg import BaseDirectory  # type: ignore
 from xdg.DesktopEntry import DesktopEntry  # type: ignore
 
-from qbpm.utils import error, user_config_dir
+from .utils import error, user_config_dir
 
 
 class Profile:
