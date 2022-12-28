@@ -24,6 +24,13 @@
           qbpm = pkgs.poetry2nix.mkPoetryApplication {
             projectDir = ./.;
             preferWheels = true;
+            nativeBuildInputs = [pkgs.scdoc];
+            postInstall = ''
+              install -D -m755 completions/qbpm.fish $out/share/fish/vendor_completions.d/qbpm.fish
+
+              scdoc < qbpm.1.scd > qbpm.1
+              install -D -m755 qbpm.1 $out/share/man/man1/qbpm.1
+            '';
           };
           default = qbpm;
         };
