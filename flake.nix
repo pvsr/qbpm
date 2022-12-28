@@ -1,8 +1,10 @@
 {
   description = "A tool for creating and managing qutebrowser profiles";
 
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+  inputs = {
+    flake-utils.url = "github:numtide/flake-utils";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+  };
 
   outputs = {
     self,
@@ -13,27 +15,29 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+        devEnv = pkgs.poetry2nix.mkPoetryEnv {
+          projectDir = ./.;
+          preferWheels = true;
+        };
       in rec {
         packages = flake-utils.lib.flattenTree rec {
-          qbpm = import ./. {inherit pkgs;};
+          qbpm = pkgs.poetry2nix.mkPoetryApplication {
+            projectDir = ./.;
+            preferWheels = true;
+          };
           default = qbpm;
         };
         apps = rec {
-          qbpm = flake-utils.lib.mkApp {drv = packages.qbpm;};
+          qbpm = flake-utils.lib.mkApp {
+            drv = packages.default;
+          };
           default = qbpm;
         };
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
           buildInputs = [
-            (pkgs.python3.withPackages (ps:
-              with ps; [
-                pyxdg
-                setuptools-scm
-                pytest
-                pylint
-                mypy
-                black
-              ]))
+            pkgs.python3Packages.poetry
+            devEnv
           ];
         };
 
