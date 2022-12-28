@@ -11,4 +11,6 @@ qbpm.egg-info/
 .tox/
 qbpm/version.py
 qbpm.1
+.envrc
 .direnv/
+.pre-commit-config.yaml
