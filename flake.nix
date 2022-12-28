@@ -2,11 +2,13 @@
   description = "A tool for creating and managing qutebrowser profiles";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    pre-commit-hooks,
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
@@ -20,7 +22,35 @@
           qbpm = flake-utils.lib.mkApp {drv = packages.qbpm;};
           default = qbpm;
         };
-        devShell = import ./shell.nix {inherit pkgs;};
+        devShell = pkgs.mkShell {
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          buildInputs = [
+            (pkgs.python3.withPackages (ps:
+              with ps; [
+                pyxdg
+                setuptools-scm
+                pytest
+                pylint
+                mypy
+                black
+              ]))
+          ];
+        };
+
+        checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              alejandra.enable = true;
+              deadnix.enable = true;
+              statix.enable = true;
+
+              black.enable = true;
+              isort.enable = true;
+              pylint.enable = true;
+            };
+          };
+        };
       }
     );
 }

@@ -11,3 +11,4 @@ qbpm.egg-info/
 .tox/
 qbpm/version.py
 qbpm.1
+.direnv/
