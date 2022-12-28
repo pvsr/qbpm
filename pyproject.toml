@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qbpm"
-version = "1.0rc2"
+version = "0.0.0" # poetry-dynamic-versioning
 description = "qutebrowser profile manager"
 authors = ["Peter Rice <peter@peterrice.xyz>"]
 license = "GPL-3.0-or-later"
@@ -33,14 +33,34 @@ pylint = "^2.15.9"
 isort = "^5.11.4"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools>=45", "wheel", "setuptools_scm>=6.2"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry.scripts]
 qbpm = "qbpm.main:main"
 
-[tool.setuptools_scm]
-write_to = "qbpm/version.py"
+[tool.poetry-dynamic-versioning]
+enable = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["qbpm/__init__.py"]
 
 [tool.isort]
 profile = "black"
+
+[tool.pylint."messages control"]
+disable = [
+  "raw-checker-failed",
+  "bad-inline-option",
+  "locally-disabled",
+  "file-ignored",
+  "suppressed-message",
+  "useless-suppression",
+  "deprecated-pragma",
+  "use-symbolic-message-instead",
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "invalid-name",
+  "too-few-public-methods"
+]
