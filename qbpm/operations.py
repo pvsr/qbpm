@@ -4,7 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from sys import platform
-from typing import List, Optional
+from typing import Optional
 
 from xdg import BaseDirectory
 
@@ -42,7 +42,7 @@ def from_session(
 
 
 def launch(
-    profile: Profile, strict: bool, foreground: bool, qb_args: List[str]
+    profile: Profile, strict: bool, foreground: bool, qb_args: list[str]
 ) -> bool:
     if not profiles.ensure_profile_exists(profile, not strict):
         return False
@@ -120,7 +120,7 @@ def choose(args: argparse.Namespace) -> bool:
 
 
 def menu_command(
-    menu: str, profiles: List[str], args: argparse.Namespace
+    menu: str, profiles: list[str], args: argparse.Namespace
 ) -> Optional[str]:
     arg_string = " ".join(args.qb_args)
     if menu == "applescript":
