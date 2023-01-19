@@ -3,11 +3,10 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from sys import platform, stderr
+from sys import platform
 from typing import List, Optional
 
 from xdg import BaseDirectory
-from xdg.DesktopEntry import DesktopEntry
 
 from . import profiles
 from .profiles import Profile
