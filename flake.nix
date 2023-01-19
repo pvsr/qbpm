@@ -47,7 +47,6 @@
 
               black.enable = true;
               isort.enable = true;
-              pylint.enable = true;
             };
           };
         };
