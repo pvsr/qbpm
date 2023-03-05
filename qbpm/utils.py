@@ -18,6 +18,10 @@ def error(msg: str) -> None:
     print(f"error: {msg}", file=stderr)
 
 
+def default_profile_dir():
+    return Path(BaseDirectory.save_data_path("qutebrowser-profiles"))
+
+
 def user_data_dir() -> Path:
     if platform.system() == "Linux":
         return Path(BaseDirectory.xdg_data_home) / "qutebrowser"

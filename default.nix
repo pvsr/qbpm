@@ -11,7 +11,7 @@ with pythonPackages;
     doCheck = true;
     SETUPTOOLS_SCM_PRETEND_VERSION = version;
     nativeBuildInputs = [pkgs.scdoc setuptools-scm];
-    propagatedBuildInputs = [pyxdg];
+    propagatedBuildInputs = [pyxdg click];
     checkInputs = [pytest];
     postInstall = ''
       mkdir -p $out/share/fish/vendor_completions.d

@@ -1,4 +1,3 @@
-import argparse
 import os
 import shutil
 import subprocess
@@ -42,9 +41,9 @@ def from_session(
 
 
 def launch(
-    profile: Profile, strict: bool, foreground: bool, qb_args: list[str]
+    profile: Profile, create: bool, foreground: bool, qb_args: list[str]
 ) -> bool:
-    if not profiles.ensure_profile_exists(profile, not strict):
+    if not profiles.ensure_profile_exists(profile, create):
         return False
 
     args = profile.cmdline() + qb_args
@@ -78,26 +77,20 @@ def desktop(profile: Profile) -> bool:
     return exists
 
 
-def list_(args: argparse.Namespace) -> bool:
-    for profile in sorted(args.profile_dir.iterdir()):
-        print(profile.name)
-    return True
-
-
-def choose(args: argparse.Namespace) -> bool:
-    menu = args.menu or next(installed_menus())
+def choose(profile_dir: Path, menu: str, foreground: bool, qb_args: list[str]) -> bool:
+    menu = menu or next(installed_menus())
     if not menu:
         error(f"No menu program found, please install one of: {AUTO_MENUS}")
         return False
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return False
-    profiles = [profile.name for profile in sorted(args.profile_dir.iterdir())]
+    profiles = [profile.name for profile in sorted(profile_dir.iterdir())]
     if len(profiles) == 0:
         error("No profiles")
         return False
 
-    command = menu_command(menu, profiles, args)
+    command = menu_command(menu, profiles, qb_args)
     if not command:
         return False
 
@@ -111,18 +104,16 @@ def choose(args: argparse.Namespace) -> bool:
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
 
     if selection:
-        profile = Profile(selection, args.profile_dir)
-        launch(profile, True, args.foreground, args.qb_args)
+        profile = Profile(selection, profile_dir)
+        launch(profile, True, foreground, qb_args)
     else:
         error("No profile selected")
         return False
     return True
 
 
-def menu_command(
-    menu: str, profiles: list[str], args: argparse.Namespace
-) -> Optional[str]:
-    arg_string = " ".join(args.qb_args)
+def menu_command(menu: str, profiles: list[str], qb_args: list[str]) -> Optional[str]:
+    arg_string = " ".join(qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)
         return f"""osascript -e \'set profiles to {{"{profile_list}"}}
@@ -149,12 +140,3 @@ item 1 of profile\'"""
         return None
     profile_list = "\n".join(profiles)
     return f'echo "{profile_list}" | {command}'
-
-
-def edit(profile: Profile) -> bool:
-    if not profile.exists():
-        error(f"profile {profile.name} not found at {profile.root}")
-        return False
-    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR") or "vim"
-    os.execlp(editor, editor, str(profile.root / "config" / "config.py"))
-    return True

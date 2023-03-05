@@ -1,178 +1,125 @@
-import argparse
 import inspect
 from os import environ
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+import click
 from xdg import BaseDirectory
 
 from . import __version__, operations, profiles
 from .profiles import Profile
-from .utils import SUPPORTED_MENUS, error
-
-DEFAULT_PROFILE_DIR = Path(BaseDirectory.xdg_data_home) / "qutebrowser-profiles"
+from .utils import SUPPORTED_MENUS, default_profile_dir, error
 
 
-def main(mock_args: Optional[list[str]] = None) -> None:
-    parser = argparse.ArgumentParser(description="qutebrowser profile manager")
-    parser.set_defaults(
-        operation=lambda args: parser.print_help(), passthrough=False, launch=False
-    )
-    parser.add_argument(
-        "-P",
-        "--profile-dir",
-        metavar="directory",
-        type=Path,
-        help="directory in which profiles are stored",
-    )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version=__version__,
-    )
-
-    subparsers = parser.add_subparsers()
-    new = subparsers.add_parser("new", help="create a new profile")
-    new.add_argument("profile_name", metavar="profile", help="name of the new profile")
-    new.add_argument("home_page", metavar="url", nargs="?", help="profile's home page")
-    new.set_defaults(operation=build_op(profiles.new_profile))
-    creator_args(new)
-
-    session = subparsers.add_parser(
-        "from-session", help="create a new profile from a qutebrowser session"
-    )
-    session.add_argument(
-        "session",
-        help="path to session file or name of session. "
-        "e.g. ~/.local/share/qutebrowser/sessions/example.yml or example",
-    )
-    session.add_argument(
-        "profile_name",
-        metavar="profile",
-        nargs="?",
-        help="name of the new profile. if unset the session name will be used",
-    )
-    session.set_defaults(operation=build_op(operations.from_session))
-    creator_args(session)
-
-    desktop = subparsers.add_parser(
-        "desktop", help="create a desktop file for an existing profile"
-    )
-    desktop.add_argument(
-        "profile_name", metavar="profile", help="profile to create a desktop file for"
-    )
-    desktop.set_defaults(operation=build_op(operations.desktop))
-
-    launch = subparsers.add_parser(
-        "launch", help="launch qutebrowser with the given profile"
-    )
-    launch.add_argument(
-        "profile_name",
-        metavar="profile",
-        help="profile to launch. it will be created if it does not exist, unless -s is set",
-    )
-    launch.add_argument(
-        "-n",
-        "--new",
-        action="store_false",
-        dest="strict",
-        help="create the profile if it doesn't exist",
-    )
-    launch.add_argument(
-        "-f",
-        "--foreground",
-        action="store_true",
-        help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
-    )
-    launch.set_defaults(operation=build_op(operations.launch), passthrough=True)
-
-    list_ = subparsers.add_parser("list", help="list existing profiles")
-    list_.set_defaults(operation=operations.list_)
-
-    choose = subparsers.add_parser(
-        "choose",
-        help="interactively choose a profile to launch",
-    )
-    menus = sorted(SUPPORTED_MENUS)
-    choose.add_argument(
-        "-m",
-        "--menu",
-        help=f'menu application to use. this may be any dmenu-compatible command (e.g. "dmenu -i -p qbpm" or "/path/to/rofi -d") or one of the following menus with built-in support: {menus}',
-    )
-    choose.add_argument(
-        "-f",
-        "--foreground",
-        action="store_true",
-        help="launch qutebrowser in the foreground and print its stdout and stderr to the console",
-    )
-    choose.set_defaults(operation=operations.choose, passthrough=True)
-
-    edit = subparsers.add_parser("edit", help="edit a profile's config.py")
-    edit.add_argument("profile_name", metavar="profile", help="profile to edit")
-    edit.set_defaults(operation=build_op(operations.edit))
-
-    raw_args = parser.parse_known_args(mock_args)
-    args = raw_args[0]
-    if args.passthrough:
-        args.qb_args = raw_args[1]
-    elif len(raw_args[1]) > 0:
-        error(f"unrecognized arguments: {' '.join(raw_args[1])}")
-        exit(1)
-
-    if not args.profile_dir:
-        args.profile_dir = Path(environ.get("QBPM_PROFILE_DIR") or DEFAULT_PROFILE_DIR)
-
-    result = args.operation(args)
-    if args.launch and result:
-        profile = result if isinstance(result, Profile) else Profile.of(args)
-        result = operations.launch(
-            profile, False, args.foreground, getattr(args, "qb_args", [])
-        )
-    if not result:
-        exit(1)
+@click.group()
+@click.option(
+    "-P",
+    "--profile-dir",
+    type=click.Path(file_okay=False, writable=True, path_type=Path),
+    envvar="QBPM_PROFILE_DIR",
+    default=default_profile_dir,
+)
+@click.pass_context
+def main(ctx, profile_dir: Path) -> None:
+    # TODO version, documentation
+    # TODO -h as --help
+    ctx.ensure_object(dict)
+    ctx.obj["PROFILE_DIR"] = profile_dir
 
 
-def creator_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "-l",
-        "--launch",
-        action="store_true",
-        help="launch the profile after creating",
-    )
-    parser.add_argument(
-        "-f",
-        "--foreground",
-        action="store_true",
-        help="if --launch is set, launch qutebrowser in the foreground",
-    )
-    parser.add_argument(
-        "--no-desktop-file",
-        dest="desktop_file",
-        action="store_false",
-        help="do not generate a desktop file for the profile",
-    )
-    parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="replace existing profile config",
-    )
-    parser.set_defaults(strict=True)
+@main.command()
+@click.argument("profile_name")
+@click.argument("home_page", required=False)
+@click.option("--desktop-file/--no-desktop-file", default=True, is_flag=True)
+@click.option("--overwrite", is_flag=True)
+@click.option("-l", "--launch", is_flag=True)
+@click.option("-f", "--foreground", is_flag=True)
+@click.pass_context
+def new(ctx, profile_name: str, launch: bool, foreground: bool, **kwargs):
+    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    result = profiles.new_profile(profile, **kwargs)
+    if result and launch:
+        # TODO args?
+        then_launch(profile, foreground, [])
 
 
-def build_op(operation: Callable[..., Any]) -> Callable[[argparse.Namespace], Any]:
-    def op(args: argparse.Namespace) -> Any:
-        params = [
-            param.name
-            for param in inspect.signature(operation).parameters.values()
-            if param.kind == param.POSITIONAL_OR_KEYWORD
-        ]
-        kwargs = {param: getattr(args, param, None) for param in params}
-        if "profile" in params:
-            kwargs["profile"] = Profile.of(args)
-        return operation(**kwargs)
+@main.command()
+@click.argument("session")
+@click.argument("profile_name", required=False)
+@click.option("--desktop-file/--no-desktop-file", default=True, is_flag=True)
+@click.option("--overwrite", is_flag=True)
+@click.option("-l", "--launch", is_flag=True)
+@click.option("-f", "--foreground", is_flag=True)
+@click.pass_context
+def from_session(
+    ctx,
+    launch: bool,
+    foreground: bool,
+    **kwargs,
+):
+    profile = operations.from_session(profile_dir=ctx.obj["PROFILE_DIR"], **kwargs)
+    if profile and launch:
+        # TODO args?
+        then_launch(profile, foreground, [])
 
-    return op
+
+@main.command()
+@click.argument("profile_name")
+@click.pass_context
+def desktop(
+    ctx,
+    profile_name: str,
+):
+    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    return operations.desktop(profile)
+
+
+@main.command()
+@click.argument("profile_name")
+@click.option("-c", "--create", is_flag=True)
+@click.option("-f", "--foreground", is_flag=True)
+@click.pass_context
+def launch(ctx, profile_name: str, **kwargs):
+    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    # TODO qb args
+    return operations.launch(profile, **kwargs)
+
+
+@main.command()
+@click.option("-m", "--menu")
+@click.option("-f", "--foreground", is_flag=True)
+@click.pass_context
+def choose(ctx, **kwargs):
+    # TODO qb args
+    return operations.choose(profile_dir=ctx.obj["PROFILE_DIR"], qb_args=[], **kwargs)
+
+
+@main.command()
+@click.argument("profile_name")
+@click.pass_context
+def edit(ctx, profile_name):
+    breakpoint()
+    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    if not profile.exists():
+        error(f"profile {profile.name} not found at {profile.root}")
+        return False
+    click.edit(filename=profile.root / "config" / "config.py")
+
+
+@main.command(name="list")
+@click.pass_context
+def list_(ctx):
+    for profile in sorted(ctx.obj["PROFILE_DIR"].iterdir()):
+        print(profile.name)
+    return True
+
+
+def then_launch(profile: Profile, foreground: bool, qb_args: list[str]):
+    result = False
+    if profile:
+        result = operations.launch(profile, False, foreground, qb_args)
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    main(obj={})
