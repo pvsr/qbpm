@@ -11,6 +11,10 @@ from .profiles import Profile
 from .utils import SUPPORTED_MENUS, default_profile_dir, error
 
 
+def exit_with(result: bool):
+    exit(0 if result else 1)
+
+
 @click.group()
 @click.option(
     "-P",
@@ -40,7 +44,8 @@ def new(ctx, profile_name: str, launch: bool, foreground: bool, **kwargs):
     result = profiles.new_profile(profile, **kwargs)
     if result and launch:
         # TODO args?
-        then_launch(profile, foreground, [])
+        exit_with(then_launch(profile, foreground, []))
+    exit_with(result)
 
 
 @main.command()
@@ -60,7 +65,8 @@ def from_session(
     profile = operations.from_session(profile_dir=ctx.obj["PROFILE_DIR"], **kwargs)
     if profile and launch:
         # TODO args?
-        then_launch(profile, foreground, [])
+        exit_with(then_launch(profile, foreground, []))
+    exit_with(bool(profile))
 
 
 @main.command()
@@ -71,7 +77,7 @@ def desktop(
     profile_name: str,
 ):
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
-    return operations.desktop(profile)
+    exit_with(operations.desktop(profile))
 
 
 @main.command()
@@ -82,7 +88,7 @@ def desktop(
 def launch(ctx, profile_name: str, **kwargs):
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     # TODO qb args
-    return operations.launch(profile, **kwargs)
+    exit_with(operations.launch(profile, **kwargs))
 
 
 @main.command()
@@ -91,7 +97,9 @@ def launch(ctx, profile_name: str, **kwargs):
 @click.pass_context
 def choose(ctx, **kwargs):
     # TODO qb args
-    return operations.choose(profile_dir=ctx.obj["PROFILE_DIR"], qb_args=[], **kwargs)
+    exit_with(
+        operations.choose(profile_dir=ctx.obj["PROFILE_DIR"], qb_args=[], **kwargs)
+    )
 
 
 @main.command()
@@ -102,7 +110,7 @@ def edit(ctx, profile_name):
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
-        return False
+        exit(1)
     click.edit(filename=profile.root / "config" / "config.py")
 
 
@@ -111,10 +119,9 @@ def edit(ctx, profile_name):
 def list_(ctx):
     for profile in sorted(ctx.obj["PROFILE_DIR"].iterdir()):
         print(profile.name)
-    return True
 
 
-def then_launch(profile: Profile, foreground: bool, qb_args: list[str]):
+def then_launch(profile: Profile, foreground: bool, qb_args: list[str]) -> bool:
     result = False
     if profile:
         result = operations.launch(profile, False, foreground, qb_args)
