@@ -14,3 +14,4 @@ qbpm.1
 .envrc
 .direnv/
 .pre-commit-config.yaml
+profiles/
