@@ -20,6 +20,7 @@
                 (pkgs.python3.withPackages (ps:
                   with ps; [
                     pyxdg
+                    click
                     setuptools-scm
                     pytest
                     pylint
