@@ -3,16 +3,18 @@ repositories:
   nixpkgs: https://nixos.org/channels/nixos-unstable
 sources:
   - https://git.sr.ht/~pvsr/qbpm
+environment:
+  NIX: "nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 tasks:
   - deps: |
       cd qbpm
-      nix-shell --quiet --run exit
+      $NIX build .#devShells.x86_64-linux.ci
   - format: |
       cd qbpm
-      nix-shell --run 'black --diff --check qbpm tests'
+      $NIX develop .#ci -c black --diff --check qbpm tests
   - mypy: |
       cd qbpm
-      nix-shell --run 'mypy qbpm tests'
+      $NIX develop .#ci -c mypy qbpm tests
   - pytest: |
       cd qbpm
-      nix-shell --run pytest
+      $NIX develop .#ci -c pytest

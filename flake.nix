@@ -13,6 +13,21 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+        mkDevShell = args:
+          pkgs.mkShell (args
+            // {
+              buildInputs = [
+                (pkgs.python3.withPackages (ps:
+                  with ps; [
+                    pyxdg
+                    setuptools-scm
+                    pytest
+                    pylint
+                    mypy
+                    black
+                  ]))
+              ];
+            });
       in rec {
         packages = flake-utils.lib.flattenTree rec {
           qbpm = import ./. {inherit pkgs;};
@@ -22,19 +37,9 @@
           qbpm = flake-utils.lib.mkApp {drv = packages.qbpm;};
           default = qbpm;
         };
-        devShell = pkgs.mkShell {
+        devShells.ci = mkDevShell {};
+        devShells.default = mkDevShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
-          buildInputs = [
-            (pkgs.python3.withPackages (ps:
-              with ps; [
-                pyxdg
-                setuptools-scm
-                pytest
-                pylint
-                mypy
-                black
-              ]))
-          ];
         };
 
         checks = {
