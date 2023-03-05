@@ -1,6 +1,4 @@
 image: nixos/unstable
-repositories:
-  nixpkgs: https://nixos.org/channels/nixos-unstable
 sources:
   - https://git.sr.ht/~pvsr/qbpm
 environment:
