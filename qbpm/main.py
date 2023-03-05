@@ -20,11 +20,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     type=click.Path(file_okay=False, writable=True, path_type=Path),
     envvar="QBPM_PROFILE_DIR",
     default=default_profile_dir,
+    help="directory in which profiles are stored",
 )
 @click.pass_context
 def main(ctx, profile_dir: Path) -> None:
-    # TODO version, documentation
-    # TODO -h as --help
+    # TODO version
     ctx.ensure_object(dict)
     ctx.obj["PROFILE_DIR"] = profile_dir
 
@@ -37,7 +37,8 @@ def main(ctx, profile_dir: Path) -> None:
 @click.option("-l", "--launch", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_context
-def new(ctx, profile_name: str, launch: bool, foreground: bool, **kwargs):
+def new(ctx, profile_name: str, **kwargs):
+    """Create a new profile."""
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     then_launch(profiles.new_profile, profile, **kwargs)
 
@@ -56,6 +57,10 @@ def from_session(
     profile_name: Optional[str],
     **kwargs,
 ):
+    """Create a new profile from a saved qutebrowser session.
+    SESSION may be the name of a session in the global qutebrowser profile
+    or a path to a session yaml file.
+    """
     profile, session_path = session_info(session, profile_name, ctx.obj["PROFILE_DIR"])
     then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
@@ -67,6 +72,7 @@ def desktop(
     ctx,
     profile_name: str,
 ):
+    """Create a desktop file for an existing profile."""
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     exit_with(operations.desktop(profile))
 
@@ -77,16 +83,25 @@ def desktop(
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_context
 def launch(ctx, profile_name: str, **kwargs):
+    """Launch qutebrowser with a specific profile."""
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     # TODO qb args
     exit_with(operations.launch(profile, qb_args=[], **kwargs))
 
 
 @main.command()
-@click.option("-m", "--menu")
+@click.option(
+    "-m",
+    "--menu",
+    metavar="COMMAND",
+    help=f"A dmenu-compatible command or one of the following supported menus: {', '.join(sorted(SUPPORTED_MENUS))}",
+)
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_context
 def choose(ctx, **kwargs):
+    """Choose a profile to launch.
+    Support is built in for many X and Wayland launchers, as well as applescript dialogs.
+    """
     # TODO qb args
     exit_with(
         operations.choose(profile_dir=ctx.obj["PROFILE_DIR"], qb_args=[], **kwargs)
@@ -97,7 +112,7 @@ def choose(ctx, **kwargs):
 @click.argument("profile_name")
 @click.pass_context
 def edit(ctx, profile_name):
-    breakpoint()
+    """Edit a profile's config.py."""
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
@@ -108,6 +123,7 @@ def edit(ctx, profile_name):
 @main.command(name="list")
 @click.pass_context
 def list_(ctx):
+    """List existing profiles."""
     for profile in sorted(ctx.obj["PROFILE_DIR"].iterdir()):
         print(profile.name)
 

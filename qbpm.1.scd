@@ -64,7 +64,7 @@ $HOME/.local/share), but this can be set to another directory by passing
 	*-f, --foreground*
 		Run qutebrowser in the foreground instead of forking off a new process.
 
-	*-n, --new*
+	*-c, --create*
 		Create the profile if it does not exist.
 
 	Examples:
