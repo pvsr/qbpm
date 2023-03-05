@@ -1,4 +1,5 @@
 import platform
+from collections.abc import Generator
 from os import environ
 from pathlib import Path
 from shutil import which
@@ -36,23 +37,20 @@ def user_config_dir() -> Path:
     return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
 
 
-def get_default_menu() -> Optional[str]:
+def installed_menus() -> Generator[str, None, None]:
     if platform.system() == "Darwin":
-        return "applescript"
+        yield "applescript"
     if environ.get("WAYLAND_DISPLAY"):
         for menu_cmd in WAYLAND_MENUS:
             if which(menu_cmd) is not None:
-                return menu_cmd
-    elif environ.get("DISPLAY"):
+                yield menu_cmd
+    if environ.get("DISPLAY"):
         for menu_cmd in X11_MENUS:
             if which(menu_cmd) is not None:
-                return menu_cmd
-    else:
-        # TODO can we detect whether we're in a term so we can run fzf?
-        error(
-            "Neither $DISPLAY nor $WAYLAND_DISPLAY are set,"
-            + " cannot launch a graphical menu."
-            + " Consider passing `--menu fzf`"
-        )
-        exit(1)
-    return None
+                yield menu_cmd
+    if environ.get("TMUX") and which("fzf-tmux") is not None:
+        yield "fzf-tmux"
+    # if there's no display and fzf is installed we're probably(?) in a term
+    if which("fzf") is not None:
+        print("no graphical launchers found, trying fzf", file=stderr)
+        yield "fzf"

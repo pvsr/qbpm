@@ -10,7 +10,7 @@ from xdg import BaseDirectory
 
 from . import profiles
 from .profiles import Profile
-from .utils import AUTO_MENUS, error, get_default_menu, user_data_dir
+from .utils import AUTO_MENUS, error, installed_menus, user_data_dir
 
 
 def from_session(
@@ -85,7 +85,7 @@ def list_(args: argparse.Namespace) -> bool:
 
 
 def choose(args: argparse.Namespace) -> bool:
-    menu = args.menu or get_default_menu()
+    menu = args.menu or next(installed_menus())
     if not menu:
         error(f"No menu program found, please install one of: {AUTO_MENUS}")
         return False
@@ -137,9 +137,9 @@ item 1 of profile\'"""
             command = f"{menu} -dmenu -no-custom {prompt} -mesg {arg_string}"
         elif program == "wofi":
             command = f"{menu} --dmenu {prompt}"
-        elif program in ["dmenu", "dmenu-wl"]:
+        elif program.startswith("dmenu"):
             command = f"{menu} {prompt}"
-        elif program == "fzf":
+        elif program.startswith("fzf"):
             command = f"{menu} --prompt 'qutebrowser '"
         elif program == "fuzzel":
             command = f"{menu} -d"
