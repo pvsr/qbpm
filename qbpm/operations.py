@@ -13,31 +13,19 @@ from .utils import AUTO_MENUS, error, installed_menus, user_data_dir
 
 
 def from_session(
-    session: str,
-    profile_name: Optional[str] = None,
-    profile_dir: Optional[Path] = None,
+    profile: Profile,
+    session_path: Path,
     desktop_file: bool = True,
     overwrite: bool = False,
-) -> Optional[Profile]:
-    if session.endswith(".yml"):
-        session_file = Path(session).expanduser()
-        session_name = session_file.stem
-    else:
-        session_name = session
-        session_file = user_data_dir() / "sessions" / (session_name + ".yml")
-    if not session_file.is_file():
-        error(f"{session_file} is not a file")
-        return None
-
-    profile = Profile(profile_name or session_name, profile_dir)
+) -> bool:
     if not profiles.new_profile(profile, None, desktop_file, overwrite):
-        return None
+        return False
 
     session_dir = profile.root / "data" / "sessions"
     session_dir.mkdir(parents=True, exist_ok=overwrite)
-    shutil.copy(session_file, session_dir / "_autosave.yml")
+    shutil.copy(session_path, session_dir / "_autosave.yml")
 
-    return profile
+    return True
 
 
 def launch(

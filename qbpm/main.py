@@ -8,7 +8,7 @@ from xdg import BaseDirectory
 
 from . import __version__, operations, profiles
 from .profiles import Profile
-from .utils import SUPPORTED_MENUS, default_profile_dir, error
+from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -39,11 +39,7 @@ def main(ctx, profile_dir: Path) -> None:
 @click.pass_context
 def new(ctx, profile_name: str, launch: bool, foreground: bool, **kwargs):
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
-    result = profiles.new_profile(profile, **kwargs)
-    if result and launch:
-        # TODO args?
-        exit_with(then_launch(profile, foreground, []))
-    exit_with(result)
+    then_launch(profiles.new_profile, profile, **kwargs)
 
 
 @main.command()
@@ -56,15 +52,12 @@ def new(ctx, profile_name: str, launch: bool, foreground: bool, **kwargs):
 @click.pass_context
 def from_session(
     ctx,
-    launch: bool,
-    foreground: bool,
+    session: str,
+    profile_name: Optional[str],
     **kwargs,
 ):
-    profile = operations.from_session(profile_dir=ctx.obj["PROFILE_DIR"], **kwargs)
-    if profile and launch:
-        # TODO args?
-        exit_with(then_launch(profile, foreground, []))
-    exit_with(bool(profile))
+    profile, session_path = session_info(session, profile_name, ctx.obj["PROFILE_DIR"])
+    then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
 
 @main.command()
@@ -86,7 +79,7 @@ def desktop(
 def launch(ctx, profile_name: str, **kwargs):
     profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
     # TODO qb args
-    exit_with(operations.launch(profile, **kwargs))
+    exit_with(operations.launch(profile, qb_args=[], **kwargs))
 
 
 @main.command()
@@ -119,11 +112,36 @@ def list_(ctx):
         print(profile.name)
 
 
-def then_launch(profile: Profile, foreground: bool, qb_args: list[str]) -> bool:
-    result = False
-    if profile:
-        result = operations.launch(profile, False, foreground, qb_args)
-    return result
+def then_launch(
+    operation: Callable[..., bool],
+    profile: Profile,
+    launch: bool,
+    foreground: bool,
+    qb_args: list[str] = [],
+    **kwargs,
+) -> None:
+    exit_with(
+        operation(profile, **kwargs)
+        and ((not launch) or operations.launch(profile, False, foreground, qb_args))
+    )
+
+
+def session_info(
+    session: str, profile_name: Optional[str], profile_dir: Path
+) -> tuple[Profile, Path]:
+    user_session_dir = user_data_dir() / "sessions"
+    session_paths = []
+    if not "/" in session:
+        session_paths.append(user_session_dir / (session + ".yml"))
+    session_paths.append(Path(session))
+    session_path = next(filter(lambda path: path.is_file(), session_paths), None)
+
+    if not session_path:
+        tried = ", ".join([str(p.resolve()) for p in session_paths])
+        error(f"could not find session at the following paths: {tried}")
+        exit(1)
+
+    return (Profile(profile_name or session_path.stem, profile_dir), session_path)
 
 
 def exit_with(result: bool):
