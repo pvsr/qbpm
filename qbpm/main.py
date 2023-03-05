@@ -1,7 +1,7 @@
 import inspect
 from os import environ
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable, NoReturn, Optional
 
 import click
 from xdg import BaseDirectory
@@ -23,7 +23,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="directory in which profiles are stored",
 )
 @click.pass_context
-def main(ctx, profile_dir: Path) -> None:
+def main(ctx: click.Context, profile_dir: Path) -> None:
     # TODO version
     ctx.obj = profile_dir
 
@@ -36,7 +36,7 @@ def main(ctx, profile_dir: Path) -> None:
 @click.option("-l", "--launch", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_obj
-def new(profile_dir: Path, profile_name: str, **kwargs):
+def new(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     """Create a new profile."""
     profile = Profile(profile_name, profile_dir)
     then_launch(profiles.new_profile, profile, **kwargs)
@@ -54,8 +54,8 @@ def from_session(
     profile_dir: Path,
     session: str,
     profile_name: Optional[str],
-    **kwargs,
-):
+    **kwargs: Any,
+) -> None:
     """Create a new profile from a saved qutebrowser session.
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
@@ -70,7 +70,7 @@ def from_session(
 def desktop(
     profile_dir: Path,
     profile_name: str,
-):
+) -> None:
     """Create a desktop file for an existing profile."""
     profile = Profile(profile_name, profile_dir)
     exit_with(operations.desktop(profile))
@@ -81,7 +81,7 @@ def desktop(
 @click.option("-c", "--create", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_obj
-def launch(profile_dir: Path, profile_name: str, **kwargs):
+def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     """Launch qutebrowser with a specific profile."""
     profile = Profile(profile_name, profile_dir)
     # TODO qb args
@@ -97,7 +97,7 @@ def launch(profile_dir: Path, profile_name: str, **kwargs):
 )
 @click.option("-f", "--foreground", is_flag=True)
 @click.pass_obj
-def choose(profile_dir: Path, **kwargs):
+def choose(profile_dir: Path, **kwargs: Any) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     """
@@ -108,18 +108,18 @@ def choose(profile_dir: Path, **kwargs):
 @main.command()
 @click.argument("profile_name")
 @click.pass_obj
-def edit(profile_dir: Path, profile_name):
+def edit(profile_dir: Path, profile_name: str) -> None:
     """Edit a profile's config.py."""
     profile = Profile(profile_name, profile_dir)
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
         exit(1)
-    click.edit(filename=profile.root / "config" / "config.py")
+    click.edit(filename=str(profile.root / "config" / "config.py"))
 
 
 @main.command(name="list")
 @click.pass_obj
-def list_(profile_dir: Path):
+def list_(profile_dir: Path) -> None:
     """List existing profiles."""
     for profile in sorted(profile_dir.iterdir()):
         print(profile.name)
@@ -131,7 +131,7 @@ def then_launch(
     launch: bool,
     foreground: bool,
     qb_args: list[str] = [],
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     exit_with(
         operation(profile, **kwargs)
@@ -157,5 +157,5 @@ def session_info(
     return (Profile(profile_name or session_path.stem, profile_dir), session_path)
 
 
-def exit_with(result: bool):
+def exit_with(result: bool) -> NoReturn:
     exit(0 if result else 1)

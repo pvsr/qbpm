@@ -18,7 +18,7 @@ def error(msg: str) -> None:
     print(f"error: {msg}", file=stderr)
 
 
-def default_profile_dir():
+def default_profile_dir() -> Path:
     return Path(BaseDirectory.save_data_path("qutebrowser-profiles"))
 
 
