@@ -13,10 +13,6 @@ from .utils import SUPPORTED_MENUS, default_profile_dir, error
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-def exit_with(result: bool):
-    exit(0 if result else 1)
-
-
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-P",
@@ -128,6 +124,10 @@ def then_launch(profile: Profile, foreground: bool, qb_args: list[str]) -> bool:
     if profile:
         result = operations.launch(profile, False, foreground, qb_args)
     return result
+
+
+def exit_with(result: bool):
+    exit(0 if result else 1)
 
 
 if __name__ == "__main__":
