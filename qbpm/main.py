@@ -10,12 +10,14 @@ from . import __version__, operations, profiles
 from .profiles import Profile
 from .utils import SUPPORTED_MENUS, default_profile_dir, error
 
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
 
 def exit_with(result: bool):
     exit(0 if result else 1)
 
 
-@click.group()
+@click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-P",
     "--profile-dir",
