@@ -25,8 +25,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.pass_context
 def main(ctx, profile_dir: Path) -> None:
     # TODO version
-    ctx.ensure_object(dict)
-    ctx.obj["PROFILE_DIR"] = profile_dir
+    ctx.obj = profile_dir
 
 
 @main.command()
@@ -36,10 +35,10 @@ def main(ctx, profile_dir: Path) -> None:
 @click.option("--overwrite", is_flag=True)
 @click.option("-l", "--launch", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
-@click.pass_context
-def new(ctx, profile_name: str, **kwargs):
+@click.pass_obj
+def new(profile_dir: Path, profile_name: str, **kwargs):
     """Create a new profile."""
-    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    profile = Profile(profile_name, profile_dir)
     then_launch(profiles.new_profile, profile, **kwargs)
 
 
@@ -50,9 +49,9 @@ def new(ctx, profile_name: str, **kwargs):
 @click.option("--overwrite", is_flag=True)
 @click.option("-l", "--launch", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
-@click.pass_context
+@click.pass_obj
 def from_session(
-    ctx,
+    profile_dir: Path,
     session: str,
     profile_name: Optional[str],
     **kwargs,
@@ -61,19 +60,19 @@ def from_session(
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
     """
-    profile, session_path = session_info(session, profile_name, ctx.obj["PROFILE_DIR"])
+    profile, session_path = session_info(session, profile_name, profile_dir)
     then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
 
 @main.command()
 @click.argument("profile_name")
-@click.pass_context
+@click.pass_obj
 def desktop(
-    ctx,
+    profile_dir: Path,
     profile_name: str,
 ):
     """Create a desktop file for an existing profile."""
-    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    profile = Profile(profile_name, profile_dir)
     exit_with(operations.desktop(profile))
 
 
@@ -81,10 +80,10 @@ def desktop(
 @click.argument("profile_name")
 @click.option("-c", "--create", is_flag=True)
 @click.option("-f", "--foreground", is_flag=True)
-@click.pass_context
-def launch(ctx, profile_name: str, **kwargs):
+@click.pass_obj
+def launch(profile_dir: Path, profile_name: str, **kwargs):
     """Launch qutebrowser with a specific profile."""
-    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    profile = Profile(profile_name, profile_dir)
     # TODO qb args
     exit_with(operations.launch(profile, qb_args=[], **kwargs))
 
@@ -97,23 +96,21 @@ def launch(ctx, profile_name: str, **kwargs):
     help=f"A dmenu-compatible command or one of the following supported menus: {', '.join(sorted(SUPPORTED_MENUS))}",
 )
 @click.option("-f", "--foreground", is_flag=True)
-@click.pass_context
-def choose(ctx, **kwargs):
+@click.pass_obj
+def choose(profile_dir: Path, **kwargs):
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     """
     # TODO qb args
-    exit_with(
-        operations.choose(profile_dir=ctx.obj["PROFILE_DIR"], qb_args=[], **kwargs)
-    )
+    exit_with(operations.choose(profile_dir=profile_dir, qb_args=[], **kwargs))
 
 
 @main.command()
 @click.argument("profile_name")
-@click.pass_context
-def edit(ctx, profile_name):
+@click.pass_obj
+def edit(profile_dir: Path, profile_name):
     """Edit a profile's config.py."""
-    profile = Profile(profile_name, ctx.obj["PROFILE_DIR"])
+    profile = Profile(profile_name, profile_dir)
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
         exit(1)
@@ -121,10 +118,10 @@ def edit(ctx, profile_name):
 
 
 @main.command(name="list")
-@click.pass_context
-def list_(ctx):
+@click.pass_obj
+def list_(profile_dir: Path):
     """List existing profiles."""
-    for profile in sorted(ctx.obj["PROFILE_DIR"].iterdir()):
+    for profile in sorted(profile_dir.iterdir()):
         print(profile.name)
 
 
@@ -162,7 +159,3 @@ def session_info(
 
 def exit_with(result: bool):
     exit(0 if result else 1)
-
-
-if __name__ == "__main__":
-    main(obj={})
