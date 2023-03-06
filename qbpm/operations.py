@@ -29,12 +29,12 @@ def from_session(
 
 
 def launch(
-    profile: Profile, create: bool, foreground: bool, qb_args: list[str]
+    profile: Profile, create: bool, foreground: bool, qb_args: tuple[str, ...]
 ) -> bool:
     if not profiles.ensure_profile_exists(profile, create):
         return False
 
-    args = profile.cmdline() + qb_args
+    args = profile.cmdline() + list(qb_args)
     if not shutil.which(args[0]):
         error("qutebrowser is not installed")
         return False
@@ -65,7 +65,9 @@ def desktop(profile: Profile) -> bool:
     return exists
 
 
-def choose(profile_dir: Path, menu: str, foreground: bool, qb_args: list[str]) -> bool:
+def choose(
+    profile_dir: Path, menu: str, foreground: bool, qb_args: tuple[str, ...]
+) -> bool:
     menu = menu or next(installed_menus())
     if not menu:
         error(f"No menu program found, please install one of: {AUTO_MENUS}")
@@ -100,7 +102,9 @@ def choose(profile_dir: Path, menu: str, foreground: bool, qb_args: list[str]) -
     return True
 
 
-def menu_command(menu: str, profiles: list[str], qb_args: list[str]) -> Optional[str]:
+def menu_command(
+    menu: str, profiles: list[str], qb_args: tuple[str, ...]
+) -> Optional[str]:
     arg_string = " ".join(qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)
