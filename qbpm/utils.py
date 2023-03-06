@@ -4,7 +4,6 @@ from os import environ
 from pathlib import Path
 from shutil import which
 from sys import exit, stderr
-from typing import Optional
 
 from xdg import BaseDirectory
 

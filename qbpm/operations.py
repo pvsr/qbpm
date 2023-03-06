@@ -1,4 +1,3 @@
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -9,7 +8,7 @@ from xdg import BaseDirectory
 
 from . import profiles
 from .profiles import Profile
-from .utils import AUTO_MENUS, error, installed_menus, user_data_dir
+from .utils import AUTO_MENUS, error, installed_menus
 
 
 def from_session(
