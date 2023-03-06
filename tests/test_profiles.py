@@ -71,7 +71,7 @@ def test_overwrite_config(tmp_path: Path):
         for line in conf:
             if url in line:
                 return
-    assert False
+    raise AssertionError()
 
 
 def test_ensure_profile_exists_exists(tmp_path: Path):
