@@ -1,0 +1,7 @@
+select = ["E", "F", "W", "I", "UP", "N", "ANN", "S", "B", "A", "C4", "PT", "SIM", "ARG"]
+target-version = "py39"
+ignore = [
+  "E501", # line too long
+  "ANN101", # annotate self
+  "ANN102", # annotate cls
+]

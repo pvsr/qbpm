@@ -1,8 +1,10 @@
 {
   description = "A tool for creating and managing qutebrowser profiles";
 
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+  inputs.pre-commit-hooks.inputs.nixkpgs.follows = "nixkpkgs";
 
   outputs = {
     self,
@@ -16,13 +18,13 @@
         mkDevShell = args:
           pkgs.mkShell (args
             // {
-              buildInputs = [
-                (pkgs.python3.withPackages (ps:
+              buildInputs = with pkgs; [
+                ruff
+                (python3.withPackages (ps:
                   with ps; [
                     pyxdg
                     click
                     pytest
-                    pylint
                     mypy
                     black
                   ]))
@@ -51,7 +53,7 @@
               statix.enable = true;
 
               black.enable = true;
-              isort.enable = true;
+              ruff.enable = true;
             };
           };
         };
