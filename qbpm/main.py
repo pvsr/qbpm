@@ -159,7 +159,7 @@ def then_launch(
     profile: Profile,
     launch: bool,
     foreground: bool,
-    qb_args: tuple[str, ...],
+    qb_args: tuple[str, ...] = (),
     **kwargs: Any,
 ) -> None:
     exit_with(
