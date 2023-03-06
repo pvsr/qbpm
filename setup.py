@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="qbpm",
-    version="0.6",
+    version="1.0-rc2",
     url="https://github.com/pvsr/qbpm",
     packages=find_packages(),
     entry_points={"console_scripts": ["qbpm = qbpm.main:main"]},
