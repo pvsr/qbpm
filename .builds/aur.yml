@@ -4,5 +4,6 @@ sources:
 tasks:
   - makepkg: |
       cd qbpm/contrib
+      sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
       sudo pacman -Sy
       makepkg -s --noconfirm
