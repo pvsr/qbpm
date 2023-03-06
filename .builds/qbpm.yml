@@ -12,7 +12,7 @@ tasks:
       $NIX develop .#ci -c black --diff --check qbpm tests
   - ruff: |
       cd qbpm
-      $NIX develop .#ci -c ruff qbpm
+      $NIX develop .#ci -c ruff qbpm tests
   - mypy: |
       cd qbpm
       $NIX develop .#ci -c mypy qbpm tests
