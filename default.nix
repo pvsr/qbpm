@@ -6,7 +6,7 @@
 with pythonPackages;
   buildPythonPackage rec {
     pname = "qbpm";
-    version = "0.6";
+    version = "1.0-rc2";
     src = ./.;
     doCheck = true;
     nativeBuildInputs = [pkgs.scdoc];
