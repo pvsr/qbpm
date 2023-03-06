@@ -100,8 +100,9 @@ def desktop(
     exit_with(operations.desktop(profile))
 
 
-@main.command()
+@main.command(context_settings=dict(ignore_unknown_options=True))
 @click.argument("profile_name")
+@click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
@@ -110,13 +111,13 @@ def desktop(
 )
 @click.pass_obj
 def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
-    """Launch qutebrowser with a specific profile."""
+    """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
     profile = Profile(profile_name, profile_dir)
-    # TODO qb args
-    exit_with(operations.launch(profile, qb_args=[], **kwargs))
+    exit_with(operations.launch(profile, **kwargs))
 
 
-@main.command()
+@main.command(context_settings=dict(ignore_unknown_options=True))
+@click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
 @click.option(
     "-m",
     "--menu",
@@ -128,9 +129,9 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
 def choose(profile_dir: Path, **kwargs: Any) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
+    All QB_ARGS are passed on to qutebrowser."
     """
-    # TODO qb args
-    exit_with(operations.choose(profile_dir=profile_dir, qb_args=[], **kwargs))
+    exit_with(operations.choose(profile_dir=profile_dir, **kwargs))
 
 
 @main.command()
@@ -158,7 +159,7 @@ def then_launch(
     profile: Profile,
     launch: bool,
     foreground: bool,
-    qb_args: list[str] = [],
+    qb_args: tuple[str, ...],
     **kwargs: Any,
 ) -> None:
     exit_with(
