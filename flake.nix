@@ -21,7 +21,6 @@
                   with ps; [
                     pyxdg
                     click
-                    setuptools-scm
                     pytest
                     pylint
                     mypy

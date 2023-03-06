@@ -9,7 +9,7 @@ license=('GPL')
 sha512sums=('SKIP')
 arch=('any')
 depends=('python' 'python-pyxdg')
-makedepends=('git' 'python-setuptools' 'python-setuptools-scm' 'scdoc')
+makedepends=('git' 'python-setuptools' 'scdoc')
 provides=('qbpm')
 source=("git+https://github.com/pvsr/qbpm")
 

@@ -43,6 +43,7 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option()
 @click.option(
     "-P",
     "--profile-dir",
@@ -54,7 +55,6 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
 )
 @click.pass_context
 def main(ctx: click.Context, profile_dir: Path) -> None:
-    # TODO version
     ctx.obj = profile_dir
 
 
