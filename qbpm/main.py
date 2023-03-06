@@ -13,14 +13,44 @@ from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
+def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
+    for opt in reversed(
+        [
+            click.option("-l", "--launch", is_flag=True, help="Launch the profile."),
+            click.option(
+                "-f",
+                "--foreground",
+                is_flag=True,
+                help="If --launch is set, run qutebrowser in the foreground.",
+            ),
+            click.option(
+                "--no-desktop-file",
+                "desktop_file",
+                default=True,
+                is_flag=True,
+                flag_value=False,
+                help="Do not generate a .desktop file for the profile.",
+            ),
+            click.option(
+                "--overwrite",
+                is_flag=True,
+                help="Replace the current profile configuration if it exists.",
+            ),
+        ]
+    ):
+        f = opt(f)
+    return f
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-P",
     "--profile-dir",
     type=click.Path(file_okay=False, writable=True, path_type=Path),
     envvar="QBPM_PROFILE_DIR",
+    show_envvar=True,
     default=default_profile_dir,
-    help="directory in which profiles are stored",
+    help="Defaults to $XDG_DATA_HOME/qutebrowser-profiles.",
 )
 @click.pass_context
 def main(ctx: click.Context, profile_dir: Path) -> None:
@@ -31,10 +61,7 @@ def main(ctx: click.Context, profile_dir: Path) -> None:
 @main.command()
 @click.argument("profile_name")
 @click.argument("home_page", required=False)
-@click.option("--desktop-file/--no-desktop-file", default=True, is_flag=True)
-@click.option("--overwrite", is_flag=True)
-@click.option("-l", "--launch", is_flag=True)
-@click.option("-f", "--foreground", is_flag=True)
+@creator_options
 @click.pass_obj
 def new(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     """Create a new profile."""
@@ -45,10 +72,7 @@ def new(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
 @main.command()
 @click.argument("session")
 @click.argument("profile_name", required=False)
-@click.option("--desktop-file/--no-desktop-file", default=True, is_flag=True)
-@click.option("--overwrite", is_flag=True)
-@click.option("-l", "--launch", is_flag=True)
-@click.option("-f", "--foreground", is_flag=True)
+@creator_options
 @click.pass_obj
 def from_session(
     profile_dir: Path,
@@ -78,8 +102,12 @@ def desktop(
 
 @main.command()
 @click.argument("profile_name")
-@click.option("-c", "--create", is_flag=True)
-@click.option("-f", "--foreground", is_flag=True)
+@click.option(
+    "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
+)
+@click.option(
+    "-c", "--create", is_flag=True, help="Create the profile if it does not exist."
+)
 @click.pass_obj
 def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     """Launch qutebrowser with a specific profile."""
