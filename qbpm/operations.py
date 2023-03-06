@@ -134,7 +134,7 @@ item 1 of profile\'"""
     if len(menu.split(" ")) == 1:
         program = Path(menu).name
         if program == "rofi":
-            command = f"{menu} -dmenu -no-custom {prompt} -mesg {arg_string}"
+            command = f"{menu} -dmenu -no-custom {prompt} -mesg '{arg_string}'"
         elif program == "wofi":
             command = f"{menu} --dmenu {prompt}"
         elif program.startswith("dmenu"):
