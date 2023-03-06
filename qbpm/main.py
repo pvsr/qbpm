@@ -1,16 +1,13 @@
-import inspect
-from os import environ
 from pathlib import Path
 from typing import Any, Callable, NoReturn, Optional
 
 import click
-from xdg import BaseDirectory
 
-from . import __version__, operations, profiles
+from . import operations, profiles
 from .profiles import Profile
 from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -100,7 +97,7 @@ def desktop(
     exit_with(operations.desktop(profile))
 
 
-@main.command(context_settings=dict(ignore_unknown_options=True))
+@main.command(context_settings={"ignore_unknown_options": True})
 @click.argument("profile_name")
 @click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
 @click.option(
@@ -116,7 +113,7 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     exit_with(operations.launch(profile, **kwargs))
 
 
-@main.command(context_settings=dict(ignore_unknown_options=True))
+@main.command(context_settings={"ignore_unknown_options": True})
 @click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
 @click.option(
     "-m",
@@ -173,7 +170,7 @@ def session_info(
 ) -> tuple[Profile, Path]:
     user_session_dir = user_data_dir() / "sessions"
     session_paths = []
-    if not "/" in session:
+    if "/" not in session:
         session_paths.append(user_session_dir / (session + ".yml"))
     session_paths.append(Path(session))
     session_path = next(filter(lambda path: path.is_file(), session_paths), None)

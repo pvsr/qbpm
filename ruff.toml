@@ -4,4 +4,5 @@ ignore = [
   "E501", # line too long
   "ANN101", # annotate self
   "ANN102", # annotate cls
+  "ANN401", # ban Any
 ]
