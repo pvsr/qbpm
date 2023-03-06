@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="qbpm",
@@ -10,6 +10,4 @@ setup(
     author="Peter Rice",
     author_email="peter@peterrice.xyz",
     description="qutebrowser profile manager",
-    use_scm_version={"write_to": "qbpm/version.py"},
-    setup_requires=["setuptools_scm"],
 )

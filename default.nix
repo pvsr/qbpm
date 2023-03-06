@@ -9,8 +9,7 @@ with pythonPackages;
     version = "0.6";
     src = ./.;
     doCheck = true;
-    SETUPTOOLS_SCM_PRETEND_VERSION = version;
-    nativeBuildInputs = [pkgs.scdoc setuptools-scm];
+    nativeBuildInputs = [pkgs.scdoc];
     propagatedBuildInputs = [pyxdg click];
     checkInputs = [pytest];
     postInstall = ''
