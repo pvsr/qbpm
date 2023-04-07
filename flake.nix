@@ -28,6 +28,9 @@
                     pytest
                     mypy
                     black
+
+                    pylsp-mypy
+                    python-lsp-black
                   ]))
               ];
             });
