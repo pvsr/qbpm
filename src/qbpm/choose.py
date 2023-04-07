@@ -8,7 +8,11 @@ from .menus import find_menu
 
 
 def choose_profile(
-    profile_dir: Path, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
+    profile_dir: Path,
+    menu: str | None,
+    foreground: bool,
+    qb_args: tuple[str, ...],
+    force_icon: bool,
 ) -> bool:
     dmenu = find_menu(menu)
     if not dmenu:
@@ -19,11 +23,13 @@ def choose_profile(
         error("no profiles")
         return False
     profiles = [*real_profiles, "qutebrowser"]
+    use_icon = force_icon
+    # use_icon = dmenu.icon_support or force_icon
     command = dmenu.command(sorted(profiles), "qutebrowser", " ".join(qb_args))
     selection_cmd = subprocess.run(
         command,
         text=True,
-        input="\n".join(sorted(profiles)),
+        input=build_menu_items(profiles, use_icon),
         stdout=subprocess.PIPE,
         stderr=None,
         check=False,
@@ -39,3 +45,20 @@ def choose_profile(
     else:
         error("no profile selected")
         return False
+
+
+def build_menu_items(profiles: list[str], icon: bool) -> str:
+    # TODO build profile before passing to icons
+    if icon and any(profile_icons := [icons.icon_for_profile(p) for p in profiles]):
+        menu_items = [
+            icon_entry(profile, icon)
+            for (profile, icon) in zip(profiles, profile_icons)
+        ]
+    else:
+        menu_items = profiles
+
+    return "\n".join(sorted(menu_items))
+
+
+def icon_entry(name: str, icon: str | None) -> str:
+    return f"{name}\0icon\x1f{icon or config.default_icon}"

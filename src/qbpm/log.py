@@ -1,6 +1,10 @@
 import logging
 
 
+def debug(msg: str) -> None:
+    logging.debug(msg)
+
+
 def info(msg: str) -> None:
     logging.info(msg)
 

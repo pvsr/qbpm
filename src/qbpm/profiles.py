@@ -81,8 +81,12 @@ def new_profile(
         return False
     if create_profile(profile, overwrite):
         create_config(profile, qb_config_dir, home_page, overwrite)
+        icon = None
+        if home_page:
+            # TODO error handling
+            icon = icons.download_icon(profile, home_page, overwrite)
         if desktop_file is True or (desktop_file is not False and platform == "linux"):
-            create_desktop_file(profile)
+            create_desktop_file(profile, icon=str(icon) if icon else None)
         return True
     return False
 

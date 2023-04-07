@@ -56,6 +56,7 @@ def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
 
     for opt in reversed(
         [
+            # TODO --icon/--no-icon
             click.option(
                 "-C",
                 "--qutebrowser-config-dir",
@@ -207,16 +208,29 @@ def launch_profile(
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
+@click.option(
+    "-i",
+    "--icon",
+    "force_icon",
+    is_flag=True,
+    help="Attach icons to menu items using rofi's extended dmenu spec even if your menu is not known to support it. Only works if at least one profile has an icon installed.",
+)
 @click.pass_obj
 def choose(
-    context: Context, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
+    context: Context,
+    menu: str | None,
+    foreground: bool,
+    qb_args: tuple[str, ...],
+    force_icon: bool,
 ) -> None:
     """Choose a profile to launch.
 
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser.
     """
-    exit_with(choose_profile(context.profile_dir, menu, foreground, qb_args))
+    exit_with(
+        choose_profile(context.profile_dir, menu, foreground, qb_args, force_icon)
+    )
 
 
 @main.command()
@@ -248,6 +262,25 @@ def desktop(
     """Create an XDG desktop entry for an existing profile."""
     profile = Profile(profile_name, **vars(context))
     exit_with(operations.desktop(profile))
+
+
+@main.command()
+@click.argument("profile_name")
+@click.argument("icon", metavar="ICON_LOCATION")
+@click.option(
+    "-n",
+    "--by-name",
+    is_flag=True,
+    help="interpret ICON_LOCATION as the name of an icon in an installed icon theme instead of a file or url.",
+)
+@click.option("--overwrite", is_flag=True, help="Replace the current icon.")
+@click.pass_obj
+def icon(context: Context, profile_name: str, **kwargs: Any) -> None:
+    """Install an icon for the profile. ICON_LOCATION may be a url to download a favicon from,
+    a path to an image file, or, with --by-name, the name of an xdg icon installed on your system.
+    """
+    profile = Profile(profile_name, **vars(context))
+    exit_with(operations.icon(profile, **kwargs))
 
 
 def session_info(
