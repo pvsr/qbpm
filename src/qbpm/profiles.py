@@ -108,9 +108,13 @@ def new_profile(
         create_config(
             profile, qb_config_dir, config.config_py_template, home_page, overwrite
         )
+        icon = None
+        if home_page:
+            # TODO error handling
+            icon = icons.download_icon(profile, home_page, overwrite)
         if config.symlink_autoconfig_yml:
             link_autoconfig(profile, qb_config_dir, overwrite)
         if config.generate_desktop_file:
-            create_desktop_file(profile, config.desktop_file_directory)
+            create_desktop_file(profile, config.desktop_file_directory, icon=str(icon) if icon else None)
         return True
     return False

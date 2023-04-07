@@ -25,6 +25,10 @@ class Config:
     )
     menu: str | list[str] = field(default_factory=list)
     menu_prompt: str = "qutebrowser"
+    # TODO full support, tests, etc.
+    icon: bool = False
+    # TODO necessary? will be either qutebrowser or None
+    # default_icon = "qutebrowser"
 
     @classmethod
     def load(cls, config_file: Path | None) -> "Config":

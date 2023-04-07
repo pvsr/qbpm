@@ -19,6 +19,8 @@ dependencies = [
     "click",
     "xdg-base-dirs",
     "dacite",
+    "httpx",
+    "pillow",
 ]
 
 [project.urls]

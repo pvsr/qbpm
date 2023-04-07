@@ -8,7 +8,7 @@ from typing import Any, NoReturn, TypeVar
 
 import click
 
-from . import Profile, profiles
+from . import Profile, profiles, operations
 from .choose import choose_profile
 from .config import DEFAULT_CONFIG_FILE, Config, find_config
 from .desktop import create_desktop_file
@@ -65,6 +65,7 @@ def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
 
     for opt in reversed(
         [
+            # TODO --icon/--no-icon
             click.option(
                 "-C",
                 "--qutebrowser-config-dir",
@@ -232,9 +233,20 @@ def launch_profile(
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
+@click.option(
+    "-i",
+    "--icon",
+    "force_icon",
+    is_flag=True,
+    help="Attach icons to menu items using rofi's extended dmenu spec even if your menu is not known to support it. Only works if at least one profile has an icon installed.",
+)
 @click.pass_obj
 def choose(
-    context: Context, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
+    context: Context,
+    menu: str | None,
+    foreground: bool,
+    qb_args: tuple[str, ...],
+    force_icon: bool,
 ) -> None:
     """Choose a profile to launch.
 
@@ -249,6 +261,7 @@ def choose(
             config.menu_prompt,
             foreground,
             qb_args,
+            force_icon,
         )
     )
 
@@ -313,6 +326,25 @@ def path(context: Context) -> None:
 def default() -> None:
     """Print the default qbpm config file."""
     print(DEFAULT_CONFIG_FILE.read_text(), end="")
+
+@main.command()
+@click.argument("profile_name")
+@click.argument("icon", metavar="ICON_LOCATION")
+@click.option(
+    "-n",
+    "--by-name",
+    is_flag=True,
+    help="interpret ICON_LOCATION as the name of an icon in an installed icon theme instead of a file or url.",
+)
+@click.option("--overwrite", is_flag=True, help="Replace the current icon.")
+@click.pass_obj
+def icon(context: Context, profile_name: str, **kwargs: Any) -> None:
+    """Install an icon for the profile. ICON_LOCATION may be a url to download a favicon from,
+    a path to an image file, or, with --by-name, the name of an xdg icon installed on your system.
+    """
+    config = context.load_config()
+    profile = Profile(profile_name, config.profile_directory)
+    exit_with(operations.icon(profile, **kwargs))
 
 
 def exit_with(result: bool) -> NoReturn:
