@@ -83,14 +83,17 @@ def choose(
     if not command:
         return False
 
-    selection_cmd = subprocess.Popen(
-        command,
+    selection_cmd = subprocess.run(
+        command[1],
+        input=command[0],
+        text=True,
         shell=True,
         stdout=subprocess.PIPE,
         stderr=None,
+        check=False,
     )
     out = selection_cmd.stdout
-    selection = out and out.read().decode(errors="ignore").rstrip("\n")
+    selection = out and out.rstrip("\n")
 
     if selection:
         profile = Profile(selection, profile_dir)
@@ -102,13 +105,16 @@ def choose(
 
 def menu_command(
     menu: str, profiles: list[str], qb_args: tuple[str, ...]
-) -> Optional[str]:
+) -> Optional[tuple[str | None, str]]:
     arg_string = " ".join(qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)
-        return f"""osascript -e \'set profiles to {{"{profile_list}"}}
+        return (
+            None,
+            f"""osascript -e \'set profiles to {{"{profile_list}"}}
 set profile to choose from list profiles with prompt "qutebrowser: {arg_string}" default items {{item 1 of profiles}}
-item 1 of profile\'"""
+item 1 of profile\'""",
+        )
 
     prompt = "-p qutebrowser"
     command = menu
@@ -124,9 +130,11 @@ item 1 of profile\'"""
             command = f"{menu} --prompt 'qutebrowser '"
         elif program == "fuzzel":
             command = f"{menu} -d"
+            profiles = [f"{p}\0icon\x1fqbpm-{p}\n" for p in profiles]
+            print(f"{profiles=}")
     exe = command.split(" ")[0]
     if not shutil.which(exe):
         error(f"command '{exe}' not found")
         return None
-    profile_list = "\n".join(profiles)
-    return f'echo "{profile_list}" | {command}'
+    profile_list = "".join(profiles)
+    return (profile_list, command)

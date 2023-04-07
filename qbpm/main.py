@@ -154,6 +154,18 @@ def list_(profile_dir: Path) -> None:
         print(profile.name)
 
 
+@main.command()
+@click.argument("profile_name")
+@click.pass_obj
+def icon(profile_dir: Path, profile_name: str) -> None:
+    """Edit a profile's config.py."""
+    profile = Profile(profile_name, profile_dir)
+    if not profile.exists():
+        error(f"profile {profile.name} not found at {profile.root}")
+        exit(1)
+    profile.root / "config" / "config.py"
+
+
 def then_launch(
     operation: Callable[..., bool],
     profile: Profile,

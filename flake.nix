@@ -21,10 +21,15 @@
             // {
               buildInputs = with pkgs; [
                 ruff
+                xdg-utils.out
                 (python3.withPackages (ps:
                   with ps; [
                     pyxdg
+                    favicon
+                    pillow
+                    requests
                     click
+
                     pytest
                     mypy
                     black

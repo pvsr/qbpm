@@ -1,8 +1,13 @@
+import subprocess
 from functools import partial
 from pathlib import Path
 from sys import platform
+from tempfile import TemporaryDirectory
 from typing import Optional
 
+import favicon
+import requests
+from PIL import Image
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
@@ -82,16 +87,46 @@ def create_config(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def create_desktop_file(profile: Profile) -> None:
+def create_desktop_file(profile: Profile, icon: str | None) -> None:
     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
     desktop.set("Name", f"{profile.name} (qutebrowser profile)")
     # TODO allow passing in an icon value
-    desktop.set("Icon", "qutebrowser")
+    desktop.set("Icon", icon or "qutebrowser")
     desktop.set("Exec", " ".join(profile.cmdline()) + " %u")
     desktop.set("Categories", ["Network"])
     desktop.set("Terminal", False)
     desktop.set("StartupNotify", True)
     desktop.write()
+
+
+def download_icon(profile: Profile, home_page: str) -> str | None:
+    icons = favicon.get(home_page)
+    wanted = None
+    print(icons)
+    for icon in icons:
+        if ".ico" in icon.url:
+            wanted = icon
+            print(f"chose {icon}")
+
+    tmp_dir = TemporaryDirectory()
+    work_dir = Path(tmp_dir.name)
+    fav = work_dir / "favicon.ico"
+    if wanted:
+        resp = requests.get(icon.url, timeout=10)
+        with open(fav, "wb") as im:
+            for chunk in resp.iter_content(1024):
+                im.write(chunk)
+
+    name = f"qbpm-{profile.name}"
+    image = Image.open(fav)
+    png = work_dir / "icon.png"
+    image.save(png)
+    subprocess.run(
+        f"xdg-icon-resource install --context apps {png} --size {image.size[0]} {name}",
+        shell=True,
+    )
+    # image.save(Path(BaseDirectory.save_data_path("icons")) / "hicolor" / f"{image.size[0]}x{image.size[0]}" / "apps" / f"{name}.png")
+    return name
 
 
 def ensure_profile_exists(profile: Profile, create: bool = True) -> bool:
@@ -114,7 +149,9 @@ def new_profile(
 ) -> bool:
     if create_profile(profile, overwrite):
         create_config(profile, home_page, overwrite)
+        if home_page:
+            icon = download_icon(profile, home_page)
         if desktop_file:
-            create_desktop_file(profile)
+            create_desktop_file(profile, icon)
         return True
     return False
