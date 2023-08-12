@@ -28,9 +28,6 @@
                     pytest
                     mypy
                     black
-
-                    pylsp-mypy
-                    python-lsp-black
                   ]))
               ];
             });
@@ -46,6 +43,13 @@
         devShells.ci = mkDevShell {};
         devShells.default = mkDevShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
+          buildInputs = [
+            (pkgs.python3.withPackages (ps:
+              with ps; [
+                pylsp-mypy
+                python-lsp-black
+              ]))
+          ];
         };
 
         checks = {
