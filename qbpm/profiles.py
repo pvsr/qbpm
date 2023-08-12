@@ -5,48 +5,8 @@ from typing import Optional
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
-from .utils import error, or_phrase, qutebrowser_exe, user_config_dirs
-
-
-class Profile:
-    name: str
-    profile_dir: Path
-    root: Path
-    qb_config_dir: Optional[Path]
-
-    def __init__(
-        self,
-        name: str,
-        profile_dir: Optional[Path],
-        qb_config_dir: Optional[Path] = None,
-    ) -> None:
-        self.name = name
-        self.profile_dir = profile_dir or Path(
-            BaseDirectory.save_data_path("qutebrowser-profiles")
-        )
-        self.root = self.profile_dir / name
-        self.qb_config_dir = qb_config_dir
-
-    def check(self) -> Optional["Profile"]:
-        if "/" in self.name:
-            error("profile name cannot contain slashes")
-            return None
-        return self
-
-    def exists(self) -> bool:
-        return self.root.exists() and self.root.is_dir()
-
-    def cmdline(self) -> list[str]:
-        return [
-            qutebrowser_exe(),
-            "-B",
-            str(self.root),
-            "--qt-arg",
-            "name",
-            self.name,
-            "--desktop-file-name",
-            self.name,
-        ]
+from . import Profile
+from .utils import error, or_phrase, user_config_dirs
 
 
 def create_profile(profile: Profile, overwrite: bool = False) -> bool:

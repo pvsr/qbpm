@@ -6,8 +6,7 @@ from typing import Any, Callable, NoReturn, Optional
 
 import click
 
-from . import operations, profiles
-from .profiles import Profile
+from . import Profile, operations, profiles
 from .utils import SUPPORTED_MENUS, default_profile_dir, error, or_phrase, user_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}

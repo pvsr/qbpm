@@ -7,8 +7,7 @@ from typing import Optional
 
 from xdg import BaseDirectory
 
-from . import profiles
-from .profiles import Profile
+from . import Profile, profiles
 from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
 
 
