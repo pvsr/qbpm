@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from sys import platform
 from typing import Optional
@@ -7,6 +8,7 @@ from typing import Optional
 from xdg import BaseDirectory
 
 from . import Profile, profiles
+from .icons import find_icon_file
 from .utils import AUTO_MENUS, error, installed_menus
 
 
@@ -64,7 +66,11 @@ def desktop(profile: Profile) -> bool:
 
 
 def choose(
-    profile_dir: Path, menu: str, foreground: bool, qb_args: tuple[str, ...]
+    profile_dir: Path,
+    menu: str,
+    foreground: bool,
+    qb_args: tuple[str, ...],
+    force_icon: bool,
 ) -> bool:
     menu = menu or next(installed_menus())
     if not menu:
@@ -73,19 +79,24 @@ def choose(
     if menu == "applescript" and platform != "darwin":
         error(f"Menu applescript cannot be used on a {platform} host")
         return False
-    profiles = [profile.name for profile in sorted(profile_dir.iterdir())]
+    profiles = [
+        Profile(profile.name, profile_dir) for profile in sorted(profile_dir.iterdir())
+    ]
     if len(profiles) == 0:
         error("No profiles")
         return False
 
-    command = menu_command(menu, profiles, qb_args)
-    if not command:
+    menu_cmd = menu_command(menu, profiles, qb_args)
+    if not menu_cmd:
         return False
 
+    menu_items = build_menu_items(profiles, menu_cmd.icon_support or force_icon)
+
     selection_cmd = subprocess.run(
-        command[1],
-        input=command[0],
+        menu_cmd.command,
+        input=menu_items,
         text=True,
+        # TODO remove shell dependency
         shell=True,
         stdout=subprocess.PIPE,
         stderr=None,
@@ -102,24 +113,33 @@ def choose(
         return False
 
 
+@dataclass
+class Menu:
+    command: str
+    icon_support: bool
+
+
 def menu_command(
-    menu: str, profiles: list[str], qb_args: tuple[str, ...]
-) -> Optional[tuple[str | None, str]]:
+    menu: str, profiles: list[Profile], qb_args: tuple[str, ...]
+) -> Optional[Menu]:
+    icon = False
     arg_string = " ".join(qb_args)
     if menu == "applescript":
-        profile_list = '", "'.join(profiles)
-        return (
-            None,
+        profile_list = '", "'.join([p.name for p in profiles])
+        return Menu(
             f"""osascript -e \'set profiles to {{"{profile_list}"}}
 set profile to choose from list profiles with prompt "qutebrowser: {arg_string}" default items {{item 1 of profiles}}
 item 1 of profile\'""",
+            icon,
         )
 
     prompt = "-p qutebrowser"
     command = menu
+    # TODO arg
     if len(menu.split(" ")) == 1:
         program = Path(menu).name
         if program == "rofi":
+            icon = True
             command = f"{menu} -dmenu -no-custom {prompt} -mesg '{arg_string}'"
         elif program == "wofi":
             command = f"{menu} --dmenu {prompt}"
@@ -128,12 +148,22 @@ item 1 of profile\'""",
         elif program.startswith("fzf"):
             command = f"{menu} --prompt 'qutebrowser '"
         elif program == "fuzzel":
+            icon = True
             command = f"{menu} -d"
-            profiles = [f"{p}\0icon\x1fqbpm-{p}\n" for p in profiles]
-            print(f"{profiles=}")
     exe = command.split(" ")[0]
     if not shutil.which(exe):
         error(f"command '{exe}' not found")
         return None
-    profile_list = "".join(profiles)
-    return (profile_list, command)
+    return Menu(command, icon)
+
+
+def build_menu_items(profiles: list[Profile], icon: bool) -> str:
+    if icon and any(icons := [find_icon_file(p) for p in profiles]):
+        menu_items = [
+            f"{p.name}\0icon\x1f{icon or 'qutebrowser'}"
+            for (p, icon) in zip(profiles, icons)
+        ]
+    else:
+        menu_items = [p.name for p in profiles]
+
+    return "\n".join(menu_items)

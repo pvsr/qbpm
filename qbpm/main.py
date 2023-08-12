@@ -20,6 +20,7 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
                 is_flag=True,
                 help="If --launch is set, run qutebrowser in the foreground.",
             ),
+            # TODO --no-icon?
             click.option(
                 "--no-desktop-file",
                 "desktop_file",
@@ -130,7 +131,8 @@ def choose(profile_dir: Path, **kwargs: Any) -> None:
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser."
     """
-    exit_with(operations.choose(profile_dir=profile_dir, **kwargs))
+    # TODO force-icon
+    exit_with(operations.choose(profile_dir=profile_dir, force_icon=False, **kwargs))
 
 
 @main.command()
@@ -155,14 +157,26 @@ def list_(profile_dir: Path) -> None:
 
 @main.command()
 @click.argument("profile_name")
+@click.argument("icon")
 @click.pass_obj
-def icon(profile_dir: Path, profile_name: str) -> None:
-    """Edit a profile's config.py."""
+def icon(profile_dir: Path, profile_name: str, icon: str) -> None:
+    # TODO support --all?
+    """Install an icon for the profile."""
     profile = Profile(profile_name, profile_dir)
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
         sys.exit(1)
-    profile.root / "config" / "config.py"
+    icon_file: Optional[Path]
+    if Path(icon).is_file():
+        # TODO move to profile dir
+        # TODO overwrite protection
+        icon_file = Path(icon)
+    else:
+        icon_file = profiles.download_icon(profile, icon)
+    # TODO check if desktop file exists and should be updated
+    desktop_file = False
+    if desktop_file:
+        profiles.create_desktop_file(profile, icon_file)
 
 
 def then_launch(
