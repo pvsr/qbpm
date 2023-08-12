@@ -6,4 +6,6 @@ tasks:
       cd qbpm/contrib
       sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
       sudo pacman -Sy
-      makepkg -s --noconfirm
+      makepkg -si --noconfirm
+      qbpm new profile
+      qbpm list | grep profile
