@@ -86,18 +86,6 @@ def from_session(
     then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
 
-@main.command()
-@click.argument("profile_name")
-@click.pass_obj
-def desktop(
-    profile_dir: Path,
-    profile_name: str,
-) -> None:
-    """Create a desktop file for an existing profile."""
-    profile = Profile(profile_name, profile_dir)
-    exit_with(operations.desktop(profile))
-
-
 @main.command(context_settings={"ignore_unknown_options": True})
 @click.argument("profile_name")
 @click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
@@ -153,6 +141,18 @@ def list_(profile_dir: Path) -> None:
     """List existing profiles."""
     for profile in sorted(profile_dir.iterdir()):
         print(profile.name)
+
+
+@main.command()
+@click.argument("profile_name")
+@click.pass_obj
+def desktop(
+    profile_dir: Path,
+    profile_name: str,
+) -> None:
+    """Create a desktop file for an existing profile."""
+    profile = Profile(profile_name, profile_dir)
+    exit_with(operations.desktop(profile))
 
 
 @main.command()
