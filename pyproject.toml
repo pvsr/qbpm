@@ -26,6 +26,10 @@ repository = "https://github.com/pvsr/qbpm"
 [project.scripts]
 qbpm = "qbpm.main:main"
 
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools]
 packages = ["qbpm"]
 
