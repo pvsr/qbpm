@@ -4,8 +4,7 @@ from typing import Any, Callable, NoReturn, Optional
 
 import click
 
-from . import operations, profiles
-from .profiles import Profile
+from . import Profile, operations, profiles
 from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -162,7 +161,7 @@ def icon(profile_dir: Path, profile_name: str) -> None:
     profile = Profile(profile_name, profile_dir)
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
-        exit(1)
+        sys.exit(1)
     profile.root / "config" / "config.py"
 
 
