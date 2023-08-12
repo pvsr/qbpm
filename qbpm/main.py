@@ -122,7 +122,9 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     metavar="COMMAND",
     help=f"A dmenu-compatible command or one of the following supported menus: {', '.join(sorted(SUPPORTED_MENUS))}",
 )
-@click.option("-f", "--foreground", is_flag=True)
+@click.option(
+    "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
+)
 @click.pass_obj
 def choose(profile_dir: Path, **kwargs: Any) -> None:
     """Choose a profile to launch.
