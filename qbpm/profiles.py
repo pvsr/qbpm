@@ -1,3 +1,4 @@
+import os
 from functools import partial
 from pathlib import Path
 from sys import platform
@@ -58,6 +59,9 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True, exist_ok=overwrite)
+    userscript_dir = config_dir / "userscripts"
+    main_config_dir = user_config_dir()
+    os.symlink(main_config_dir,userscript_dir)
     print(profile.root)
     return True
 
