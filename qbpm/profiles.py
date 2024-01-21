@@ -59,9 +59,18 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True, exist_ok=overwrite)
-    userscript_dir = config_dir / "userscripts"
     main_config_dir = user_config_dir() / "userscripts"
+
+    userscript_dir = config_dir / "userscripts"
     os.symlink(main_config_dir,userscript_dir)
+
+    main_data_home = Path(BaseDirectory.xdg_data_home) / "qutebrowser"
+    main_dict = main_data_home / "qtwebengine_dictionaries"
+    data_dir = profile.root / "data"
+    data_dir.mkdir(parents=True, exist_ok=overwrite)
+    dict_dir = data_dir / "qtwebengine_dictionaries"
+    os.symlink(main_dict,dict_dir)
+
     print(profile.root)
     return True
 
