@@ -12,6 +12,15 @@ X11_MENUS = ["rofi", "dmenu"]
 AUTO_MENUS = WAYLAND_MENUS + X11_MENUS
 SUPPORTED_MENUS = [*AUTO_MENUS, "fzf", "applescript"]
 
+global debugging
+debugging: bool = True
+
+
+# TODO replace with actual logger
+def debug(msg: str) -> None:
+    if debugging:
+        print(f"debug: {msg}", file=stderr)
+
 
 def error(msg: str) -> None:
     print(f"error: {msg}", file=stderr)

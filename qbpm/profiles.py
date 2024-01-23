@@ -5,8 +5,7 @@ from typing import Optional
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
-from . import Profile
-from .icons import download_icon
+from . import Profile, config, icons
 from .utils import error, user_config_dir
 
 
@@ -44,15 +43,23 @@ def create_config(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def create_desktop_file(profile: Profile, icon: Path | str | None = None) -> None:
+def create_desktop_file(profile: Profile, icon: Optional[str] = None) -> None:
     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
-    desktop.set("Name", f"{profile.name} (qutebrowser profile)")
-    # TODO allow passing in an icon value
-    desktop.set("Icon", icon or "qutebrowser")
+    desktop.set("Name", f"{profile.name}{config.application_name_suffix}")
+    desktop.set("Icon", icon or config.default_icon)
     desktop.set("Exec", " ".join(profile.cmdline()) + " %u")
     desktop.set("Categories", ["Network"])
     desktop.set("Terminal", False)
     desktop.set("StartupNotify", True)
+    desktop.write()
+
+
+def add_to_desktop_file(profile: Profile, key: str, value: str) -> None:
+    desktop_file = application_dir / f"{profile.name}.desktop"
+    if not desktop_file.exists():
+        return
+    desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
+    desktop.set(key, value)
     desktop.write()
 
 
@@ -78,8 +85,8 @@ def new_profile(
         create_config(profile, home_page, overwrite)
         if home_page:
             # TODO catch errors?
-            icon = download_icon(profile, home_page)
+            icon = icons.download_icon(profile, home_page, overwrite)
         if desktop_file:
-            create_desktop_file(profile, icon)
+            create_desktop_file(profile, str(icon) if icon else None)
         return True
     return False

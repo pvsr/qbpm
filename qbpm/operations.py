@@ -7,8 +7,7 @@ from typing import Optional
 
 from xdg import BaseDirectory
 
-from . import Profile, profiles
-from .icons import find_icon_file
+from . import Profile, config, icons, profiles
 from .utils import AUTO_MENUS, error, installed_menus
 
 
@@ -59,10 +58,27 @@ application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 def desktop(profile: Profile) -> bool:
     exists = profile.exists()
     if exists:
-        profiles.create_desktop_file(profile)
+        profiles.create_desktop_file(profile, icons.icon_for_profile(profile))
     else:
         error(f"profile {profile.name} not found at {profile.root}")
     return exists
+
+
+def icon(profile: Profile, icon: str, by_name: bool, overwrite: bool) -> bool:
+    if not profile.exists():
+        error(f"profile {profile.name} not found at {profile.root}")
+        return False
+    if by_name:
+        icon_id = icon if icons.install_icon_by_name(profile, icon, overwrite) else None
+    else:
+        if Path(icon).is_file():
+            icon_file = icons.install_icon_file(profile, Path(icon), overwrite)
+        else:
+            icon_file = icons.download_icon(profile, icon, overwrite)
+        icon_id = str(icon_file) if icon_file else None
+    if icon_id:
+        profiles.add_to_desktop_file(profile, "Icon", icon_id)
+    return icon_id is not None
 
 
 def choose(
@@ -158,10 +174,10 @@ item 1 of profile\'""",
 
 
 def build_menu_items(profiles: list[Profile], icon: bool) -> str:
-    if icon and any(icons := [find_icon_file(p) for p in profiles]):
+    if icon and any(profile_icons := [icons.icon_for_profile(p) for p in profiles]):
         menu_items = [
-            f"{p.name}\0icon\x1f{icon or 'qutebrowser'}"
-            for (p, icon) in zip(profiles, icons)
+            f"{p.name}\0icon\x1f{icon or config.default_icon}"
+            for (p, icon) in zip(profiles, profile_icons)
         ]
     else:
         menu_items = [p.name for p in profiles]

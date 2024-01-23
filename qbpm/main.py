@@ -113,14 +113,20 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
+@click.option(
+    "-i",
+    "--icon",
+    "force_icon",
+    is_flag=True,
+    help="Attach icons to menu items using rofi's extended dmenu spec even if your menu is not known to support it. Only works if at least one profile has an icon installed.",
+)
 @click.pass_obj
 def choose(profile_dir: Path, **kwargs: Any) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser."
     """
-    # TODO force-icon
-    exit_with(operations.choose(profile_dir=profile_dir, force_icon=False, **kwargs))
+    exit_with(operations.choose(profile_dir=profile_dir, **kwargs))
 
 
 @main.command()
@@ -157,26 +163,21 @@ def desktop(
 
 @main.command()
 @click.argument("profile_name")
-@click.argument("icon")
+@click.argument("icon", metavar="ICON_LOCATION")
+@click.option(
+    "-n",
+    "--by-name",
+    is_flag=True,
+    help="interpret ICON_LOCATION as the name of an icon in an installed icon theme instead of a file or url.",
+)
+@click.option("--overwrite", is_flag=True, help="Replace the current icon.")
 @click.pass_obj
-def icon(profile_dir: Path, profile_name: str, icon: str) -> None:
-    # TODO support --all?
-    """Install an icon for the profile."""
+def icon(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
+    """Install an icon for the profile. ICON_LOCATION may be a url to download a favicon from,
+    a path to an image file, or, with --by-name, the name of an xdg icon installed on your system.
+    """
     profile = Profile(profile_name, profile_dir)
-    if not profile.exists():
-        error(f"profile {profile.name} not found at {profile.root}")
-        sys.exit(1)
-    icon_file: Optional[Path]
-    if Path(icon).is_file():
-        # TODO move to profile dir
-        # TODO overwrite protection
-        icon_file = Path(icon)
-    else:
-        icon_file = profiles.download_icon(profile, icon)
-    # TODO check if desktop file exists and should be updated
-    desktop_file = False
-    if desktop_file:
-        profiles.create_desktop_file(profile, icon_file)
+    exit_with(operations.icon(profile, **kwargs))
 
 
 def then_launch(
