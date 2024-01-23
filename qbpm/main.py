@@ -1,3 +1,4 @@
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Callable, NoReturn, Optional
@@ -40,6 +41,12 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
     return f
 
 
+class LowerCaseFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        record.levelname = record.levelname.lower()
+        return super().format(record)
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 @click.option(
@@ -51,9 +58,20 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
     default=default_profile_dir,
     help="Defaults to $XDG_DATA_HOME/qutebrowser-profiles.",
 )
+@click.option(
+    "-l",
+    "--log-level",
+    default="error",
+    type=click.Choice(["debug", "info", "error"], case_sensitive=False),
+)
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path) -> None:
+def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
     ctx.obj = profile_dir
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level.upper())
+    handler = logging.StreamHandler()
+    handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
+    root_logger.addHandler(handler)
 
 
 @main.command()
