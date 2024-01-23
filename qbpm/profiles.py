@@ -76,7 +76,7 @@ def create_config(
         main_config_dir = user_config_dir()
         out(f"config.source(r'{main_config_dir / 'config.py'}')")
         for conf in main_config_dir.glob("conf.d/*.py"):
-            out(f"config.source('{conf}')")
+            out(f"config.source(r'{conf}')")
 
 
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
