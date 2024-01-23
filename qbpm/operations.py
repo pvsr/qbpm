@@ -94,11 +94,10 @@ def choose(
 
     if selection:
         profile = Profile(selection, profile_dir)
-        launch(profile, True, foreground, qb_args)
+        return launch(profile, False, foreground, qb_args)
     else:
         error("No profile selected")
         return False
-    return True
 
 
 def menu_command(
