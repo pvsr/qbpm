@@ -11,7 +11,7 @@ with pythonPackages;
     doCheck = true;
     format = "pyproject";
     nativeBuildInputs = [pkgs.scdoc setuptools];
-    propagatedBuildInputs = [pyxdg click];
+    propagatedBuildInputs = [pyxdg click requests favicon pillow];
     checkInputs = [pytest];
     postInstall = ''
       mkdir -p $out/share/fish/vendor_completions.d

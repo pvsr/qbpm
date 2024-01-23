@@ -1,51 +1,12 @@
 from functools import partial
 from pathlib import Path
-from sys import platform
 from typing import Optional
 
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
+from . import Profile, config, icons
 from .utils import error, user_config_dir
-
-
-class Profile:
-    name: str
-    profile_dir: Path
-    root: Path
-
-    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
-        self.name = name
-        self.profile_dir = profile_dir or Path(
-            BaseDirectory.save_data_path("qutebrowser-profiles")
-        )
-        self.root = self.profile_dir / name
-
-    def check(self) -> Optional["Profile"]:
-        if "/" in self.name:
-            error("profile name cannot contain slashes")
-            return None
-        return self
-
-    def exists(self) -> bool:
-        return self.root.exists() and self.root.is_dir()
-
-    def cmdline(self) -> list[str]:
-        macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
-        if platform == "darwin" and Path(macos_app).exists():
-            qb = macos_app
-        else:
-            qb = "qutebrowser"
-        return [
-            qb,
-            "-B",
-            str(self.root),
-            "--qt-arg",
-            "name",
-            self.name,
-            "--desktop-file-name",
-            self.name,
-        ]
 
 
 def create_profile(profile: Profile, overwrite: bool = False) -> bool:
@@ -82,15 +43,23 @@ def create_config(
 application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 
 
-def create_desktop_file(profile: Profile) -> None:
+def create_desktop_file(profile: Profile, icon: Optional[str] = None) -> None:
     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
-    desktop.set("Name", f"{profile.name} (qutebrowser profile)")
-    # TODO allow passing in an icon value
-    desktop.set("Icon", "qutebrowser")
+    desktop.set("Name", f"{profile.name}{config.application_name_suffix}")
+    desktop.set("Icon", icon or config.default_icon)
     desktop.set("Exec", " ".join(profile.cmdline()) + " %u")
     desktop.set("Categories", ["Network"])
     desktop.set("Terminal", False)
     desktop.set("StartupNotify", True)
+    desktop.write()
+
+
+def add_to_desktop_file(profile: Profile, key: str, value: str) -> None:
+    desktop_file = application_dir / f"{profile.name}.desktop"
+    if not desktop_file.exists():
+        return
+    desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
+    desktop.set(key, value)
     desktop.write()
 
 
@@ -114,7 +83,10 @@ def new_profile(
 ) -> bool:
     if create_profile(profile, overwrite):
         create_config(profile, home_page, overwrite)
+        if home_page:
+            # TODO catch errors?
+            icon = icons.download_icon(profile, home_page, overwrite)
         if desktop_file:
-            create_desktop_file(profile)
+            create_desktop_file(profile, str(icon) if icon else None)
         return True
     return False

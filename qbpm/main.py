@@ -1,11 +1,11 @@
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Callable, NoReturn, Optional
 
 import click
 
-from . import operations, profiles
-from .profiles import Profile
+from . import Profile, operations, profiles
 from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -21,6 +21,7 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
                 is_flag=True,
                 help="If --launch is set, run qutebrowser in the foreground.",
             ),
+            # TODO --no-icon?
             click.option(
                 "--no-desktop-file",
                 "desktop_file",
@@ -40,6 +41,12 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
     return f
 
 
+class LowerCaseFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        record.levelname = record.levelname.lower()
+        return super().format(record)
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 @click.option(
@@ -51,9 +58,20 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
     default=default_profile_dir,
     help="Defaults to $XDG_DATA_HOME/qutebrowser-profiles.",
 )
+@click.option(
+    "-l",
+    "--log-level",
+    default="error",
+    type=click.Choice(["debug", "info", "error"], case_sensitive=False),
+)
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path) -> None:
+def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
     ctx.obj = profile_dir
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level.upper())
+    handler = logging.StreamHandler()
+    handler.setFormatter(LowerCaseFormatter("{levelname:>6}: {message}", style="{"))
+    root_logger.addHandler(handler)
 
 
 @main.command()
@@ -86,18 +104,6 @@ def from_session(
     then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
 
-@main.command()
-@click.argument("profile_name")
-@click.pass_obj
-def desktop(
-    profile_dir: Path,
-    profile_name: str,
-) -> None:
-    """Create a desktop file for an existing profile."""
-    profile = Profile(profile_name, profile_dir)
-    exit_with(operations.desktop(profile))
-
-
 @main.command(context_settings={"ignore_unknown_options": True})
 @click.argument("profile_name")
 @click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
@@ -124,6 +130,13 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
 )
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
+)
+@click.option(
+    "-i",
+    "--icon",
+    "force_icon",
+    is_flag=True,
+    help="Attach icons to menu items using rofi's extended dmenu spec even if your menu is not known to support it. Only works if at least one profile has an icon installed.",
 )
 @click.pass_obj
 def choose(profile_dir: Path, **kwargs: Any) -> None:
@@ -152,6 +165,37 @@ def list_(profile_dir: Path) -> None:
     """List existing profiles."""
     for profile in sorted(profile_dir.iterdir()):
         print(profile.name)
+
+
+@main.command()
+@click.argument("profile_name")
+@click.pass_obj
+def desktop(
+    profile_dir: Path,
+    profile_name: str,
+) -> None:
+    """Create a desktop file for an existing profile."""
+    profile = Profile(profile_name, profile_dir)
+    exit_with(operations.desktop(profile))
+
+
+@main.command()
+@click.argument("profile_name")
+@click.argument("icon", metavar="ICON_LOCATION")
+@click.option(
+    "-n",
+    "--by-name",
+    is_flag=True,
+    help="interpret ICON_LOCATION as the name of an icon in an installed icon theme instead of a file or url.",
+)
+@click.option("--overwrite", is_flag=True, help="Replace the current icon.")
+@click.pass_obj
+def icon(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
+    """Install an icon for the profile. ICON_LOCATION may be a url to download a favicon from,
+    a path to an image file, or, with --by-name, the name of an xdg icon installed on your system.
+    """
+    profile = Profile(profile_name, profile_dir)
+    exit_with(operations.icon(profile, **kwargs))
 
 
 def then_launch(
