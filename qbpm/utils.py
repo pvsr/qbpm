@@ -1,5 +1,5 @@
 import platform
-from collections.abc import Generator
+from collections.abc import Iterator
 from os import environ
 from pathlib import Path
 from shutil import which
@@ -40,7 +40,7 @@ def user_config_dir() -> Path:
     return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
 
 
-def installed_menus() -> Generator[str, None, None]:
+def installed_menus() -> Iterator[str]:
     if platform.system() == "Darwin":
         yield "applescript"
     if environ.get("WAYLAND_DISPLAY"):
