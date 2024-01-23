@@ -88,7 +88,6 @@ def choose(
         shell=True,
         stdout=subprocess.PIPE,
         stderr=None,
-        check=False,
     )
     out = selection_cmd.stdout
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
