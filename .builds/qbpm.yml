@@ -6,16 +6,16 @@ environment:
 tasks:
   - deps: |
       cd qbpm
-      $NIX build .#devShells.x86_64-linux.ci
+      $NIX build .#devShells.x86_64-linux.default .#checks.x86_64-linux.formatting
   - format: |
       cd qbpm
-      $NIX develop .#ci -c black --diff --check qbpm tests
+      $NIX flake check
   - ruff: |
       cd qbpm
-      $NIX develop .#ci -c ruff qbpm tests
+      $NIX develop . -c ruff qbpm tests
   - mypy: |
       cd qbpm
-      $NIX develop .#ci -c mypy qbpm tests
+      $NIX develop . -c mypy qbpm tests
   - pytest: |
       cd qbpm
-      $NIX develop .#ci -c pytest
+      $NIX develop . -c pytest
