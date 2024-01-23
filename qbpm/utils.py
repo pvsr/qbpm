@@ -63,7 +63,9 @@ def env_menus() -> Iterator[str]:
     if environ.get("TMUX"):
         yield "fzf-tmux"
     # if there's no display and fzf is installed we're probably(?) in a term
-    yield "fzf"
+    if which("fzf") is not None:
+        info("no graphical launchers found, trying fzf")
+        yield "fzf"
 
 
 def or_phrase(items: list) -> str:
