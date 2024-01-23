@@ -1,3 +1,4 @@
+import logging
 import platform
 from collections.abc import Iterator
 from os import environ
@@ -12,18 +13,13 @@ X11_MENUS = ["rofi", "dmenu"]
 AUTO_MENUS = WAYLAND_MENUS + X11_MENUS
 SUPPORTED_MENUS = [*AUTO_MENUS, "fzf", "applescript"]
 
-global debugging
-debugging: bool = True
 
-
-# TODO replace with actual logger
-def debug(msg: str) -> None:
-    if debugging:
-        print(f"debug: {msg}", file=stderr)
+def info(msg: str) -> None:
+    logging.info(msg)
 
 
 def error(msg: str) -> None:
-    print(f"error: {msg}", file=stderr)
+    logging.error(msg)
 
 
 def default_profile_dir() -> Path:
@@ -64,5 +60,5 @@ def installed_menus() -> Iterator[str]:
         yield "fzf-tmux"
     # if there's no display and fzf is installed we're probably(?) in a term
     if which("fzf") is not None:
-        print("no graphical launchers found, trying fzf", file=stderr)
+        info("no graphical launchers found, trying fzf")
         yield "fzf"

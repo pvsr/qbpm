@@ -12,7 +12,7 @@ import requests
 from PIL import Image
 
 from . import Profile, __version__
-from .utils import debug, error
+from .utils import error, info
 
 PREFERRED_ICONS = [
     re.compile(p)
@@ -34,7 +34,7 @@ def choose_icon(icons: list[Icon]) -> Optional[Icon]:
     for pattern in PREFERRED_ICONS:
         for icon in icons:
             if pattern.search(icon.url):
-                debug(f"chose {icon.url}")
+                info(f"chose {icon.url}")
                 return icon
     return None
 
@@ -48,7 +48,7 @@ def download_icon(profile: Profile, home_page: str, overwrite: bool) -> Optional
     try:
         icons = favicon.get(home_page, headers=headers, timeout=10)
     except Exception as e:
-        debug(str(e))
+        info(str(e))
         error(f"failed to fetch favicon from {home_page}")
         return None
     if not icons:
@@ -56,7 +56,7 @@ def download_icon(profile: Profile, home_page: str, overwrite: bool) -> Optional
         return None
     icon = choose_icon(icons)
     if not icon:
-        print(f"no favicons found matching one of {PREFERRED_ICONS}")
+        info(f"no favicons found matching one of {PREFERRED_ICONS}")
         return None
 
     tmp_dir = TemporaryDirectory()
@@ -90,7 +90,7 @@ def install_icon_file(
             image = Image.open(src)
             image.save(dest, icon_format="png")
         except Exception as e:
-            debug(str(e))
+            info(str(e))
             error(f"failed to convert {origin or src} to png")
             return None
     else:
