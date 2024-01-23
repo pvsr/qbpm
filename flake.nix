@@ -3,15 +3,29 @@
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
+  inputs.treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    treefmt-nix,
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+        treefmt = treefmt-nix.lib.evalModule pkgs {
+          projectRootFile = "flake.nix";
+          programs.mypy.enable = true;
+          programs.mypy.directories."." = {
+            modules = ["qbpm" "tests"];
+            extraPythonPackages = with pkgs.python3.pkgs; [pyxdg click];
+          };
+          programs.ruff.check = true;
+          programs.ruff.format = true;
+          programs.alejandra.enable = true;
+        };
       in rec {
         packages = flake-utils.lib.flattenTree rec {
           qbpm = import ./. {inherit pkgs;};
@@ -28,14 +42,16 @@
               with ps; [
                 pyxdg
                 click
+
                 pytest
                 mypy
-
                 pylsp-mypy
                 ruff-lsp
               ]))
           ];
         };
+        formatter = treefmt.config.build.wrapper;
+        checks.formatting = treefmt.config.build.check self;
       }
     );
 }
