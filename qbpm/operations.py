@@ -39,7 +39,7 @@ def launch(
         return False
 
     if foreground:
-        return subprocess.run(args).returncode == 0
+        return subprocess.run(args, check=False).returncode == 0
     else:
         p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         try:
@@ -88,6 +88,7 @@ def choose(
         shell=True,
         stdout=subprocess.PIPE,
         stderr=None,
+        check=False,
     )
     out = selection_cmd.stdout
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
