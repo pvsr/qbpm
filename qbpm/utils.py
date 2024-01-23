@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import which
 from sys import exit, stderr
 
+from click import get_app_dir
 from xdg import BaseDirectory
 
 WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
@@ -25,7 +26,7 @@ def user_data_dir() -> Path:
     if platform.system() == "Linux":
         return Path(BaseDirectory.xdg_data_home) / "qutebrowser"
     if platform.system() == "Darwin":
-        return Path.home() / "Library" / "Application Support" / "qutebrowser"
+        return Path(get_app_dir("qutebrowser"))
     error("This operation is only implemented for linux and macOS.")
     print(
         "If you're interested in adding support for another OS, send a PR "
@@ -37,7 +38,11 @@ def user_data_dir() -> Path:
 
 
 def user_config_dir() -> Path:
-    return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
+    # TODO we should check both locations on macos. sticking with xdg for now for backwards compat
+    if platform.system() == "Darwin":
+        return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
+    else:
+        return Path(get_app_dir("qutebrowser", roaming=True))
 
 
 def installed_menus() -> Iterator[str]:
