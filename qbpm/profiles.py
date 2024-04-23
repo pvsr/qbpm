@@ -6,7 +6,7 @@ from typing import Optional
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
-from .utils import error, user_config_dir
+from .utils import error, or_phrase, user_config_dirs
 
 
 class Profile:
@@ -63,7 +63,10 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 
 
 def create_config(
-    profile: Profile, home_page: Optional[str] = None, overwrite: bool = False
+    profile: Profile,
+    main_config_dir: Path,
+    home_page: Optional[str] = None,
+    overwrite: bool = False,
 ) -> None:
     user_config = profile.root / "config" / "config.py"
     with user_config.open(mode="w" if overwrite else "x") as dest_config:
@@ -73,7 +76,6 @@ def create_config(
         out(f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'")
         if home_page:
             out(f"c.url.start_pages = ['{home_page}']")
-        main_config_dir = user_config_dir()
         out(f"config.source(r'{main_config_dir / 'config.py'}')")
         for conf in main_config_dir.glob("conf.d/*.py"):
             out(f"config.source(r'{conf}')")
@@ -112,9 +114,21 @@ def new_profile(
     desktop_file: bool = True,
     overwrite: bool = False,
 ) -> bool:
+    main_config_dir = get_main_config_dir()
+    if not main_config_dir:
+        return False
     if create_profile(profile, overwrite):
-        create_config(profile, home_page, overwrite)
+        create_config(profile, main_config_dir, home_page, overwrite)
         if desktop_file:
             create_desktop_file(profile)
         return True
     return False
+
+
+def get_main_config_dir() -> Optional[Path]:
+    config_file = "config.py"
+    for config_dir in user_config_dirs():
+        if (config_dir / config_file).exists():
+            return config_dir
+    error(f"could not find {config_file} in {or_phrase(user_config_dirs())}")
+    return None

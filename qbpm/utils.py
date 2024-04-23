@@ -37,12 +37,17 @@ def user_data_dir() -> Path:
     exit(1)
 
 
-def user_config_dir() -> Path:
-    # TODO we should check both locations on macos. sticking with xdg for now for backwards compat
-    if platform.system() == "Darwin":
-        return Path(BaseDirectory.xdg_config_home) / "qutebrowser"
-    else:
-        return Path(get_app_dir("qutebrowser", roaming=True))
+def user_config_dirs() -> list[Path]:
+    # deduplicate while maintaining order
+    return list(
+        dict.fromkeys(
+            [
+                Path(get_app_dir("qutebrowser", roaming=True)),
+                Path(BaseDirectory.xdg_config_home) / "qutebrowser",
+                Path.home() / ".qutebrowser",
+            ]
+        )
+    )
 
 
 def installed_menus() -> Iterator[str]:
@@ -62,3 +67,16 @@ def installed_menus() -> Iterator[str]:
     if which("fzf") is not None:
         print("no graphical launchers found, trying fzf", file=stderr)
         yield "fzf"
+
+
+def or_phrase(items: list) -> str:
+    strings = list(map(str, items))
+    size = len(strings)
+    if size == 0:
+        return "[]"
+    elif size == 1:
+        return strings[0]
+    elif size == 2:
+        return " or ".join(strings)
+    else:
+        return ", or ".join([", ".join(strings[0:-1]), strings[-1]])
