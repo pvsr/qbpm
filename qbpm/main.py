@@ -6,7 +6,7 @@ import click
 
 from . import operations, profiles
 from .profiles import Profile
-from .utils import SUPPORTED_MENUS, default_profile_dir, error, user_data_dir
+from .utils import SUPPORTED_MENUS, default_profile_dir, error, or_phrase, user_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -179,8 +179,8 @@ def session_info(
     session_path = next(filter(lambda path: path.is_file(), session_paths), None)
 
     if not session_path:
-        tried = ", ".join([str(p.resolve()) for p in session_paths])
-        error(f"could not find session at the following paths: {tried}")
+        tried = or_phrase([str(p.resolve()) for p in session_paths])
+        error(f"could not find session file at {tried}")
         sys.exit(1)
 
     return (Profile(profile_name or session_path.stem, profile_dir), session_path)

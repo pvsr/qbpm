@@ -74,6 +74,7 @@ ignore = [
   "ANN101", # annotate self
   "ANN102", # annotate cls
   "ANN401", # ban Any
+  "PLR2004", # magic values
 ]
 
 [tool.ruff.per-file-ignores]

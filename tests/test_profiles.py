@@ -55,7 +55,7 @@ def test_create_config(tmp_path: Path):
     profile = Profile("test", tmp_path)
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
-    profiles.create_config(profile)
+    profiles.create_config(profile, tmp_path)
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
 
 
@@ -64,8 +64,8 @@ def test_overwrite_config(tmp_path: Path):
     url = "http://example.com"
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
-    profiles.create_config(profile)
-    profiles.create_config(profile, url, True)
+    profiles.create_config(profile, tmp_path)
+    profiles.create_config(profile, tmp_path, url, True)
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
     with (config_dir / "config.py").open() as conf:
         for line in conf:
