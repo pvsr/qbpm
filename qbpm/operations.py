@@ -65,7 +65,7 @@ def desktop(profile: Profile) -> bool:
 
 
 def choose(
-    profile_dir: Path, menu: str, foreground: bool, qb_args: tuple[str, ...]
+    profile_dir: Path, menu: Optional[str], foreground: bool, qb_args: tuple[str, ...]
 ) -> bool:
     menu = menu or next(installed_menus(), None)
     if not menu:
