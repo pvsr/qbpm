@@ -7,5 +7,8 @@ tasks:
       sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
       sudo pacman -Sy
       makepkg -si --noconfirm
+  - run: |
+      mkdir -p ~/.config/qutebrowser
+      touch ~/.config/qutebrowser/config.py
       qbpm new profile
       qbpm list | grep profile
