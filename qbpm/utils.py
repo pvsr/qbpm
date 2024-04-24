@@ -3,7 +3,7 @@ from collections.abc import Iterator
 from os import environ
 from pathlib import Path
 from shutil import which
-from sys import exit, stderr
+from sys import stderr
 
 from click import get_app_dir
 from xdg import BaseDirectory
@@ -25,16 +25,8 @@ def default_profile_dir() -> Path:
 def user_data_dir() -> Path:
     if platform.system() == "Linux":
         return Path(BaseDirectory.xdg_data_home) / "qutebrowser"
-    if platform.system() == "Darwin":
-        return Path(get_app_dir("qutebrowser"))
-    error("This operation is only implemented for linux and macOS.")
-    print(
-        "If you're interested in adding support for another OS, send a PR "
-        "to github.com/pvsr/qbpm adding the location of qutebrowser data such "
-        "as history.sqlite on your OS to user_data_dir() in qbpm/utils.py.",
-        file=stderr,
-    )
-    exit(1)
+    # TODO confirm this works on windows
+    return Path(get_app_dir("qutebrowser"), roaming=True)
 
 
 def user_config_dirs() -> list[Path]:
