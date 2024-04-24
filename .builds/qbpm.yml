@@ -9,10 +9,10 @@ tasks:
       $NIX build .#devShells.x86_64-linux.ci
   - format: |
       cd qbpm
-      $NIX develop .#ci -c black --diff --check qbpm tests
+      $NIX develop .#ci -c ruff format --check qbpm tests
   - ruff: |
       cd qbpm
-      $NIX develop .#ci -c ruff qbpm tests
+      $NIX develop .#ci -c ruff check qbpm tests
   - mypy: |
       cd qbpm
       $NIX develop .#ci -c mypy qbpm tests

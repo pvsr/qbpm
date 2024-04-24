@@ -27,10 +27,9 @@
                     click
                     pytest
                     mypy
-                    black
 
                     pylsp-mypy
-                    python-lsp-black
+                    ruff-lsp
                   ]))
               ];
             });
@@ -53,10 +52,7 @@
             src = ./.;
             hooks = {
               alejandra.enable = true;
-              deadnix.enable = true;
-              statix.enable = true;
 
-              black.enable = true;
               ruff.enable = true;
             };
           };
