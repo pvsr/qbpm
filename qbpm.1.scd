@@ -32,6 +32,10 @@ $HOME/.local/share), but this can be set to another directory by passing
 	Use _path_ as the profile directory instead of the default location. Takes
 	precedence over the QBPM_PROFILE_DIR environment variable.
 
+*-C, --config-dir*
+	Source config files from the provided directory instead of the global
+	qutebrowser config location.
+
 # COMMANDS
 
 *new* [options] <profile> [<url>]

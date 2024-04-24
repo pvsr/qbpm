@@ -12,13 +12,20 @@ class Profile:
     name: str
     profile_dir: Path
     root: Path
+    qb_config_dir: Optional[Path]
 
-    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
+    def __init__(
+        self,
+        name: str,
+        profile_dir: Optional[Path],
+        qb_config_dir: Optional[Path] = None,
+    ) -> None:
         self.name = name
         self.profile_dir = profile_dir or Path(
             BaseDirectory.save_data_path("qutebrowser-profiles")
         )
         self.root = self.profile_dir / name
+        self.qb_config_dir = qb_config_dir
 
     def check(self) -> Optional["Profile"]:
         if "/" in self.name:
@@ -58,7 +65,7 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 
 def create_config(
     profile: Profile,
-    main_config_dir: Path,
+    qb_config_dir: Path,
     home_page: Optional[str] = None,
     overwrite: bool = False,
 ) -> None:
@@ -70,8 +77,8 @@ def create_config(
         out(f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'")
         if home_page:
             out(f"c.url.start_pages = ['{home_page}']")
-        out(f"config.source(r'{main_config_dir / 'config.py'}')")
-        for conf in main_config_dir.glob("conf.d/*.py"):
+        out(f"config.source(r'{qb_config_dir / 'config.py'}')")
+        for conf in qb_config_dir.glob("conf.d/*.py"):
             out(f"config.source(r'{conf}')")
 
 
@@ -108,21 +115,26 @@ def new_profile(
     desktop_file: bool = True,
     overwrite: bool = False,
 ) -> bool:
-    main_config_dir = get_main_config_dir()
-    if not main_config_dir:
+    qb_config_dir = get_qb_config_dir(profile)
+    if not qb_config_dir:
         return False
     if create_profile(profile, overwrite):
-        create_config(profile, main_config_dir, home_page, overwrite)
+        create_config(profile, qb_config_dir, home_page, overwrite)
         if desktop_file:
             create_desktop_file(profile)
         return True
     return False
 
 
-def get_main_config_dir() -> Optional[Path]:
+def get_qb_config_dir(profile: Profile) -> Optional[Path]:
     config_file = "config.py"
-    for config_dir in user_config_dirs():
+    dirs = (
+        [profile.qb_config_dir, profile.qb_config_dir / "config"]
+        if profile.qb_config_dir
+        else user_config_dirs()
+    )
+    for config_dir in dirs:
         if (config_dir / config_file).exists():
-            return config_dir
-    error(f"could not find {config_file} in {or_phrase(user_config_dirs())}")
+            return config_dir.absolute()
+    error(f"could not find {config_file} in {or_phrase(dirs)}")
     return None
