@@ -1,5 +1,6 @@
 import logging
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, NoReturn, Optional
 
@@ -10,6 +11,12 @@ from .profiles import Profile
 from .utils import SUPPORTED_MENUS, default_profile_dir, error, or_phrase, user_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+
+
+@dataclass
+class Context:
+    profile_dir: Path
+    qb_config_dir: Optional[Path]
 
 
 def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -56,7 +63,13 @@ class LowerCaseFormatter(logging.Formatter):
     envvar="QBPM_PROFILE_DIR",
     show_envvar=True,
     default=default_profile_dir,
-    help="Defaults to $XDG_DATA_HOME/qutebrowser-profiles.",
+    help="Location to store qutebrowser profiles.",
+)
+@click.option(
+    "-C",
+    "--config-dir",
+    type=click.Path(file_okay=False, readable=True, path_type=Path),
+    help="Location of the qutebrowser config to inherit from.",
 )
 @click.option(
     "-l",
@@ -65,7 +78,9 @@ class LowerCaseFormatter(logging.Formatter):
     type=click.Choice(["debug", "info", "error"], case_sensitive=False),
 )
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
+def main(
+    ctx: click.Context, profile_dir: Path, config_dir: Optional[Path], log_level: str
+) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
@@ -74,7 +89,10 @@ def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
     if not profile_dir.is_dir():
         error(f"{profile_dir} is not a directory")
         sys.exit(1)
-    ctx.obj = profile_dir
+    if config_dir and not config_dir.is_dir():
+        error(f"{config_dir} is not a directory")
+        sys.exit(1)
+    ctx.obj = Context(profile_dir, config_dir)
 
 
 @main.command()
@@ -82,9 +100,9 @@ def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
 @click.argument("home_page", required=False)
 @creator_options
 @click.pass_obj
-def new(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
+def new(context: Context, profile_name: str, **kwargs: Any) -> None:
     """Create a new profile."""
-    profile = Profile(profile_name, profile_dir)
+    profile = Profile(profile_name, **vars(context))
     then_launch(profiles.new_profile, profile, **kwargs)
 
 
@@ -94,7 +112,7 @@ def new(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
 @creator_options
 @click.pass_obj
 def from_session(
-    profile_dir: Path,
+    context: Context,
     session: str,
     profile_name: Optional[str],
     **kwargs: Any,
@@ -103,7 +121,7 @@ def from_session(
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
     """
-    profile, session_path = session_info(session, profile_name, profile_dir)
+    profile, session_path = session_info(session, profile_name, context)
     then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
 
 
@@ -111,11 +129,11 @@ def from_session(
 @click.argument("profile_name")
 @click.pass_obj
 def desktop(
-    profile_dir: Path,
+    context: Context,
     profile_name: str,
 ) -> None:
     """Create a desktop file for an existing profile."""
-    profile = Profile(profile_name, profile_dir)
+    profile = Profile(profile_name, **vars(context))
     exit_with(operations.desktop(profile))
 
 
@@ -129,9 +147,9 @@ def desktop(
     "-c", "--create", is_flag=True, help="Create the profile if it does not exist."
 )
 @click.pass_obj
-def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
+def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
     """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
-    profile = Profile(profile_name, profile_dir)
+    profile = Profile(profile_name, **vars(context))
     exit_with(operations.launch(profile, **kwargs))
 
 
@@ -147,20 +165,20 @@ def launch(profile_dir: Path, profile_name: str, **kwargs: Any) -> None:
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
 @click.pass_obj
-def choose(profile_dir: Path, **kwargs: Any) -> None:
+def choose(context: Context, **kwargs: Any) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser."
     """
-    exit_with(operations.choose(profile_dir=profile_dir, **kwargs))
+    exit_with(operations.choose(profile_dir=context.profile_dir, **kwargs))
 
 
 @main.command()
 @click.argument("profile_name")
 @click.pass_obj
-def edit(profile_dir: Path, profile_name: str) -> None:
+def edit(context: Context, profile_name: str) -> None:
     """Edit a profile's config.py."""
-    profile = Profile(profile_name, profile_dir)
+    profile = Profile(profile_name, **vars(context))
     if not profile.exists():
         error(f"profile {profile.name} not found at {profile.root}")
         sys.exit(1)
@@ -169,9 +187,9 @@ def edit(profile_dir: Path, profile_name: str) -> None:
 
 @main.command(name="list")
 @click.pass_obj
-def list_(profile_dir: Path) -> None:
+def list_(context: Context) -> None:
     """List existing profiles."""
-    for profile in sorted(profile_dir.iterdir()):
+    for profile in sorted(context.profile_dir.iterdir()):
         print(profile.name)
 
 
@@ -190,7 +208,7 @@ def then_launch(
 
 
 def session_info(
-    session: str, profile_name: Optional[str], profile_dir: Path
+    session: str, profile_name: Optional[str], context: Context
 ) -> tuple[Profile, Path]:
     user_session_dir = user_data_dir() / "sessions"
     session_paths = []
@@ -204,7 +222,7 @@ def session_info(
         error(f"could not find session file at {tried}")
         sys.exit(1)
 
-    return (Profile(profile_name or session_path.stem, profile_dir), session_path)
+    return (Profile(profile_name or session_path.stem, **vars(context)), session_path)
 
 
 def exit_with(result: bool) -> NoReturn:
