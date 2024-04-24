@@ -8,7 +8,7 @@ from xdg import BaseDirectory
 
 from . import profiles
 from .profiles import Profile
-from .utils import env_menus, error, installed_menus, or_phrase
+from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
 
 
 def from_session(
@@ -34,6 +34,14 @@ def launch(
         return False
 
     args = profile.cmdline() + list(qb_args)
+    return launch_internal(foreground, args)
+
+
+def launch_qutebrowser(foreground: bool, qb_args: tuple[str, ...]) -> bool:
+    return launch_internal(foreground, [qutebrowser_exe(), *qb_args])
+
+
+def launch_internal(foreground: bool, args: list[str]) -> bool:
     if not shutil.which(args[0]):
         error("qutebrowser is not installed")
         return False
@@ -82,6 +90,7 @@ def choose(
     if len(profiles) == 0:
         error("no profiles")
         return False
+    profiles.append("qutebrowser")
 
     command = menu_command(menu, profiles, qb_args)
     if not command:
@@ -96,7 +105,9 @@ def choose(
     out = selection_cmd.stdout
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
 
-    if selection:
+    if selection == "qutebrowser":
+        return launch_qutebrowser(foreground, qb_args)
+    elif selection:
         profile = Profile(selection, profile_dir)
         return launch(profile, False, foreground, qb_args)
     else:

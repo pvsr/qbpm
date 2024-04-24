@@ -77,3 +77,11 @@ def or_phrase(items: list) -> str:
         return " or ".join(strings)
     else:
         return ", or ".join([", ".join(strings[0:-1]), strings[-1]])
+
+
+def qutebrowser_exe() -> str:
+    macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
+    if platform == "darwin" and Path(macos_app).exists():
+        return macos_app
+    else:
+        return "qutebrowser"

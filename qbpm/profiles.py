@@ -1,12 +1,11 @@
 from functools import partial
 from pathlib import Path
-from sys import platform
 from typing import Optional
 
 from xdg import BaseDirectory
 from xdg.DesktopEntry import DesktopEntry
 
-from .utils import error, or_phrase, user_config_dirs
+from .utils import error, or_phrase, qutebrowser_exe, user_config_dirs
 
 
 class Profile:
@@ -31,13 +30,8 @@ class Profile:
         return self.root.exists() and self.root.is_dir()
 
     def cmdline(self) -> list[str]:
-        macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
-        if platform == "darwin" and Path(macos_app).exists():
-            qb = macos_app
-        else:
-            qb = "qutebrowser"
         return [
-            qb,
+            qutebrowser_exe(),
             "-B",
             str(self.root),
             "--qt-arg",
