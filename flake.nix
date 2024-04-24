@@ -3,36 +3,15 @@
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
-  inputs.pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.pre-commit-hooks.inputs.nixpkgs-stable.follows = "nixpkgs";
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
-    pre-commit-hooks,
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
-        mkDevShell = args:
-          pkgs.mkShell (args
-            // {
-              buildInputs = with pkgs; [
-                ruff
-                (python3.withPackages (ps:
-                  with ps; [
-                    pyxdg
-                    click
-                    pytest
-                    mypy
-
-                    pylsp-mypy
-                    ruff-lsp
-                  ]))
-              ];
-            });
       in rec {
         packages = flake-utils.lib.flattenTree rec {
           qbpm = import ./. {inherit pkgs;};
@@ -42,20 +21,20 @@
           qbpm = flake-utils.lib.mkApp {drv = packages.qbpm;};
           default = qbpm;
         };
-        devShells.ci = mkDevShell {};
-        devShells.default = mkDevShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
-        };
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            ruff
+            (python3.withPackages (ps:
+              with ps; [
+                pyxdg
+                click
+                pytest
+                mypy
 
-        checks = {
-          pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
-            hooks = {
-              alejandra.enable = true;
-
-              ruff.enable = true;
-            };
-          };
+                pylsp-mypy
+                ruff-lsp
+              ]))
+          ];
         };
       }
     );
