@@ -66,12 +66,15 @@ class LowerCaseFormatter(logging.Formatter):
 )
 @click.pass_context
 def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
-    ctx.obj = profile_dir
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
     handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
     root_logger.addHandler(handler)
+    if not profile_dir.is_dir():
+        error(f"{profile_dir} is not a directory")
+        sys.exit(1)
+    ctx.obj = profile_dir
 
 
 @main.command()
