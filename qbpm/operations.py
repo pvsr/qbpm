@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+from collections.abc import Iterable
 from pathlib import Path
 from sys import platform
 from typing import Optional
@@ -86,11 +87,11 @@ def choose(
     if menu == "applescript" and platform != "darwin":
         error(f"applescript cannot be used on a {platform} host")
         return False
-    profiles = [profile.name for profile in sorted(profile_dir.iterdir())]
+    profiles = {profile.name for profile in profile_dir.iterdir()}
     if len(profiles) == 0:
         error("no profiles")
         return False
-    profiles.append("qutebrowser")
+    profiles.add("qutebrowser")
 
     command = menu_command(menu, profiles, qb_args)
     if not command:
@@ -105,7 +106,7 @@ def choose(
     out = selection_cmd.stdout
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
 
-    if selection == "qutebrowser":
+    if selection == "qutebrowser" and "qutebrowser" not in profiles:
         return launch_qutebrowser(foreground, qb_args)
     elif selection:
         profile = Profile(selection, profile_dir)
@@ -116,8 +117,9 @@ def choose(
 
 
 def menu_command(
-    menu: str, profiles: list[str], qb_args: tuple[str, ...]
+    menu: str, profiles: Iterable[str], qb_args: tuple[str, ...]
 ) -> Optional[str]:
+    profiles = sorted(profiles)
     arg_string = " ".join(qb_args)
     if menu == "applescript":
         profile_list = '", "'.join(profiles)
