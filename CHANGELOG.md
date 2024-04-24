@@ -3,6 +3,7 @@
   - hopefully use the right qutebrowser dirs on Windows
   - `choose`: add `qutebrowser` menu item for the main qutebrowser profile
   - added `-C` argument to reference qutebrowser configs from an arbitrary dir
+  - added option support to fish completions
 
 # 1.0-rc2:
   - `choose`: builtin support for `fzf` and `fuzzel`
