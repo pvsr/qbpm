@@ -10,8 +10,7 @@ from xdg import BaseDirectory
 
 WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
 X11_MENUS = ["rofi", "dmenu"]
-AUTO_MENUS = WAYLAND_MENUS + X11_MENUS
-SUPPORTED_MENUS = [*AUTO_MENUS, "fzf", "applescript"]
+SUPPORTED_MENUS = [*WAYLAND_MENUS, *X11_MENUS, "fzf", "applescript"]
 
 
 def info(msg: str) -> None:
@@ -49,20 +48,22 @@ def user_config_dirs() -> list[Path]:
 def installed_menus() -> Iterator[str]:
     if platform.system() == "Darwin":
         yield "applescript"
+    for menu_cmd in env_menus():
+        if which(menu_cmd) is not None:
+            if menu_cmd == "fzf":
+                info("no graphical launchers found, trying fzf")
+            yield menu_cmd
+
+
+def env_menus() -> Iterator[str]:
     if environ.get("WAYLAND_DISPLAY"):
-        for menu_cmd in WAYLAND_MENUS:
-            if which(menu_cmd) is not None:
-                yield menu_cmd
-    if environ.get("DISPLAY"):
-        for menu_cmd in X11_MENUS:
-            if which(menu_cmd) is not None:
-                yield menu_cmd
-    if environ.get("TMUX") and which("fzf-tmux") is not None:
+        yield from WAYLAND_MENUS
+    elif environ.get("DISPLAY"):
+        yield from X11_MENUS
+    if environ.get("TMUX"):
         yield "fzf-tmux"
     # if there's no display and fzf is installed we're probably(?) in a term
-    if which("fzf") is not None:
-        info("no graphical launchers found, trying fzf")
-        yield "fzf"
+    yield "fzf"
 
 
 def or_phrase(items: list) -> str:

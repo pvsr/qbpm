@@ -8,7 +8,7 @@ from xdg import BaseDirectory
 
 from . import profiles
 from .profiles import Profile
-from .utils import AUTO_MENUS, error, installed_menus
+from .utils import env_menus, error, installed_menus, or_phrase
 
 
 def from_session(
@@ -67,16 +67,20 @@ def desktop(profile: Profile) -> bool:
 def choose(
     profile_dir: Path, menu: str, foreground: bool, qb_args: tuple[str, ...]
 ) -> bool:
-    menu = menu or next(installed_menus())
+    menu = menu or next(installed_menus(), None)
     if not menu:
-        error(f"No menu program found, please install one of: {AUTO_MENUS}")
+        possible_menus = or_phrase([menu for menu in env_menus() if menu != "fzf-tmux"])
+        error(
+            "no menu program found, use --menu to provide a dmenu-compatible menu or install one of "
+            + possible_menus
+        )
         return False
     if menu == "applescript" and platform != "darwin":
-        error(f"Menu applescript cannot be used on a {platform} host")
+        error(f"applescript cannot be used on a {platform} host")
         return False
     profiles = [profile.name for profile in sorted(profile_dir.iterdir())]
     if len(profiles) == 0:
-        error("No profiles")
+        error("no profiles")
         return False
 
     command = menu_command(menu, profiles, qb_args)
