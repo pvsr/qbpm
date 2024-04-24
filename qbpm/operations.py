@@ -112,7 +112,7 @@ def choose(
         profile = Profile(selection, profile_dir)
         return launch(profile, False, foreground, qb_args)
     else:
-        error("No profile selected")
+        error("no profile selected")
         return False
 
 

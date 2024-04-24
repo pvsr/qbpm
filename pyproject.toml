@@ -72,11 +72,12 @@ select = [
     "RUF",
 ]
 ignore = [
-  "E501", # line too long
-  "ANN101", # annotate self
-  "ANN102", # annotate cls
-  "ANN401", # ban Any
-  "PLR2004", # magic values
+    "E501", # line too long
+    "ANN101", # annotate self
+    "ANN102", # annotate cls
+    "ANN401", # ban Any
+    "PLR0911", # too many returns
+    "PLR2004", # magic values
 ]
 
 [tool.ruff.lint.per-file-ignores]
