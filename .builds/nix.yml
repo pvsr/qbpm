@@ -1,0 +1,9 @@
+image: nixos/unstable
+sources:
+  - https://git.sr.ht/~pvsr/qbpm
+environment:
+  NIX_CONFIG: "experimental-features = nix-command flakes"
+tasks:
+  - check: |
+      cd qbpm
+      nix flake check --quiet

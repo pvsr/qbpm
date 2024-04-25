@@ -1,12 +1,17 @@
 image: archlinux
 sources:
   - https://github.com/pvsr/qbpm
+packages:
+  - python-pytest
 tasks:
   - makepkg: |
       cd qbpm/contrib
       sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
       sudo pacman -Sy
       makepkg -si --noconfirm
+  - pytest: |
+      cd qbpm
+      pytest tests
   - run: |
       mkdir -p ~/.config/qutebrowser
       touch ~/.config/qutebrowser/config.py
