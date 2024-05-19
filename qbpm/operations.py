@@ -87,11 +87,11 @@ def choose(
     if menu == "applescript" and platform != "darwin":
         error(f"applescript cannot be used on a {platform} host")
         return False
-    profiles = {profile.name for profile in profile_dir.iterdir()}
-    if len(profiles) == 0:
+    real_profiles = {profile.name for profile in profile_dir.iterdir()}
+    if len(real_profiles) == 0:
         error("no profiles")
         return False
-    profiles.add("qutebrowser")
+    profiles = [*real_profiles, "qutebrowser"]
 
     command = menu_command(menu, profiles, qb_args)
     if not command:
@@ -106,7 +106,7 @@ def choose(
     out = selection_cmd.stdout
     selection = out and out.read().decode(errors="ignore").rstrip("\n")
 
-    if selection == "qutebrowser" and "qutebrowser" not in profiles:
+    if selection == "qutebrowser" and "qutebrowser" not in real_profiles:
         return launch_qutebrowser(foreground, qb_args)
     elif selection:
         profile = Profile(selection, profile_dir)
