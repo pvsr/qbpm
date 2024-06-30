@@ -65,10 +65,9 @@ def download_icon(profile: Profile, home_page: str, overwrite: bool) -> Optional
             if icon_path:
                 # print(f"installed {client.base_url.join(icon.url)}")
                 return icon_path
-        if not icon_path:
-            # TODO pretty print
-            info(f"no favicons found matching one of {PREFERRED_ICONS}")
-            return None
+        # TODO pretty print
+        info(f"no favicons found matching one of {PREFERRED_ICONS}")
+        return None
     except Exception as e:
         # info(str(e))
         raise e
@@ -77,8 +76,6 @@ def download_icon(profile: Profile, home_page: str, overwrite: bool) -> Optional
     finally:
         tmp_dir.cleanup()
         client.close()
-
-    return None
 
 
 def icon_for_profile(profile: Profile) -> Optional[str]:
@@ -91,49 +88,48 @@ def icon_for_profile(profile: Profile) -> Optional[str]:
 def install_icon_file(
     profile: Profile, src: Path, overwrite: bool, origin: Optional[str] = None
 ) -> Optional[Path]:
-    clean_icons = check_for_icons(profile, overwrite)
+    icon_format = src.suffix
+    dest = (profile.root / f"icon{icon_format}").absolute()
+    clean_icons = check_for_icons(profile, overwrite, dest)
     if clean_icons is None:
         return None
-    icon_format = src.suffix
-    dest = profile.root / f"icon{icon_format}"
     if icon_format not in {".png", ".svg"}:
         dest = dest.with_suffix(".png")
         try:
             image = Image.open(src)
-            clean_icons(set())
             image.save(dest, format="png")
         except Exception as e:
             error(str(e))
             error(f"failed to convert {origin or src} to png")
             dest.unlink(missing_ok=True)
             return None
-    else:
-        if src.resolve() != dest:
-            shutil.copy(src, dest)
-        clean_icons({dest})
+    elif src.resolve() != dest:
+        shutil.copy(src, dest)
+    clean_icons()
     print(dest)
-    return dest.absolute()
+    return dest
 
 
 def install_icon_by_name(profile: Profile, icon_name: str, overwrite: bool) -> bool:
     clean_icons = check_for_icons(profile, overwrite)
     if clean_icons is None:
         return False
-    clean_icons(set())
+    clean_icons()
     file = profile.root / "icon.name"
     file.write_text(icon_name)
     return True
 
 
 def check_for_icons(
-    profile: Profile, overwrite: bool
-) -> Callable[[set[Path]], None] | None:
+    profile: Profile, overwrite: bool, dest: Path | None = None
+) -> Callable[[], None] | None:
     existing_icons = set(find_icon_files(profile))
     if existing_icons and not overwrite:
         error(f"icon already exists in {profile.root}, pass --overwrite to replace it")
         return None
 
-    def clean_icons(keep: set[Path]) -> None:
+    def clean_icons() -> None:
+        keep = {dest} if dest else set()
         for icon in existing_icons - keep:
             icon.unlink()
 
