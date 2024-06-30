@@ -48,22 +48,29 @@ $ qutebrowser --basedir qb-profile
 ```
 
 ## Installation
- - Pip: `pip install git+https://github.com/pvsr/qbpm.git#egg=qbpm`
- - Arch: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git) in the AUR
- - Nix: clone the repository and run `nix-env -if default.nix`
- - MacOS: For command-line only usage, the pip command above is sufficient, but
-   if you would like to set qbpm as the default browser app, first clone this
-   repository, then install platypus by running `brew install playtpus`, and
-   finally install the app by running `platypus -P contrib/qbpm.platypus
-   /Applications/qbpm.app` inside the cloned repository. You should then be
-   able to select qbpm as your default browser under: System Preferences
-   \> General > Default web browser. Note that there is currently [an
-   issue](https://github.com/qutebrowser/qutebrowser/issues/3719) with
-   qutebrowser itself that results in unnecessary `file:///*` tabs being
-   opened.
- - If you're on linux, you can copy `contrib/qbpm.desktop` to `~/.local/share/applications`.
-   That desktop entry will run `qbpm choose`, which shows an application
-   launcher (dmenu or rofi) with your qutebrowser profiles as the options.
+If you're on Arch, you can install the AUR package: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git).
+If you use [Nix](https://nixos.org/), qbpm is available as a flake, which
+can be added as an input to your system flake or installed to your profile using
+`nix profile install github:pvsr/qbpm`; there's also a standalone `default.nix`
+file for use with `nix-env`.
+
+For all other systems the best option is probably [pipx](https://pipx.pypa.io/stable/).
+Using pipx you can run qbpm without installing by running
+`pipx run --spec git+https://github.com/pvsr/qbpm.git qbpm`, and install it with
+`pipx install git+https://github.com/pvsr/qbpm.git`.
+If you're on Linux you can copy `contrib/qbpm.desktop` to
+`~/.local/share/applications` to create a qbpm desktop application that runs
+`qbpm choose`.
+
+### MacOS
+
+Nix and pipx will install qbpm as a command-line application, but if you want a
+native Mac application too you can clone this repository or copy
+`contrib/qbpm.platypus` to a local file, install [platypus](https://sveinbjorn.org/platypus),
+and use it to create a qbpm app by running `platypus -P contrib/qbpm.platypus /Applications/qbpm.app`.
+That will also make qbpm available to select as a default browser in `System Preferences > General > Default web browser`.
+Note that there is currently [a qutebrowser bug](https://github.com/qutebrowser/qutebrowser/issues/3719)
+that results in unnecessary `file:///*` tabs being opened.
 
 ## Future ideas that may or may not happen
 - Release through github
