@@ -20,7 +20,7 @@
           programs.mypy.enable = true;
           programs.mypy.directories."." = {
             modules = ["qbpm" "tests"];
-            extraPythonPackages = with pkgs.python3.pkgs; [pyxdg click];
+            extraPythonPackages = self.packages.x86_64-linux.default.propagatedBuildInputs;
           };
           programs.ruff.check = true;
           programs.ruff.format = true;
@@ -36,19 +36,18 @@
           default = qbpm;
         };
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            ruff
-            (python3.withPackages (ps:
-              with ps; [
-                pyxdg
-                click
-
-                pytest
-                mypy
-                pylsp-mypy
-                ruff-lsp
-              ]))
-          ];
+          packages = with pkgs;
+            [
+              ruff
+              (python3.withPackages (ps:
+                with ps; [
+                  pytest
+                  mypy
+                  pylsp-mypy
+                  ruff-lsp
+                ]))
+            ]
+            ++ self.packages.x86_64-linux.default.propagatedBuildInputs;
         };
         formatter = treefmt.config.build.wrapper;
         checks.formatting = treefmt.config.build.check self;
