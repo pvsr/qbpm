@@ -30,7 +30,7 @@ def from_session(
 def launch(
     profile: Profile, create: bool, foreground: bool, qb_args: tuple[str, ...]
 ) -> bool:
-    if not profiles.ensure_profile_exists(profile, create):
+    if not profiles.ensure_profile_exists(profile, create, desktop_file=True):
         return False
 
     args = profile.cmdline() + list(qb_args)
