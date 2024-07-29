@@ -19,7 +19,7 @@
           projectRootFile = "flake.nix";
           programs.mypy.enable = true;
           programs.mypy.directories."." = {
-            modules = ["qbpm" "tests"];
+            modules = ["src/qbpm" "tests"];
             extraPythonPackages = self.packages.x86_64-linux.default.propagatedBuildInputs;
           };
           programs.ruff.check = true;

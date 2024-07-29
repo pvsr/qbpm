@@ -30,8 +30,8 @@ qbpm = "qbpm.main:main"
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["qbpm"]
+[tool.pytest.ini_options]
+pythonpath = "src"
 
 [tool.mypy]
 disallow_untyped_defs = true
@@ -50,6 +50,7 @@ module = "tests.*"
 disallow_untyped_defs = false
 
 [tool.ruff]
+src = ["src", "test"]
 target-version = "py39"
 
 [tool.ruff.lint]
