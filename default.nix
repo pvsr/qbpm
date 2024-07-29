@@ -3,10 +3,12 @@
   python ? "python3",
   pythonPackages ? builtins.getAttr (python + "Packages") pkgs,
 }:
-with pythonPackages;
+with pythonPackages; let
+  pyproject = pkgs.lib.importTOML ./pyproject.toml;
+in
   buildPythonPackage rec {
-    pname = "qbpm";
-    version = "1.0-rc2";
+    pname = pyproject.project.name;
+    inherit (pyproject.project) version;
     src = ./.;
     doCheck = true;
     format = "pyproject";
