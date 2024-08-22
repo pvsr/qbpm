@@ -36,7 +36,7 @@ $ qbpm from-session vacation
 ```
 
 The default profile directory is `$XDG_DATA_HOME/qutebrowser-profiles`, where
-`$XDG_DATA_HOME` is usually `$HOME/.local/share`, but you can create and launch
+`$XDG_DATA_HOME` is usually `~/.local/share`, but you can create and launch
 profiles from anywhere using `--profile-dir`/`-P`:
 ```
 $ qbpm --profile-dir ~/dev/my-project new qb-profile
@@ -55,12 +55,12 @@ can be added as an input to your system flake or installed to your profile using
 file for use with `nix-env`.
 
 For all other systems the best option is probably [uv](https://docs.astral.sh/uv/guides/tools/).
-Using uv you can use qbpm without installing by running
-`uv tool run --with git+https://github.com/pvsr/qbpm qbpm`, and install it with
+Using uv you can run qbpm without installing with the command
+`uv tool run --with git+https://github.com/pvsr/qbpm qbpm`, or install to `~/.local/bin` with
 `uv tool install --with git+https://github.com/pvsr/qbpm qbpm`.
 
-On Linux you can copy `contrib/qbpm.desktop` to
-`~/.local/share/applications` to create a qbpm desktop application that runs
+On Linux you can copy  [`contrib/qbpm.desktop`](https://raw.githubusercontent.com/pvsr/qbpm/main/contrib/qbpm.desktop)
+to `~/.local/share/applications` to create a qbpm desktop application that runs
 `qbpm choose`.
 
 ### MacOS
@@ -69,18 +69,8 @@ Nix and uv will install qbpm as a command-line application, but if you want a
 native Mac application you can clone this repository or copy the contents of
 [`contrib/qbpm.platypus`](https://raw.githubusercontent.com/pvsr/qbpm/main/contrib/qbpm.platypus)
 to a local file, install [platypus](https://sveinbjorn.org/platypus),
-and use it to create a qbpm app by running `platypus -P contrib/qbpm.platypus /Applications/qbpm.app`.
+and use it to create a qbpm app by running `platypus -P qbpm.platypus /Applications/qbpm.app`.
 That will also make qbpm available as a default browser in `System Preferences > General > Default web browser`.
 
 Note that there is currently [a qutebrowser bug](https://github.com/qutebrowser/qutebrowser/issues/3719)
 that results in unnecessary `file:///*` tabs being opened.
-
-## Future ideas that may or may not happen
-- Release through github
-- More shared or copied config and data
-- Use any profile as a base for new profiles (currently only the main config in
-  `$XDG_CONFIG_HOME` is supported)
-- Source `autoconfig.yml` instead of `config.py`
-- Bundled config file optimized for single-site browsing
-- `qbpm.conf` to configure the features above
-- Someday: qutebrowser plugin
