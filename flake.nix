@@ -26,15 +26,14 @@
           programs.ruff.format = true;
           programs.alejandra.enable = true;
         };
-      in rec {
-        packages = flake-utils.lib.flattenTree rec {
-          qbpm = import ./. {inherit pkgs;};
-          default = qbpm;
-        };
-        apps = rec {
-          qbpm = flake-utils.lib.mkApp {drv = packages.qbpm;};
-          default = qbpm;
-        };
+        package = import ./. {inherit pkgs;};
+        app = flake-utils.lib.mkApp {drv = package;};
+      in {
+        packages.qbpm = package;
+        packages.default = package;
+        apps.qbpm = app;
+        apps.default = app;
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs;
             [
@@ -47,7 +46,7 @@
                   ruff-lsp
                 ]))
             ]
-            ++ self.packages.x86_64-linux.default.propagatedBuildInputs;
+            ++ self.packages.${system}.default.propagatedBuildInputs;
         };
         formatter = treefmt.config.build.wrapper;
         checks.formatting = treefmt.config.build.check self;
