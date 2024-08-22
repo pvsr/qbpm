@@ -1,5 +1,5 @@
 {
-  description = "A tool for creating and managing qutebrowser profiles";
+  description = "Tool for creating, managing, and running qutebrowser profiles";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";

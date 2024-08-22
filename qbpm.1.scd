@@ -10,15 +10,13 @@ qbpm - qutebrowser profile manager
 
 # DESCRIPTION
 
-qbpm is a tool for creating and running qutebrowser profiles. qutebrowser
-doesn't have a native concept of profiles, but it does have a --basedir flag
-that allows qutebrowser's config, cache, and data to be stored in any directory.
-So a profile is simply a directory meant to be set as qutebrowser's basedir.
-qbpm creates profiles that source the config.py from your qutebrowser config dir
-in $XDG_CONFIG_HOME (typically $HOME/.config/qutebrowser). By default profiles
-are stored in a qutebrowser-profiles/ dir in $XDG_DATA_HOME (typically
-$HOME/.local/share), but this can be set to another directory by passing
-\--profile-dir to qbpm or setting the $QBPM_PROFILE_DIR environment variable.
+qbpm is a tool for creating, managing, and running qutebrowser profiles. Profile support
+isn't built in to qutebrowser, at least not directly, but it does have a \--basedir flag
+which allows qutebrowser to use any directory as the location of its config and
+data and effectively act as a profile. qbpm creates profiles that source your
+main qutebrowser config.py, but have their own separate autoconfig.yml, bookmarks, cookies,
+history, and other data. Profiles can be run by starting qutebrowser with the
+appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choose commands.
 
 # OPTIONS
 
