@@ -5,9 +5,8 @@ from pathlib import Path
 from sys import platform
 from typing import Optional
 
-from xdg import BaseDirectory
-
 from . import Profile, profiles
+from .desktop import create_desktop_file
 from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
 
 
@@ -59,13 +58,10 @@ def launch_internal(foreground: bool, args: list[str]) -> bool:
     return True
 
 
-application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
-
-
 def desktop(profile: Profile) -> bool:
     exists = profile.exists()
     if exists:
-        profiles.create_desktop_file(profile)
+        create_desktop_file(profile)
     else:
         error(f"profile {profile.name} not found at {profile.root}")
     return exists

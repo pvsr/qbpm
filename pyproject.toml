@@ -84,3 +84,4 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/test_main.py" = [ "S101", "ANN201"]
 "tests/test_profiles.py" = [ "S101", "ANN201"]
+"tests/test_desktop.py" = [ "S101", "ANN201"]

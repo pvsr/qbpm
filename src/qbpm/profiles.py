@@ -2,10 +2,8 @@ from functools import partial
 from pathlib import Path
 from typing import Optional
 
-from xdg import BaseDirectory
-from xdg.DesktopEntry import DesktopEntry
-
 from . import Profile
+from .desktop import create_desktop_file
 from .utils import error, or_phrase, user_config_dirs
 
 MIME_TYPES = [
@@ -54,25 +52,6 @@ def create_config(
         out(f"config.source(r'{qb_config_dir / 'config.py'}')")
         for conf in qb_config_dir.glob("conf.d/*.py"):
             out(f"config.source(r'{conf}')")
-
-
-application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
-
-
-def create_desktop_file(profile: Profile) -> None:
-    desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
-    desktop.set("Name", f"{profile.name} (qutebrowser profile)")
-    desktop.set("GenericName", f"{profile.name}")
-    # TODO allow passing in an icon value
-    desktop.set("Icon", "qutebrowser")
-    desktop.set("Exec", " ".join(profile.cmdline()) + " --untrusted-args %u")
-    desktop.set("Type", "Application")
-    desktop.set("Categories", "Network;WebBrowser")
-    desktop.set("Terminal", "false")
-    desktop.set("StartupNotify", "true")
-    desktop.set("StartupWMClass", "qutebrowser")
-    desktop.set("MimeType", ";".join(MIME_TYPES))
-    desktop.write()
 
 
 def exists(profile: Profile) -> bool:
