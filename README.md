@@ -47,19 +47,19 @@ $ qutebrowser --basedir qb-profile
 ```
 
 ## Installation
-If you're on Arch, you can install the AUR package: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git).
+If you use Nix, you can install or run qbpm as a [Nix flake](https://nixos.wiki/wiki/Flakes).
+For example, to run qbpm without installing it you can use `nix run github:pvsr/qbpm -- new my-profile`.
 
-If you use [Nix](https://nixos.org/), qbpm is available as a flake, which
-can be added as an input to your system flake or installed to your profile using
-`nix profile install github:pvsr/qbpm`; there's also a standalone `default.nix`
-file for use with `nix-env`.
+On Arch and derivatives, you can install the AUR package: [qbpm-git](https://aur.archlinux.org/packages/qbpm-git).
 
-For all other systems the best option is probably [uv](https://docs.astral.sh/uv/guides/tools/).
-Using uv you can run qbpm without installing with the command
+Otherwise you'll need to install from source, directly or using a tool like [uv](https://docs.astral.sh/uv/guides/tools/).
+Using uv you can run qbpm without installing it using
 `uv tool run --with git+https://github.com/pvsr/qbpm qbpm`, or install to `~/.local/bin` with
 `uv tool install --with git+https://github.com/pvsr/qbpm qbpm`.
+The downside of a source installation is that the [man page](https://github.com/pvsr/qbpm/blob/main/qbpm.1.scd)
+and shell completions will not be installed automatically.
 
-On Linux you can copy  [`contrib/qbpm.desktop`](https://raw.githubusercontent.com/pvsr/qbpm/main/contrib/qbpm.desktop)
+On Linux you can copy [`contrib/qbpm.desktop`](https://raw.githubusercontent.com/pvsr/qbpm/main/contrib/qbpm.desktop)
 to `~/.local/share/applications` to create a qbpm desktop application that runs
 `qbpm choose`.
 
@@ -69,7 +69,7 @@ Nix and uv will install qbpm as a command-line application, but if you want a
 native Mac application you can clone this repository or copy the contents of
 [`contrib/qbpm.platypus`](https://raw.githubusercontent.com/pvsr/qbpm/main/contrib/qbpm.platypus)
 to a local file, install [platypus](https://sveinbjorn.org/platypus),
-and use it to create a qbpm app by running `platypus -P qbpm.platypus /Applications/qbpm.app`.
+and create a qbpm app by running `platypus -P qbpm.platypus /Applications/qbpm.app`.
 That will also make qbpm available as a default browser in `System Preferences > General > Default web browser`.
 
 Note that there is currently [a qutebrowser bug](https://github.com/qutebrowser/qutebrowser/issues/3719)
