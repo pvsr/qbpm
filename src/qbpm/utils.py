@@ -29,7 +29,7 @@ def user_data_dir() -> Path:
     if platform.system() == "Linux":
         return Path(BaseDirectory.xdg_data_home) / "qutebrowser"
     # TODO confirm this works on windows
-    return Path(get_app_dir("qutebrowser"), roaming=True)
+    return Path(get_app_dir("qutebrowser", roaming=True))
 
 
 def user_config_dirs() -> list[Path]:
