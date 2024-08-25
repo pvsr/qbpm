@@ -14,6 +14,7 @@ buildPythonPackage rec {
   format = "pyproject";
   nativeBuildInputs = [
     pkgs.scdoc
+    pkgs.installShellFiles
     setuptools
   ];
   propagatedBuildInputs = [
@@ -22,13 +23,11 @@ buildPythonPackage rec {
   ];
   nativeCheckInputs = [ pytestCheckHook ];
   postInstall = ''
-    install -D -m644 completions/qbpm.fish $out/share/fish/vendor_completions.d/qbpm.fish
+    _QBPM_COMPLETE=bash_source $out/bin/qbpm > completions/qbpm.bash
+    _QBPM_COMPLETE=zsh_source $out/bin/qbpm > completions/qbpm.zsh
+    installShellCompletion completions/qbpm.{bash,zsh,fish}
 
-    install -vd $out/share/{bash-completion/completions,zsh/site-functions}
-    _QBPM_COMPLETE=bash_source $out/bin/qbpm > $out/share/bash-completion/completions/qbpm
-    _QBPM_COMPLETE=zsh_source $out/bin/qbpm > $out/share/zsh/site-functions/qbpm
-
-    mkdir -p $out/share/man/man1
-    scdoc < qbpm.1.scd > $out/share/man/man1/qbpm.1
+    scdoc < qbpm.1.scd > qbpm.1
+    installManPage qbpm.1
   '';
 }
