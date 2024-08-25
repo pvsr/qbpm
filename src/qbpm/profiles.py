@@ -8,6 +8,20 @@ from xdg.DesktopEntry import DesktopEntry
 from . import Profile
 from .utils import error, or_phrase, user_config_dirs
 
+MIME_TYPES = [
+    "text/html",
+    "text/xml",
+    "application/xhtml+xml",
+    "application/xml",
+    "application/rdf+xml",
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "x-scheme-handler/http",
+    "x-scheme-handler/https",
+    "x-scheme-handler/qute",
+]
+
 
 def create_profile(profile: Profile, overwrite: bool = False) -> bool:
     if not profile.check():
@@ -48,12 +62,16 @@ application_dir = Path(BaseDirectory.xdg_data_home) / "applications" / "qbpm"
 def create_desktop_file(profile: Profile) -> None:
     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
     desktop.set("Name", f"{profile.name} (qutebrowser profile)")
+    desktop.set("GenericName", f"{profile.name}")
     # TODO allow passing in an icon value
     desktop.set("Icon", "qutebrowser")
-    desktop.set("Exec", " ".join(profile.cmdline()) + " %u")
-    desktop.set("Categories", ["Network"])
-    desktop.set("Terminal", False)
-    desktop.set("StartupNotify", True)
+    desktop.set("Exec", " ".join(profile.cmdline()) + " --untrusted-args %u")
+    desktop.set("Type", "Application")
+    desktop.set("Categories", "Network;WebBrowser")
+    desktop.set("Terminal", "false")
+    desktop.set("StartupNotify", "true")
+    desktop.set("StartupWMClass", "qutebrowser")
+    desktop.set("MimeType", ";".join(MIME_TYPES))
     desktop.write()
 
 
