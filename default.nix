@@ -11,7 +11,6 @@ buildPythonPackage rec {
   pname = pyproject.project.name;
   inherit (pyproject.project) version;
   src = ./.;
-  doCheck = true;
   format = "pyproject";
   nativeBuildInputs = [
     pkgs.scdoc
@@ -21,7 +20,7 @@ buildPythonPackage rec {
     pyxdg
     click
   ];
-  checkInputs = [ pytest ];
+  nativeCheckInputs = [ pytestCheckHook ];
   postInstall = ''
     install -D -m644 completions/qbpm.fish $out/share/fish/vendor_completions.d/qbpm.fish
 
