@@ -28,10 +28,8 @@ def from_session(
     return True
 
 
-def launch(
-    profile: Profile, create: bool, foreground: bool, qb_args: tuple[str, ...]
-) -> bool:
-    if not profiles.ensure_profile_exists(profile, create, desktop_file=True):
+def launch(profile: Profile, foreground: bool, qb_args: tuple[str, ...]) -> bool:
+    if not profiles.exists(profile):
         return False
 
     args = profile.cmdline() + list(qb_args)
@@ -110,7 +108,7 @@ def choose(
         return launch_qutebrowser(foreground, qb_args)
     elif selection:
         profile = Profile(selection, profile_dir)
-        return launch(profile, False, foreground, qb_args)
+        return launch(profile, foreground, qb_args)
     else:
         error("no profile selected")
         return False

@@ -74,35 +74,6 @@ def test_overwrite_config(tmp_path: Path):
     raise AssertionError()
 
 
-def test_ensure_profile_exists_exists(tmp_path: Path):
-    profile = Profile("test", tmp_path, tmp_path)
-    profile.root.mkdir()
-    assert profiles.ensure_profile_exists(profile, False)
-    assert profiles.ensure_profile_exists(profile, True)
-    check_is_empty(profile.root)
-
-
-def test_ensure_profile_exists_does_not_exist(tmp_path: Path):
-    assert not profiles.ensure_profile_exists(
-        Profile("test", tmp_path, tmp_path), False
-    )
-    check_is_empty(tmp_path)
-
-
-def test_ensure_profile_exists_not_dir(tmp_path: Path):
-    profile = Profile("test", tmp_path, tmp_path)
-    profile.root.touch()
-    assert not profiles.ensure_profile_exists(profile, False)
-    assert not profiles.ensure_profile_exists(profile, True)
-
-
-def test_ensure_profile_exists_create(tmp_path: Path):
-    (tmp_path / "config.py").touch()
-    profile = Profile("test", tmp_path, tmp_path)
-    assert profiles.ensure_profile_exists(profile, True)
-    check_new_profile(profile)
-
-
 def test_new_profile(tmp_path: Path):
     (tmp_path / "config.py").touch()
     profile = Profile("test", tmp_path / "test")

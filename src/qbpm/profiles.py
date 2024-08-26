@@ -75,14 +75,10 @@ def create_desktop_file(profile: Profile) -> None:
     desktop.write()
 
 
-def ensure_profile_exists(
-    profile: Profile, create: bool = True, desktop_file: bool = False
-) -> bool:
+def exists(profile: Profile) -> bool:
     if profile.root.exists() and not profile.root.is_dir():
         error(f"{profile.root} is not a directory")
         return False
-    if not profile.root.exists() and create:
-        return new_profile(profile, desktop_file=desktop_file)
     if not profile.root.exists():
         error(f"{profile.root} does not exist")
         return False

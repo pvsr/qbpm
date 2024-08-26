@@ -5,8 +5,9 @@
   - added `-C` argument to reference qutebrowser configs from an arbitrary dir
   - added `click`-generated completions for bash and zsh
   - added option support to fish completions
+  - removed `--create` from `qbpm launch`
 
 # 1.0-rc2:
   - `choose`: builtin support for `fzf` and `fuzzel`
   - moved argument handling to click
-  - `qbpm launch`'s -n/--new renamed to -c/--create
+  - `qbpm launch`'s `-n`/`--new` renamed to `-c`/`--create`

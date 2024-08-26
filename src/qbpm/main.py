@@ -122,9 +122,6 @@ def from_session(
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
-@click.option(
-    "-c", "--create", is_flag=True, help="Create the profile if it does not exist."
-)
 @click.pass_obj
 def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
     """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
@@ -194,7 +191,7 @@ def then_launch(
 ) -> None:
     exit_with(
         operation(profile, **kwargs)
-        and ((not launch) or operations.launch(profile, False, foreground, qb_args))
+        and ((not launch) or operations.launch(profile, foreground, qb_args))
     )
 
 
