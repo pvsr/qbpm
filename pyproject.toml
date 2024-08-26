@@ -18,7 +18,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">= 3.9"
-dependencies = ["pyxdg", "click", "xdg-base-dirs"]
+dependencies = ["click", "xdg-base-dirs"]
 
 [project.urls]
 repository = "https://github.com/pvsr/qbpm"
@@ -40,10 +40,6 @@ no_implicit_optional = true
 check_untyped_defs = true
 warn_return_any = true
 warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-module = "xdg.*"
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "tests.*"
