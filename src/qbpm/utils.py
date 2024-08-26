@@ -6,7 +6,7 @@ from pathlib import Path
 from shutil import which
 
 from click import get_app_dir
-from xdg import BaseDirectory
+from xdg_base_dirs import xdg_config_home, xdg_data_home
 
 WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
 X11_MENUS = ["rofi", "dmenu"]
@@ -22,12 +22,14 @@ def error(msg: str) -> None:
 
 
 def default_profile_dir() -> Path:
-    return Path(BaseDirectory.save_data_path("qutebrowser-profiles"))
+    path = xdg_data_home() / "qutebrowser-profiles"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def user_data_dir() -> Path:
     if platform.system() == "Linux":
-        return Path(BaseDirectory.xdg_data_home) / "qutebrowser"
+        return xdg_data_home() / "qutebrowser"
     # TODO confirm this works on windows
     return Path(get_app_dir("qutebrowser", roaming=True))
 
@@ -38,7 +40,7 @@ def user_config_dirs() -> list[Path]:
         dict.fromkeys(
             [
                 Path(get_app_dir("qutebrowser", roaming=True)),
-                Path(BaseDirectory.xdg_config_home) / "qutebrowser",
+                xdg_config_home() / "qutebrowser",
                 Path.home() / ".qutebrowser",
             ]
         )

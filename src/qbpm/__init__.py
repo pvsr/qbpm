@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from xdg import BaseDirectory
+from xdg_base_dirs import xdg_data_home
 
 from .utils import error, qutebrowser_exe
 
@@ -18,9 +18,7 @@ class Profile:
 
     def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
         self.name = name
-        self.profile_dir = profile_dir or Path(
-            BaseDirectory.save_data_path("qutebrowser-profiles")
-        )
+        self.profile_dir = profile_dir or (xdg_data_home() / "qutebrowser-profiles")
         self.root = self.profile_dir / name
 
     def check(self) -> Optional["Profile"]:
