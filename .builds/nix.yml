@@ -7,6 +7,6 @@ tasks:
   - check: |
       cd qbpm
       nix flake check --quiet
-  - check: |
+  - build: |
       cd qbpm
       nix build --quiet
