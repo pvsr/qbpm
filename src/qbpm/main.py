@@ -15,12 +15,18 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 @dataclass
 class Context:
     profile_dir: Path
-    qb_config_dir: Optional[Path]
 
 
 def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
     for opt in reversed(
         [
+            click.option(
+                "-C",
+                "--qutebrowser-config-dir",
+                "qb_config_dir",
+                type=click.Path(file_okay=False, readable=True, path_type=Path),
+                help="Location of the qutebrowser config to inherit from.",
+            ),
             click.option("-l", "--launch", is_flag=True, help="Launch the profile."),
             click.option(
                 "-f",
@@ -65,33 +71,19 @@ class LowerCaseFormatter(logging.Formatter):
     help="Location to store qutebrowser profiles.",
 )
 @click.option(
-    "-C",
-    "--config-dir",
-    type=click.Path(file_okay=False, readable=True, path_type=Path),
-    help="Location of the qutebrowser config to inherit from.",
-)
-@click.option(
     "-l",
     "--log-level",
     default="error",
     type=click.Choice(["debug", "info", "error"], case_sensitive=False),
 )
 @click.pass_context
-def main(
-    ctx: click.Context, profile_dir: Path, config_dir: Optional[Path], log_level: str
-) -> None:
+def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
     handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
     root_logger.addHandler(handler)
-    if not profile_dir.is_dir():
-        error(f"{profile_dir} is not a directory")
-        sys.exit(1)
-    if config_dir and not config_dir.is_dir():
-        error(f"{config_dir} is not a directory")
-        sys.exit(1)
-    ctx.obj = Context(profile_dir, config_dir)
+    ctx.obj = Context(profile_dir)
 
 
 @main.command()

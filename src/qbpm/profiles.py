@@ -91,11 +91,12 @@ def ensure_profile_exists(
 
 def new_profile(
     profile: Profile,
+    qb_config_dir: Optional[Path],
     home_page: Optional[str] = None,
     desktop_file: bool = True,
     overwrite: bool = False,
 ) -> bool:
-    qb_config_dir = get_qb_config_dir(profile)
+    qb_config_dir = resolve_qb_config_dir(qb_config_dir)
     if not qb_config_dir:
         return False
     if create_profile(profile, overwrite):
@@ -106,11 +107,11 @@ def new_profile(
     return False
 
 
-def get_qb_config_dir(profile: Profile) -> Optional[Path]:
+def resolve_qb_config_dir(qb_config_dir: Optional[Path]) -> Optional[Path]:
     config_file = "config.py"
     dirs = (
-        [profile.qb_config_dir, profile.qb_config_dir / "config"]
-        if profile.qb_config_dir
+        [qb_config_dir, qb_config_dir / "config"]
+        if qb_config_dir
         else user_config_dirs()
     )
     for config_dir in dirs:

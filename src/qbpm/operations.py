@@ -14,10 +14,11 @@ from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
 def from_session(
     profile: Profile,
     session_path: Path,
+    qb_config_dir: Optional[Path],
     desktop_file: bool = True,
     overwrite: bool = False,
 ) -> bool:
-    if not profiles.new_profile(profile, None, desktop_file, overwrite):
+    if not profiles.new_profile(profile, qb_config_dir, None, desktop_file, overwrite):
         return False
 
     session_dir = profile.root / "data" / "sessions"

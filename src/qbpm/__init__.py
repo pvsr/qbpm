@@ -15,20 +15,13 @@ class Profile:
     name: str
     profile_dir: Path
     root: Path
-    qb_config_dir: Optional[Path]
 
-    def __init__(
-        self,
-        name: str,
-        profile_dir: Optional[Path],
-        qb_config_dir: Optional[Path] = None,
-    ) -> None:
+    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
         self.name = name
         self.profile_dir = profile_dir or Path(
             BaseDirectory.save_data_path("qutebrowser-profiles")
         )
         self.root = self.profile_dir / name
-        self.qb_config_dir = qb_config_dir
 
     def check(self) -> Optional["Profile"]:
         if "/" in self.name:
