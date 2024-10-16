@@ -29,7 +29,7 @@
           };
           programs.ruff.check = true;
           programs.ruff.format = true;
-          programs.nixfmt-rfc-style.enable = true;
+          programs.nixfmt.enable = true;
         };
         package = import ./. { inherit pkgs; };
         app = flake-utils.lib.mkApp { drv = package; };
@@ -41,7 +41,8 @@
         apps.default = app;
 
         devShells.default = pkgs.mkShell {
-          packages =
+          inputsFrom = [ treefmt.config.build.devShell ];
+          buildInputs =
             with pkgs;
             [
               ruff
