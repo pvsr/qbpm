@@ -38,8 +38,7 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 
 *new* [options] <profile> [<url>]
 	Create a new qutebrowser profile named _profile_. If _url_ is present it will
-	be used as the profile's home page. By default, a .desktop file will be
-	created for the profile in $XDG_DATA_HOME/applications/qbpm/.
+	be used as the profile's home page.
 
 	Options:
 
@@ -50,12 +49,14 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 		If --launch is set, run qutebrowser in the foreground.
 
 	*--no-desktop-file*
-		Do not generate a .desktop file for the profile.
+		Do not generate an XDG desktop entry for the profile. Always true on
+		non-linux systems. See https://wiki.archlinux.org/title/Desktop_entries
+		for information on desktop entries.
 
 	*--overwrite*
 		By default qbpm will refuse to create a profile if one with the same name
-		already exists. --overwrite disables this check and rewrites the existing
-		profile's configuration files from scratch. Profile data is left untouched.
+		already exists. --overwrite disables this check and replaces the existing
+		profile's configuration files. Profile data is left untouched.
 
 *launch* [options] <profile> [argument...]
 	Start qutebrowser with --basedir set to the location of _profile_. All
@@ -106,7 +107,7 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 	*new*.
 
 *desktop* <profile>
-	Generate a .desktop file for _profile_.
+	Generate an XDG desktop entry for _profile_.
 
 *edit* <profile>
 	Open _profile_'s config.py in your default editor.

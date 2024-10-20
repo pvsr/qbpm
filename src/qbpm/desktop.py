@@ -2,7 +2,7 @@ import textwrap
 from pathlib import Path
 from typing import Optional
 
-from xdg_base_dirs import xdg_data_dirs, xdg_data_home
+from xdg_base_dirs import xdg_data_home
 
 from . import Profile
 
@@ -21,7 +21,6 @@ MIME_TYPES = [
 ]
 
 
-# TODO disable when not on linux?
 # TODO expose application_dir through config
 def create_desktop_file(
     profile: Profile, application_dir: Optional[Path] = None

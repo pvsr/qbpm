@@ -176,7 +176,7 @@ def desktop(
     context: Context,
     profile_name: str,
 ) -> None:
-    """Create a desktop file for an existing profile."""
+    """Create an XDG desktop file for an existing profile."""
     profile = Profile(profile_name, **vars(context))
     exit_with(operations.desktop(profile))
 

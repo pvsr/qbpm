@@ -1,5 +1,6 @@
 from functools import partial
 from pathlib import Path
+from sys import platform
 from typing import Optional
 
 from . import Profile
@@ -68,7 +69,7 @@ def new_profile(
     profile: Profile,
     qb_config_dir: Optional[Path],
     home_page: Optional[str] = None,
-    desktop_file: bool = True,
+    desktop_file: Optional[bool] = None,
     overwrite: bool = False,
 ) -> bool:
     qb_config_dir = resolve_qb_config_dir(qb_config_dir)
@@ -76,7 +77,7 @@ def new_profile(
         return False
     if create_profile(profile, overwrite):
         create_config(profile, qb_config_dir, home_page, overwrite)
-        if desktop_file:
+        if desktop_file is True or (desktop_file is not False and platform == "linux"):
             create_desktop_file(profile)
         return True
     return False
