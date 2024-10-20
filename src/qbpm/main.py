@@ -40,7 +40,7 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
                 default=True,
                 is_flag=True,
                 flag_value=False,
-                help="Do not generate a .desktop file for the profile.",
+                help="Do not generate an XDG desktop entry for the profile.",
             ),
             click.option(
                 "--overwrite",
@@ -176,7 +176,7 @@ def desktop(
     context: Context,
     profile_name: str,
 ) -> None:
-    """Create an XDG desktop file for an existing profile."""
+    """Create an XDG desktop entry for an existing profile."""
     profile = Profile(profile_name, **vars(context))
     exit_with(operations.desktop(profile))
 
