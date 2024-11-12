@@ -1,0 +1,13 @@
+image: archlinux
+sources:
+  - https://github.com/pvsr/qbpm
+  - https://aur.archlinux.org/qbpm-git.git
+tasks:
+  - install: |
+      sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' qbpm-git/PKGBUILD
+      yay -Bi --noconfirm qbpm-git
+  - run: |
+      mkdir -p ~/.config/qutebrowser
+      touch ~/.config/qutebrowser/config.py
+      qbpm new profile
+      qbpm list | grep profile
