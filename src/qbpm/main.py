@@ -156,6 +156,7 @@ def from_session(
     c_opts: CreatorOptions,
 ) -> None:
     """Create a new profile from a saved qutebrowser session.
+
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
     """
@@ -182,7 +183,9 @@ def from_session(
 def launch_profile(
     context: Context, profile_name: str, foreground: bool, qb_args: tuple[str, ...]
 ) -> None:
-    """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
+    """Launch qutebrowser with a specific profile.
+
+    All QB_ARGS are passed on to qutebrowser."""
     profile = Profile(profile_name, **vars(context))
     exit_with(launch_qutebrowser(profile, foreground, qb_args))
 
@@ -204,6 +207,7 @@ def choose(
     context: Context, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
 ) -> None:
     """Choose a profile to launch.
+
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser.
     """
