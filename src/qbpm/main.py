@@ -144,7 +144,7 @@ def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
 def choose(context: Context, **kwargs: Any) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
-    All QB_ARGS are passed on to qutebrowser."
+    All QB_ARGS are passed on to qutebrowser.
     """
     exit_with(operations.choose(profile_dir=context.profile_dir, **kwargs))
 
