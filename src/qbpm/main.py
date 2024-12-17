@@ -10,8 +10,9 @@ import click
 from . import Profile, operations, profiles
 from .choose import choose_profile
 from .launch import launch_qutebrowser
+from .menus import supported_menus
 from .paths import default_profile_dir, qutebrowser_data_dir
-from .utils import SUPPORTED_MENUS, error, or_phrase
+from .utils import error, or_phrase
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -139,7 +140,8 @@ def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
     "-m",
     "--menu",
     metavar="COMMAND",
-    help=f"A dmenu-compatible command or one of the following supported menus: {', '.join(sorted(SUPPORTED_MENUS))}",
+    help="A dmenu-compatible command or one of the following supported menus: "
+    + ", ".join(sorted([getattr(m, "name", "applescript") for m in supported_menus()])),
 )
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
