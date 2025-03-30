@@ -17,19 +17,19 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        project = pyproject-nix.lib.project.loadPyproject { projectRoot = ./.; };
+        pyproject = pyproject-nix.lib.project.loadPyproject { projectRoot = ./.; };
         python = pkgs.python3;
-        projectPackage =
+        pyprojectPackage =
           args:
           python.pkgs.buildPythonApplication (
-            args // project.renderers.buildPythonPackage { inherit python; }
+            args // pyproject.renderers.buildPythonPackage { inherit python; }
           );
-        projectEnv =
+        pyprojectEnv =
           extraPackages:
-          python.withPackages (project.renderers.withPackages { inherit python extraPackages; });
+          python.withPackages (pyproject.renderers.withPackages { inherit python extraPackages; });
       in
       {
-        packages.qbpm = projectPackage {
+        packages.qbpm = pyprojectPackage {
           nativeBuildInputs = [
             pkgs.scdoc
             pkgs.installShellFiles
@@ -50,7 +50,7 @@
         devShells.default = pkgs.mkShell {
           packages = [
             self.formatter.${system}
-            (projectEnv (
+            (pyprojectEnv (
               ps: with ps; [
                 pytest
                 mypy
