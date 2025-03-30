@@ -4,10 +4,7 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.pyproject-nix.url = "github:nix-community/pyproject.nix";
   inputs.pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.pyproject-nix.inputs.treefmt-nix.follows = "treefmt-nix";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
-  inputs.treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs =
     {
@@ -15,27 +12,12 @@
       nixpkgs,
       pyproject-nix,
       flake-utils,
-      treefmt-nix,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         project = pyproject-nix.lib.project.loadPyproject { projectRoot = ./.; };
-        treefmt = treefmt-nix.lib.evalModule pkgs {
-          projectRootFile = "flake.nix";
-          programs.mypy.enable = true;
-          programs.mypy.directories."." = {
-            modules = [
-              "src/qbpm"
-              "tests"
-            ];
-            extraPythonPackages = self.packages.${system}.default.propagatedBuildInputs;
-          };
-          programs.ruff.check = true;
-          programs.ruff.format = true;
-          programs.nixfmt.enable = true;
-        };
         python = pkgs.python3;
         projectPackage =
           args:
@@ -66,8 +48,8 @@
         apps.default = self.apps.${system}.qbpm;
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ treefmt.config.build.devShell ];
-          buildInputs = [
+          packages = [
+            self.formatter.${system}
             (projectEnv (
               ps: with ps; [
                 pytest
@@ -78,8 +60,22 @@
           ];
         };
 
-        formatter = treefmt.config.build.wrapper;
-        checks.formatting = treefmt.config.build.check self;
+        formatter = pkgs.nixfmt-tree.override {
+          runtimeInputs = with pkgs; [ ruff ];
+          settings = {
+            on-unmatched = "info";
+            tree-root-file = "flake.nix";
+            formatter.ruff = {
+              command = "ruff";
+              options = [ "format" ];
+              includes = [ "*.py" ];
+            };
+            formatter.nixfmt = {
+              command = "nixfmt";
+              includes = [ "*.nix" ];
+            };
+          };
+        };
       }
     );
 }
