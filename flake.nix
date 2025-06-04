@@ -49,7 +49,8 @@
 
         devShells.default = pkgs.mkShell {
           packages = [
-            self.formatter.${system}
+            pkgs.ruff
+            pkgs.nixfmt-rfc-style
             (pyprojectEnv (
               ps: with ps; [
                 pytest
