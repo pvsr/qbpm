@@ -4,7 +4,8 @@ from sys import platform
 
 from . import Profile
 from .desktop import create_desktop_file
-from .utils import error, or_phrase, user_config_dirs
+from .paths import qutebrowser_config_dirs
+from .utils import error, or_phrase
 
 MIME_TYPES = [
     "text/html",
@@ -71,7 +72,7 @@ def new_profile(
     desktop_file: bool | None = None,
     overwrite: bool = False,
 ) -> bool:
-    qb_config_dir = resolve_qb_config_dir(qb_config_dir)
+    qb_config_dir = find_qutebrowser_config_dir(qb_config_dir)
     if not qb_config_dir:
         return False
     if create_profile(profile, overwrite):
@@ -82,12 +83,12 @@ def new_profile(
     return False
 
 
-def resolve_qb_config_dir(qb_config_dir: Path | None) -> Path | None:
+def find_qutebrowser_config_dir(qb_config_dir: Path | None) -> Path | None:
     config_file = "config.py"
     dirs = (
         [qb_config_dir, qb_config_dir / "config"]
         if qb_config_dir
-        else user_config_dirs()
+        else qutebrowser_config_dirs()
     )
     for config_dir in dirs:
         if (config_dir / config_file).exists():

@@ -1,9 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
-from xdg_base_dirs import xdg_data_home
-
-from .utils import error, qutebrowser_exe
+from .paths import qutebrowser_exe
+from .utils import error
 
 try:
     from qbpm.version import version as __version__  # type: ignore
@@ -16,9 +15,9 @@ class Profile:
     profile_dir: Path
     root: Path
 
-    def __init__(self, name: str, profile_dir: Path | None) -> None:
+    def __init__(self, name: str, profile_dir: Path) -> None:
         self.name = name
-        self.profile_dir = profile_dir or (xdg_data_home() / "qutebrowser-profiles")
+        self.profile_dir = profile_dir
         self.root = self.profile_dir / name
 
     def check(self) -> Optional["Profile"]:

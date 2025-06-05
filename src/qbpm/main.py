@@ -8,7 +8,8 @@ from typing import Any, NoReturn
 import click
 
 from . import Profile, operations, profiles
-from .utils import SUPPORTED_MENUS, default_profile_dir, error, or_phrase, user_data_dir
+from .paths import default_profile_dir, qutebrowser_data_dir
+from .utils import SUPPORTED_MENUS, error, or_phrase
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -68,7 +69,7 @@ class LowerCaseFormatter(logging.Formatter):
     type=click.Path(file_okay=False, writable=True, path_type=Path),
     envvar="QBPM_PROFILE_DIR",
     show_envvar=True,
-    default=default_profile_dir,
+    default=None,
     help="Location to store qutebrowser profiles.",
 )
 @click.option(
@@ -78,13 +79,13 @@ class LowerCaseFormatter(logging.Formatter):
     type=click.Choice(["debug", "info", "error"], case_sensitive=False),
 )
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path, log_level: str) -> None:
+def main(ctx: click.Context, profile_dir: Path | None, log_level: str) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
     handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
     root_logger.addHandler(handler)
-    ctx.obj = Context(profile_dir)
+    ctx.obj = Context(profile_dir or default_profile_dir())
 
 
 @main.command()
@@ -199,7 +200,7 @@ def then_launch(
 def session_info(
     session: str, profile_name: str | None, context: Context
 ) -> tuple[Profile, Path]:
-    user_session_dir = user_data_dir() / "sessions"
+    user_session_dir = qutebrowser_data_dir() / "sessions"
     session_paths = []
     if "/" not in session:
         session_paths.append(user_session_dir / (session + ".yml"))

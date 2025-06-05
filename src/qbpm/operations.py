@@ -6,7 +6,8 @@ from sys import platform
 
 from . import Profile, profiles
 from .desktop import create_desktop_file
-from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
+from .paths import qutebrowser_exe
+from .utils import env_menus, error, installed_menus, or_phrase
 
 
 def from_session(

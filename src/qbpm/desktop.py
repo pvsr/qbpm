@@ -1,9 +1,8 @@
 import textwrap
 from pathlib import Path
 
-from xdg_base_dirs import xdg_data_home
-
 from . import Profile
+from .paths import default_qbpm_application_dir
 
 MIME_TYPES = [
     "text/html",
@@ -21,9 +20,7 @@ MIME_TYPES = [
 
 
 # TODO expose application_dir through config
-def create_desktop_file(
-    profile: Profile, application_dir: Path | None = None
-) -> None:
+def create_desktop_file(profile: Profile, application_dir: Path | None = None) -> None:
     text = textwrap.dedent(f"""\
         [Desktop Entry]
         Name={profile.name} (qutebrowser profile)
@@ -49,9 +46,3 @@ def create_desktop_file(
     """)
     application_dir = application_dir or default_qbpm_application_dir()
     (application_dir / f"{profile.name}.desktop").write_text(text)
-
-
-def default_qbpm_application_dir() -> Path:
-    path = xdg_data_home() / "applications" / "qbpm"
-    path.mkdir(parents=True, exist_ok=True)
-    return path

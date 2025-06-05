@@ -2,11 +2,7 @@ import logging
 import platform
 from collections.abc import Iterator
 from os import environ
-from pathlib import Path
 from shutil import which
-
-from click import get_app_dir
-from xdg_base_dirs import xdg_config_home, xdg_data_home
 
 WAYLAND_MENUS = ["fuzzel", "wofi", "dmenu-wl"]
 X11_MENUS = ["rofi", "dmenu"]
@@ -19,32 +15,6 @@ def info(msg: str) -> None:
 
 def error(msg: str) -> None:
     logging.error(msg)
-
-
-def default_profile_dir() -> Path:
-    path = xdg_data_home() / "qutebrowser-profiles"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def user_data_dir() -> Path:
-    if platform.system() == "Linux":
-        return xdg_data_home() / "qutebrowser"
-    # TODO confirm this works on windows
-    return Path(get_app_dir("qutebrowser", roaming=True))
-
-
-def user_config_dirs() -> list[Path]:
-    # deduplicate while maintaining order
-    return list(
-        dict.fromkeys(
-            [
-                Path(get_app_dir("qutebrowser", roaming=True)),
-                xdg_config_home() / "qutebrowser",
-                Path.home() / ".qutebrowser",
-            ]
-        )
-    )
 
 
 def installed_menus() -> Iterator[str]:
@@ -81,11 +51,3 @@ def or_phrase(items: list) -> str:
         return " or ".join(strings)
     else:
         return ", or ".join([", ".join(strings[0:-1]), strings[-1]])
-
-
-def qutebrowser_exe() -> str:
-    macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
-    if platform == "darwin" and Path(macos_app).exists():
-        return macos_app
-    else:
-        return "qutebrowser"
