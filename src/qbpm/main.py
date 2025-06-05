@@ -8,6 +8,8 @@ from typing import Any, NoReturn
 import click
 
 from . import Profile, operations, profiles
+from .choose import choose_profile
+from .launch import launch_qutebrowser
 from .paths import default_profile_dir, qutebrowser_data_dir
 from .utils import SUPPORTED_MENUS, error, or_phrase
 
@@ -128,7 +130,7 @@ def from_session(
 def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
     """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
     profile = Profile(profile_name, **vars(context))
-    exit_with(operations.launch(profile, **kwargs))
+    exit_with(launch_qutebrowser(profile, **kwargs))
 
 
 @main.command(context_settings={"ignore_unknown_options": True})
@@ -148,7 +150,7 @@ def choose(context: Context, **kwargs: Any) -> None:
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser.
     """
-    exit_with(operations.choose(profile_dir=context.profile_dir, **kwargs))
+    exit_with(choose_profile(profile_dir=context.profile_dir, **kwargs))
 
 
 @main.command()
@@ -193,7 +195,7 @@ def then_launch(
 ) -> None:
     exit_with(
         operation(profile, **kwargs)
-        and ((not launch) or operations.launch(profile, foreground, qb_args))
+        and ((not launch) or launch_qutebrowser(profile, foreground, qb_args))
     )
 
 
