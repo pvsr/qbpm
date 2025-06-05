@@ -16,7 +16,7 @@ class Profile:
     profile_dir: Path
     root: Path
 
-    def __init__(self, name: str, profile_dir: Optional[Path]) -> None:
+    def __init__(self, name: str, profile_dir: Path | None) -> None:
         self.name = name
         self.profile_dir = profile_dir or (xdg_data_home() / "qutebrowser-profiles")
         self.root = self.profile_dir / name

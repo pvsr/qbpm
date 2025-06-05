@@ -3,7 +3,6 @@ import subprocess
 from collections.abc import Iterable
 from pathlib import Path
 from sys import platform
-from typing import Optional
 
 from . import Profile, profiles
 from .desktop import create_desktop_file
@@ -13,7 +12,7 @@ from .utils import env_menus, error, installed_menus, or_phrase, qutebrowser_exe
 def from_session(
     profile: Profile,
     session_path: Path,
-    qb_config_dir: Optional[Path],
+    qb_config_dir: Path | None,
     desktop_file: bool = True,
     overwrite: bool = False,
 ) -> bool:
@@ -68,7 +67,7 @@ def desktop(profile: Profile) -> bool:
 
 
 def choose(
-    profile_dir: Path, menu: Optional[str], foreground: bool, qb_args: tuple[str, ...]
+    profile_dir: Path, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
 ) -> bool:
     menu = menu or next(installed_menus(), None)
     if not menu:
@@ -112,7 +111,7 @@ def choose(
 
 def menu_command(
     menu: str, profiles: Iterable[str], qb_args: tuple[str, ...]
-) -> Optional[str]:
+) -> str | None:
     profiles = sorted(profiles)
     arg_string = " ".join(qb_args)
     if menu == "applescript":

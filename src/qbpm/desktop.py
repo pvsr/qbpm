@@ -1,6 +1,5 @@
 import textwrap
 from pathlib import Path
-from typing import Optional
 
 from xdg_base_dirs import xdg_data_home
 
@@ -23,7 +22,7 @@ MIME_TYPES = [
 
 # TODO expose application_dir through config
 def create_desktop_file(
-    profile: Profile, application_dir: Optional[Path] = None
+    profile: Profile, application_dir: Path | None = None
 ) -> None:
     text = textwrap.dedent(f"""\
         [Desktop Entry]

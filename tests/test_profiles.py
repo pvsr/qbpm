@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from qbpm import profiles
 from qbpm.profiles import Profile
@@ -9,7 +8,7 @@ def check_is_empty(path: Path):
     assert len(list(path.iterdir())) == 0
 
 
-def check_empty_profile(profile: Optional[Profile]):
+def check_empty_profile(profile: Profile | None):
     assert profile
     config_dir = profile.root / "config"
     assert list(profile.root.iterdir()) == [config_dir]

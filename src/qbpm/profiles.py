@@ -1,7 +1,6 @@
 from functools import partial
 from pathlib import Path
 from sys import platform
-from typing import Optional
 
 from . import Profile
 from .desktop import create_desktop_file
@@ -39,7 +38,7 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 def create_config(
     profile: Profile,
     qb_config_dir: Path,
-    home_page: Optional[str] = None,
+    home_page: str | None = None,
     overwrite: bool = False,
 ) -> None:
     user_config = profile.root / "config" / "config.py"
@@ -67,9 +66,9 @@ def exists(profile: Profile) -> bool:
 
 def new_profile(
     profile: Profile,
-    qb_config_dir: Optional[Path],
-    home_page: Optional[str] = None,
-    desktop_file: Optional[bool] = None,
+    qb_config_dir: Path | None,
+    home_page: str | None = None,
+    desktop_file: bool | None = None,
     overwrite: bool = False,
 ) -> bool:
     qb_config_dir = resolve_qb_config_dir(qb_config_dir)
@@ -83,7 +82,7 @@ def new_profile(
     return False
 
 
-def resolve_qb_config_dir(qb_config_dir: Optional[Path]) -> Optional[Path]:
+def resolve_qb_config_dir(qb_config_dir: Path | None) -> Path | None:
     config_file = "config.py"
     dirs = (
         [qb_config_dir, qb_config_dir / "config"]

@@ -1,8 +1,9 @@
 import logging
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, NoReturn, Optional
+from typing import Any, NoReturn
 
 import click
 
@@ -105,7 +106,7 @@ def new(context: Context, profile_name: str, **kwargs: Any) -> None:
 def from_session(
     context: Context,
     session: str,
-    profile_name: Optional[str],
+    profile_name: str | None,
     **kwargs: Any,
 ) -> None:
     """Create a new profile from a saved qutebrowser session.
@@ -196,7 +197,7 @@ def then_launch(
 
 
 def session_info(
-    session: str, profile_name: Optional[str], context: Context
+    session: str, profile_name: str | None, context: Context
 ) -> tuple[Profile, Path]:
     user_session_dir = user_data_dir() / "sessions"
     session_paths = []
