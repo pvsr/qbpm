@@ -76,7 +76,7 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 		\# launch my profile called work and open internal.mycompany.com
 		qbpm launch work internal.mycompany.com
 
-		\# launch a new profile called qb-dev, passing the flags to qutebrowser
+		\# launch a new profile called qb-dev, passing the debugging flags to qutebrowser
 		qbpm launch -n qb-dev --debug --json-logging
 		```
 
@@ -88,15 +88,22 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 	*-m, --menu* <menu>
 		Use _menu_ instead of the default menu program. This may be the name of a
 		program on $PATH or a path to a program, in which case it will be run in
-		dmenu mode if qbpm knows about the program, or a full command line.
+		dmenu mode if qbpm knows about the program, or a full command line. On
+		MacOS the special value "applescript" is accepted. Run `qbpm choose --help`
+		for a list of known menu programs for your environment.
 
 	Examples:
 
 		```
-		\# runs "echo {profiles} | /path/to/rofi -dmenu -no-custom -p qutebrowser"
-		qbpm choose -m /path/to/rofi
+		qbpm choose --menu fzf
 
-		qbpm choose -m "my-cool-menu --dmenu-mode --prompt qutebrowser"
+		qbpm choose --menu "./build/my-cool-menu --dmenu-mode --prompt qutebrowser"
+
+		\# qbpm knows about fuzzel so it can automatically invoke it as "~/.local/bin/fuzzel --dmenu"
+		qbpm choose --menu ~/.local/bin/fuzzel
+
+		\# if more than one word is provided it will be invoked as is, so `--dmenu` must be included
+		qbpm choose --menu 'fuzzel --dmenu --width 100'
 		```
 
 *from-session* [options] <session> [<name>]
