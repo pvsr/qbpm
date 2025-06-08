@@ -18,6 +18,7 @@ class Dmenu:
         return which(self.name) is not None
 
     def command(self, prompt: str, qb_args: str) -> str:
+        prompt = prompt or "''"
         return f"{self.name} {self.args.format(prompt=prompt, qb_args=qb_args)}"
 
     def commandline(self, profiles: list[str], prompt: str, qb_args: str) -> str:
@@ -59,9 +60,9 @@ def custom_dmenu(command: str) -> Dmenu:
     split = command.split(" ", maxsplit=1)
     if len(split) == 1 or not split[1]:
         name = Path(command).name
-        for m in supported_menus():
-            if isinstance(m, Dmenu) and m.name == name:
-                return m if m.name == command else replace(m, name=command)
+        for menu in supported_menus():
+            if isinstance(menu, Dmenu) and menu.name == name:
+                return menu if menu.name == command else replace(menu, name=command)
     return Dmenu(split[0], split[1] if len(split) == 2 else "")
 
 

@@ -70,7 +70,7 @@ def test_custom_menu_default_args(tmp_path: Path):
     environ["DISPLAY"] = ":1"
     dmenu = find_menu(str(menu))
     assert dmenu is not None
-    assert f"{menu} -dmenu" in dmenu.commandline(["p1", "p2"], "", "")
+    assert f"{menu} -dmenu -no-custom -p ''" in dmenu.commandline(["p1", "p2"], "", "")
 
 
 def test_custom_menu_custom_args(tmp_path: Path):
@@ -80,4 +80,4 @@ def test_custom_menu_custom_args(tmp_path: Path):
     environ["DISPLAY"] = ":1"
     dmenu = find_menu(command)
     assert dmenu is not None
-    assert command in dmenu.commandline(["p1", "p2"], "", "")
+    assert dmenu.commandline(["p1", "p2"], "", "").endswith(command)
