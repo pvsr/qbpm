@@ -6,7 +6,7 @@ qbpm - qutebrowser profile manager
 
 # SYNOPSIS
 
-*qbpm* [--profile-dir=<path>|-P <path>] <command> [<args>]
+*qbpm* [--profile-dir=<path>|-P <path>] [--config-file|-c <path>] <command> [<args>]
 
 # DESCRIPTION
 
@@ -30,6 +30,8 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 	Use _path_ as the profile directory instead of the default location. Takes
 	precedence over the QBPM_PROFILE_DIR environment variable.
 
+*-c, --config-file* <path>
+	Read configuration for qbpm from _path_. Defaults to ~/.config/qbpm/config.toml.
 
 # COMMANDS
 
@@ -49,9 +51,9 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 		Source config files from the provided directory instead of the global
 		qutebrowser config location.
 
-	*--no-desktop-file*
-		Do not generate an XDG desktop entry for the profile. Always true on
-		non-linux systems. See https://wiki.archlinux.org/title/Desktop_entries
+	*--desktop-file/--no-desktop-file*
+		Whether to generate an XDG desktop entry for the profile. Only relevant
+		on linux systems. See https://wiki.archlinux.org/title/Desktop_entries
 		for information on desktop entries.
 
 	*--overwrite*

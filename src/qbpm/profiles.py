@@ -1,11 +1,10 @@
 from functools import partial
 from pathlib import Path
-from sys import platform
 
 from . import Profile
+from .config import Config, find_qutebrowser_config_dir
 from .desktop import create_desktop_file
-from .log import error, or_phrase
-from .paths import qutebrowser_config_dirs
+from .log import error
 
 MIME_TYPES = [
     "text/html",
@@ -39,18 +38,22 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 def create_config(
     profile: Profile,
     qb_config_dir: Path,
+    config_py_template: str,
     home_page: str | None = None,
     overwrite: bool = False,
 ) -> None:
     user_config = profile.root / "config" / "config.py"
     with user_config.open(mode="w" if overwrite else "x") as dest_config:
         out = partial(print, file=dest_config)
-        out("config.load_autoconfig()")
-        title_prefix = "{perc}{current_title}{title_sep}"
-        out(f"c.window.title_format = '{title_prefix} qutebrowser ({profile.name})'")
+        out(
+            config_py_template.format(
+                profile_name=profile.name,
+                source_config_py=qb_config_dir / "config.py",
+            )
+        )
+        # TODO move to template?
         if home_page:
             out(f"c.url.start_pages = ['{home_page}']")
-        out(f"config.source(r'{qb_config_dir / 'config.py'}')")
 
 
 def check(profile: Profile) -> bool:
@@ -71,31 +74,25 @@ def check(profile: Profile) -> bool:
 
 def new_profile(
     profile: Profile,
-    qb_config_dir: Path | None,
+    config: Config,
     home_page: str | None = None,
-    desktop_file: bool | None = None,
     overwrite: bool = False,
 ) -> bool:
+    qb_config_dir = config.qutebrowser_config_directory
+    if qb_config_dir and not qb_config_dir.is_dir():
+        error(f"{qb_config_dir} is not a directory")
+        return False
     qb_config_dir = find_qutebrowser_config_dir(qb_config_dir)
     if not qb_config_dir:
         return False
+    if not config.config_py_template:
+        error("no value for config_py_template in config.toml")
+        return False
     if create_profile(profile, overwrite):
-        create_config(profile, qb_config_dir, home_page, overwrite)
-        if desktop_file is True or (desktop_file is not False and platform == "linux"):
-            create_desktop_file(profile)
+        create_config(
+            profile, qb_config_dir, config.config_py_template, home_page, overwrite
+        )
+        if config.generate_desktop_file:
+            create_desktop_file(profile, config.desktop_file_directory)
         return True
     return False
-
-
-def find_qutebrowser_config_dir(qb_config_dir: Path | None) -> Path | None:
-    config_file = "config.py"
-    dirs = (
-        [qb_config_dir, qb_config_dir / "config"]
-        if qb_config_dir
-        else list(qutebrowser_config_dirs())
-    )
-    for config_dir in dirs:
-        if (config_dir / config_file).exists():
-            return config_dir.absolute()
-    error(f"could not find {config_file} in {or_phrase(dirs)}")
-    return None

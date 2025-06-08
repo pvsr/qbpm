@@ -10,17 +10,25 @@ import click
 
 from . import Profile, operations, profiles
 from .choose import choose_profile
+from .config import DEFAULT_CONFIG_FILE, Config, find_config
 from .launch import launch_qutebrowser
 from .log import error, or_phrase
 from .menus import supported_menus
-from .paths import default_profile_dir, qutebrowser_data_dir
+from .paths import default_qbpm_config_dir, qutebrowser_data_dir
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "max_content_width": 91}
 
 
 @dataclass
 class Context:
-    profile_dir: Path
+    cli_profile_dir: Path | None
+    cli_config_file: Path | None
+
+    def load_config(self) -> Config:
+        config = find_config(self.cli_config_file)
+        if self.cli_profile_dir:
+            config.profile_directory = self.cli_profile_dir
+        return config
 
 
 @dataclass
@@ -28,7 +36,7 @@ class CreatorOptions:
     qb_config_dir: Path | None
     launch: bool
     foreground: bool
-    desktop_file: bool
+    desktop_file: bool | None
     overwrite: bool
 
 
@@ -41,7 +49,7 @@ def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
         qb_config_dir: Path | None,
         launch: bool,
         foreground: bool,
-        desktop_file: bool,
+        desktop_file: bool | None,
         overwrite: bool,
         *args: Any,  # noqa: ANN401
         **kwargs: Any,  # noqa: ANN401
@@ -71,12 +79,9 @@ def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
                 help="If --launch is set, run qutebrowser in the foreground.",
             ),
             click.option(
-                "--no-desktop-file",
-                "desktop_file",
-                default=True,
-                is_flag=True,
-                flag_value=False,
-                help="Do not generate an XDG desktop entry for the profile.",
+                "--desktop-file/--no-desktop-file",
+                default=None,
+                help="Generate an XDG desktop entry for the profile.",
             ),
             click.option(
                 "--overwrite",
@@ -107,19 +112,30 @@ class LowerCaseFormatter(logging.Formatter):
     help="Location to store qutebrowser profiles.",
 )
 @click.option(
+    "-c",
+    "--config-file",
+    type=click.Path(dir_okay=False, writable=True, path_type=Path),
+    help="Location of qbpm config file.",
+)
+@click.option(
     "-l",
     "--log-level",
     default="error",
     type=click.Choice(["debug", "info", "error"], case_sensitive=False),
 )
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path | None, log_level: str) -> None:
+def main(
+    ctx: click.Context,
+    profile_dir: Path | None,
+    config_file: Path | None,
+    log_level: str,
+) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
     handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
     root_logger.addHandler(handler)
-    ctx.obj = Context(profile_dir or default_profile_dir())
+    ctx.obj = Context(profile_dir, config_file)
 
 
 @main.command()
@@ -134,13 +150,18 @@ def new(
     c_opts: CreatorOptions,
 ) -> None:
     """Create a new profile."""
-    profile = Profile(profile_name, **vars(context))
+    config = context.load_config()
+    profile = Profile(profile_name, config.profile_directory)
+    if c_opts.qb_config_dir:
+        config.qutebrowser_config_directory = c_opts.qb_config_dir.absolute()
+    if c_opts.desktop_file is not None:
+        config.generate_desktop_file = c_opts.desktop_file
+
     exit_with(
         profiles.new_profile(
             profile,
-            c_opts.qb_config_dir,
+            config,
             home_page,
-            c_opts.desktop_file,
             c_opts.overwrite,
         )
         and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
@@ -163,13 +184,19 @@ def from_session(
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
     """
-    profile, session_path = session_info(session, profile_name, context)
+    config = context.load_config()
+    profile, session_path = session_info(
+        session, profile_name, config.profile_directory
+    )
+    if c_opts.qb_config_dir:
+        config.qutebrowser_config_directory = c_opts.qb_config_dir.absolute()
+    if c_opts.desktop_file is not None:
+        config.generate_desktop_file = c_opts.desktop_file
     exit_with(
         operations.from_session(
             profile,
             session_path,
-            c_opts.qb_config_dir,
-            c_opts.desktop_file,
+            config,
             c_opts.overwrite,
         )
         and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
@@ -189,7 +216,7 @@ def launch_profile(
     """Launch qutebrowser with a specific profile.
 
     All QB_ARGS are passed on to qutebrowser."""
-    profile = Profile(profile_name, **vars(context))
+    profile = Profile(profile_name, context.load_config().profile_directory)
     if not profiles.check(profile):
         sys.exit(1)
     exit_with(launch_qutebrowser(profile, foreground, qb_args))
@@ -216,7 +243,16 @@ def choose(
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser.
     """
-    exit_with(choose_profile(context.profile_dir, menu, foreground, qb_args))
+    config = context.load_config()
+    exit_with(
+        choose_profile(
+            config.profile_directory,
+            menu or config.menu,
+            config.menu_prompt,
+            foreground,
+            qb_args,
+        )
+    )
 
 
 @main.command()
@@ -224,7 +260,7 @@ def choose(
 @click.pass_obj
 def edit(context: Context, profile_name: str) -> None:
     """Edit a profile's config.py."""
-    profile = Profile(profile_name, **vars(context))
+    profile = Profile(profile_name, context.load_config().profile_directory)
     if not profiles.check(profile):
         sys.exit(1)
     click.edit(filename=str(profile.root / "config" / "config.py"))
@@ -234,7 +270,7 @@ def edit(context: Context, profile_name: str) -> None:
 @click.pass_obj
 def list_(context: Context) -> None:
     """List existing profiles."""
-    for profile in sorted(context.profile_dir.iterdir()):
+    for profile in sorted(context.load_config().profile_directory.iterdir()):
         print(profile.name)
 
 
@@ -246,12 +282,40 @@ def desktop(
     profile_name: str,
 ) -> None:
     """Create an XDG desktop entry for an existing profile."""
-    profile = Profile(profile_name, **vars(context))
-    exit_with(operations.desktop(profile))
+    config = context.load_config()
+    profile = Profile(profile_name, config.profile_directory)
+    exit_with(operations.desktop(profile, config.desktop_file_directory))
+
+
+@main.group(context_settings={"help_option_names": []})
+def config() -> None:
+    """Commands to create a qbpm config file.
+
+    qbpm config default > "$(qbpm config path)"
+    """
+    pass
+
+
+@config.command()
+@click.pass_obj
+def path(context: Context) -> None:
+    """Print the location where qbpm will look for a config file."""
+    if context.cli_config_file:
+        print(context.cli_config_file.absolute())
+    else:
+        config_dir = default_qbpm_config_dir()
+        config_dir.mkdir(parents=True, exist_ok=True)
+        print(config_dir / "config.toml")
+
+
+@config.command
+def default() -> None:
+    """Print the default qbpm config file."""
+    print(DEFAULT_CONFIG_FILE.read_text(), end="")
 
 
 def session_info(
-    session: str, profile_name: str | None, context: Context
+    session: str, profile_name: str | None, profile_dir: Path
 ) -> tuple[Profile, Path]:
     user_session_dir = qutebrowser_data_dir() / "sessions"
     session_paths = []
@@ -262,7 +326,10 @@ def session_info(
 
     if session_path:
         return (
-            Profile(profile_name or session_path.stem, **vars(context)),
+            Profile(
+                profile_name or session_path.stem,
+                profile_dir,
+            ),
             session_path,
         )
     tried = or_phrase([str(p.resolve()) for p in session_paths])

@@ -15,7 +15,11 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">= 3.11"
-dependencies = ["click", "xdg-base-dirs"]
+dependencies = [
+    "click",
+    "xdg-base-dirs",
+    "dacite",
+]
 
 [project.urls]
 homepage = "https://github.com/pvsr/qbpm"

@@ -29,7 +29,7 @@ def test_choose(tmp_path: Path):
     profile_dir.mkdir()
     (profile_dir / "p1").mkdir()
     (profile_dir / "p2").mkdir()
-    assert choose_profile(profile_dir, str(menu), False, ())
+    assert choose_profile(profile_dir, str(menu), "", False, ())
     assert log.read_text().startswith(
         f"""p1
 p2

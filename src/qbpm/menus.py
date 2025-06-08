@@ -21,6 +21,7 @@ class Dmenu:
         return which(self.name()) is not None
 
     def command(self, _profiles: list[str], prompt: str, qb_args: str) -> list[str]:
+        prompt = prompt.format(qb_args=qb_args)
         return [arg.format(prompt=prompt, qb_args=qb_args) for arg in self.menu_command]
 
 
@@ -45,33 +46,40 @@ item 1 of profile""",
         ]
 
 
-def find_menu(menu: str | None) -> Dmenu | ApplescriptMenu | None:
+def find_menu(menu: str | list[str] | None) -> Dmenu | ApplescriptMenu | None:
+    if menu:
+        dmenu = custom_dmenu(menu)
+        if not dmenu.installed():
+            error(f"{dmenu.name()} not found")
+            return None
+        return dmenu
     menus = list(supported_menus())
-    if not menu:
-        found = next(filter(lambda m: m.installed(), menus), None)
-        if not found:
-            error(
-                "no menu program found, use --menu to provide a dmenu-compatible menu or install one of "
-                + or_phrase([m.name() for m in menus if isinstance(m, Dmenu)])
-            )
-        return found
-    dmenu = custom_dmenu(menu)
-    if not dmenu.installed():
-        error(f"{dmenu.name()} not found")
-        return None
-    return dmenu
+    found = next(filter(lambda m: m.installed(), menus), None)
+    if not found:
+        error(
+            "no menu program found, use --menu to provide a dmenu-compatible menu or install one of "
+            + or_phrase([m.name() for m in menus if isinstance(m, Dmenu)])
+        )
+    return found
 
 
-def custom_dmenu(command: str) -> Dmenu:
-    split = shlex.split(command)
+def custom_dmenu(command: str | list[str]) -> Dmenu:
+    split = shlex.split(command) if isinstance(command, str) else command
     if len(split) == 1 or not split[1]:
-        name = Path(command).name
+        command_path = Path(split[0])
+        name = command_path.name
         for menu in supported_menus():
             if isinstance(menu, Dmenu) and menu.name() == name:
                 return (
                     menu
-                    if name == command
-                    else replace(menu, menu_command=[command, *menu.menu_command[1::]])
+                    if name == split[0]
+                    else replace(
+                        menu,
+                        menu_command=[
+                            str(command_path.expanduser()),
+                            *menu.menu_command[1::],
+                        ],
+                    )
                 )
     return Dmenu(split)
 
@@ -83,8 +91,8 @@ def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
         yield from [
             # default window is too narrow for a long prompt
             Dmenu(["fuzzel", "--dmenu"]),
-            Dmenu(["walker", "--dmenu", "--placeholder", "{prompt} {qb_args}"]),
-            Dmenu(["wofi", "--dmenu", "--prompt", "{prompt} {qb_args}"]),
+            Dmenu(["walker", "--dmenu", "--placeholder", "{prompt}"]),
+            Dmenu(["wofi", "--dmenu", "--prompt", "{prompt}"]),
             Dmenu(["tofi", "--prompt-text", "{prompt}> "]),
             Dmenu(["wmenu", "-p", "{prompt}"]),
             Dmenu(["dmenu-wl", "--prompt", "{prompt}"]),

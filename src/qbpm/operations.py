@@ -2,17 +2,17 @@ import shutil
 from pathlib import Path
 
 from . import Profile, profiles
+from .config import Config
 from .desktop import create_desktop_file
 
 
 def from_session(
     profile: Profile,
     session_path: Path,
-    qb_config_dir: Path | None,
-    desktop_file: bool = True,
+    config: Config,
     overwrite: bool = False,
 ) -> bool:
-    if not profiles.new_profile(profile, qb_config_dir, None, desktop_file, overwrite):
+    if not profiles.new_profile(profile, config, None, overwrite):
         return False
 
     session_dir = profile.root / "data" / "sessions"
@@ -22,8 +22,8 @@ def from_session(
     return True
 
 
-def desktop(profile: Profile) -> bool:
+def desktop(profile: Profile, application_dir: Path) -> bool:
     exists = profiles.check(profile)
     if exists:
-        create_desktop_file(profile)
+        create_desktop_file(profile, application_dir)
     return exists

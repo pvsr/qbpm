@@ -8,7 +8,11 @@ from .menus import find_menu
 
 
 def choose_profile(
-    profile_dir: Path, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
+    profile_dir: Path,
+    menu: str | list[str],
+    prompt: str,
+    foreground: bool,
+    qb_args: tuple[str, ...],
 ) -> bool:
     dmenu = find_menu(menu)
     if not dmenu:
@@ -19,7 +23,7 @@ def choose_profile(
         error("no profiles")
         return False
     profiles = [*real_profiles, "qutebrowser"]
-    command = dmenu.command(sorted(profiles), "qutebrowser", " ".join(qb_args))
+    command = dmenu.command(sorted(profiles), prompt, " ".join(qb_args))
     selection_cmd = subprocess.run(
         command,
         text=True,

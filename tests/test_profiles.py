@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from qbpm import profiles
+from qbpm.config import Config
 from qbpm.profiles import Profile
 
 from . import no_homedir_fixture  # noqa: F401
@@ -56,7 +57,7 @@ def test_create_config(tmp_path: Path):
     profile = Profile("test", tmp_path)
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
-    profiles.create_config(profile, tmp_path)
+    profiles.create_config(profile, tmp_path, "")
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
 
 
@@ -65,8 +66,8 @@ def test_overwrite_config(tmp_path: Path):
     url = "http://example.com"
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
-    profiles.create_config(profile, tmp_path)
-    profiles.create_config(profile, tmp_path, url, True)
+    profiles.create_config(profile, tmp_path, "")
+    profiles.create_config(profile, tmp_path, "", url, True)
     assert list(config_dir.iterdir()) == [config_dir / "config.py"]
     with (config_dir / "config.py").open() as conf:
         for line in conf:
@@ -78,5 +79,8 @@ def test_overwrite_config(tmp_path: Path):
 def test_new_profile(tmp_path: Path):
     (tmp_path / "config.py").touch()
     profile = Profile("test", tmp_path / "test")
-    assert profiles.new_profile(profile, tmp_path, desktop_file=False)
+    config = Config.load(None)
+    config.qutebrowser_config_directory = tmp_path
+    config.generate_desktop_file = False
+    assert profiles.new_profile(profile, config)
     check_new_profile(profile)

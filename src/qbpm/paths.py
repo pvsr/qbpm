@@ -14,16 +14,16 @@ def qutebrowser_exe() -> str:
         return "qutebrowser"
 
 
+def default_qbpm_config_dir() -> Path:
+    return xdg_config_home() / "qbpm"
+
+
 def default_qbpm_application_dir() -> Path:
-    path = xdg_data_home() / "applications" / "qbpm"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return xdg_data_home() / "applications" / "qbpm"
 
 
 def default_profile_dir() -> Path:
-    path = xdg_data_home() / "qutebrowser-profiles"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    return xdg_data_home() / "qutebrowser-profiles"
 
 
 def qutebrowser_data_dir() -> Path:

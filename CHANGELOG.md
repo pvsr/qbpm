@@ -1,4 +1,20 @@
-# next
+# 2.0
+## config
+qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
+  - to install the default config file:
+    - run `qbpm config path` and confirm that it prints out a path
+    - run `qbpm config default > "$(qbpm config path)"`
+  - supported configuration options:
+    - `config_py_template`: control the contents of `config.py` in new profiles
+    - `profile_directory` and `qutebrowser_config_directory`
+      - equivalent `--profile-dir` to `--qutebrowser-config-dir` 
+    - `generate_desktop_file` and `desktop_file_directory`
+      - whether to generate an XDG desktop entry for the profile and where to put it
+    - `menu`: equivalent to `--menu` for `qbpm choose`
+    - `menu_prompt`: prompt shown in most menus
+    - see default config file for more detailed documentation
+
+## other
   - `contrib/qbpm.desktop`: add `MimeType` and `Keywords`, fix incorrect formatting of `Categories`
   - allow help text to be slightly wider to avoid awkward line breaks
   - macOS: fix detection of qutebrowser binary in /Applications

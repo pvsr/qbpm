@@ -1,0 +1,39 @@
+# template that new config.py files are generated from
+# supported placeholders: {profile_name}, {source_config_py}
+config_py_template = """
+config.source(r'{source_config_py}')
+
+c.window.title_format += ' ({profile_name})'
+
+config.load_autoconfig()
+"""
+
+# location to store qutebrowser profiles
+# profile_directory = "~/.local/share/qutebrowser-profiles"
+
+# location of the qutebrowser config to inherit from
+# qutebrowser_config_directory = "~/.config/qutebrowser"
+
+# when creating a profile also generate an XDG desktop entry that launches the profile
+# defaults to true on linux
+generate_desktop_file = true
+# desktop_file_directory = "~/.local/share/applications/qbpm"
+
+# profile selection menu for `qbpm choose`
+# when not set, qbpm will try to find a menu program on your $PATH
+# run `qbpm choose --help` for a list of known menu programs
+# if menu is a known menu, dmenu-mode flags are set automatically
+# menu = "fuzzel" # gets turned into "fuzzel --dmenu", /path/to/fuzzel also works
+# otherwise menu must be a dmenu-compatible commandline
+# supported placeholders: {prompt}, {qb_args}
+# menu = "~/bin/my-dmenu"
+# menu = "fuzzel --dmenu --prompt '{prompt}> ' --lines 20 --width 50"
+# optionally menu can be written as a list to simplify quoting
+# menu = ["fuzzel", "--dmenu", "--prompt", "{prompt}> ", "--lines", "20", "--width", "50"]
+
+# value of {prompt} in menu commands
+# supported placeholders: {qb_args}
+# defaults to "qutebrowser"
+# menu_prompt = "qbpm"
+# menu_prompt = "profiles"
+# menu_prompt = "qutebrowser {qb_args}"
