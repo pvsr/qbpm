@@ -73,3 +73,4 @@ ignore = [
 "tests/test_main.py" = [ "S101", "ANN201"]
 "tests/test_profiles.py" = [ "S101", "ANN201"]
 "tests/test_desktop.py" = [ "S101", "ANN201"]
+"tests/test_choose.py" = [ "S101", "ANN201"]
