@@ -2,8 +2,8 @@ import shutil
 import subprocess
 
 from . import Profile
+from .log import error
 from .paths import qutebrowser_exe
-from .utils import error
 
 
 def launch_qutebrowser(

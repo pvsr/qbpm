@@ -10,9 +10,9 @@ import click
 from . import Profile, operations, profiles
 from .choose import choose_profile
 from .launch import launch_qutebrowser
+from .log import error, or_phrase
 from .menus import supported_menus
 from .paths import default_profile_dir, qutebrowser_data_dir
-from .utils import error, or_phrase
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 

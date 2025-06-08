@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
+from .log import error
 from .paths import qutebrowser_exe
-from .utils import error
 
 try:
     from qbpm.version import version as __version__  # type: ignore

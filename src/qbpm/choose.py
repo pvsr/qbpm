@@ -3,8 +3,8 @@ from pathlib import Path
 
 from . import Profile
 from .launch import launch_qutebrowser
+from .log import error
 from .menus import find_menu
-from .utils import error
 
 
 def choose_profile(

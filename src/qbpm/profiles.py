@@ -4,8 +4,8 @@ from sys import platform
 
 from . import Profile
 from .desktop import create_desktop_file
+from .log import error, or_phrase
 from .paths import qutebrowser_config_dirs
-from .utils import error, or_phrase
 
 MIME_TYPES = [
     "text/html",
