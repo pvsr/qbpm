@@ -53,6 +53,7 @@
             pkgs.nixfmt-rfc-style
             (pyprojectEnv (
               ps: with ps; [
+                flit
                 pytest
                 mypy
                 pylsp-mypy
