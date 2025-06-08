@@ -3,6 +3,8 @@ from pathlib import Path
 from qbpm import profiles
 from qbpm.profiles import Profile
 
+from . import no_homedir_fixture  # noqa: F401
+
 
 def check_is_empty(path: Path):
     assert len(list(path.iterdir())) == 0

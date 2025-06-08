@@ -3,6 +3,8 @@ from pathlib import Path
 
 from qbpm.choose import choose_profile, find_menu
 
+from . import no_homedir_fixture  # noqa: F401
+
 
 def write_script(parent_dir: Path, name: str = "menu", contents: str = "") -> Path:
     parent_dir.mkdir(exist_ok=True)
