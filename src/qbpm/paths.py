@@ -4,6 +4,8 @@ from pathlib import Path
 from click import get_app_dir
 from xdg_base_dirs import xdg_config_home, xdg_data_home
 
+from .log import info
+
 
 def qutebrowser_exe() -> str:
     macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
@@ -11,6 +13,12 @@ def qutebrowser_exe() -> str:
         return macos_app
     else:
         return "qutebrowser"
+
+
+def default_qbpm_config_dir() -> Path:
+    path = xdg_config_home() / "qbpm"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def default_qbpm_application_dir() -> Path:

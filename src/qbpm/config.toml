@@ -1,0 +1,31 @@
+# default: ~/.local/share/qutebrowser-profiles
+# profile_directory = "~/profiles"
+
+# contents of generated config.py
+# supported placeholders: {profile_name}, {source_config_py}
+config_py_template = """
+config.load_autoconfig()
+
+config.source(r'{source_config_py}')
+
+c.window.title_format += ' ({profile_name})'
+"""
+
+# default: ~/.config/qutebrowser
+# qutebrowser_config_directory = "~/dotfiles/qutebrowser/config"
+
+# when creating a new profile, also generate a .desktop file to run the profile
+# default: true
+# generate_desktop_file = false
+
+# default: ~/.local/share/applications/qbpm/
+# desktop_file_directory = "~/.local/share/applications"
+
+# menu to use for `qbpm choose`
+# default: find a menu program on $PATH. run `qbpm choose --help` for a list of known menus
+# supported placeholders: {prompt}, {qb_args}
+# menu = ["fuzzel", "--dmenu", "--width", "120", "--prompt", "{prompt}> "]
+
+# prompt to use in menu
+# default: qbpm
+# prompt = "qutebrowser"

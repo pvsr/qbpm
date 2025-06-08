@@ -10,6 +10,7 @@ import click
 
 from . import Profile, operations, profiles
 from .choose import choose_profile
+from .config import Config, load_config
 from .launch import launch_qutebrowser
 from .log import error, or_phrase
 from .menus import supported_menus
@@ -21,6 +22,11 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 @dataclass
 class Context:
     profile_dir: Path
+    config_file: Path | None
+
+    def load_config(self) -> Config:
+        # TODO this is probably redundant
+        return load_config(self.config_file) or Config.default()
 
 
 @dataclass
@@ -107,19 +113,30 @@ class LowerCaseFormatter(logging.Formatter):
     help="Location to store qutebrowser profiles.",
 )
 @click.option(
+    "-c",
+    "--config-file",
+    type=click.Path(dir_okay=False, writable=True, path_type=Path),
+    # help="Location to store qutebrowser profiles.",
+)
+@click.option(
     "-l",
     "--log-level",
     default="error",
     type=click.Choice(["debug", "info", "error"], case_sensitive=False),
 )
 @click.pass_context
-def main(ctx: click.Context, profile_dir: Path | None, log_level: str) -> None:
+def main(
+    ctx: click.Context,
+    profile_dir: Path | None,
+    config_file: Path | None,
+    log_level: str,
+) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level.upper())
     handler = logging.StreamHandler()
     handler.setFormatter(LowerCaseFormatter("{levelname}: {message}", style="{"))
     root_logger.addHandler(handler)
-    ctx.obj = Context(profile_dir or default_profile_dir())
+    ctx.obj = Context(profile_dir or default_profile_dir(), config_file)
 
 
 @main.command()
@@ -142,6 +159,7 @@ def new(
             home_page,
             c_opts.desktop_file,
             c_opts.overwrite,
+            context.load_config(),
         )
         and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
     )
@@ -217,6 +235,17 @@ def choose(
     All QB_ARGS are passed on to qutebrowser.
     """
     exit_with(choose_profile(context.profile_dir, menu, foreground, qb_args))
+
+
+@main.command
+@click.argument(
+    "config_path",
+    type=click.Path(file_okay=True, path_type=Path),
+    required=False,
+)
+def config(config_path: Path | None) -> None:
+    config = load_config(config_path)
+    print(config)
 
 
 @main.command()

@@ -14,7 +14,10 @@ class Profile:
     profile_dir: Path
     root: Path
 
-    def __init__(self, name: str, profile_dir: Path) -> None:
+    # TODO remove config_file param
+    def __init__(
+        self, name: str, profile_dir: Path, config_file: Path | None = None
+    ) -> None:
         self.name = name
         self.profile_dir = profile_dir
         self.root = self.profile_dir / name
