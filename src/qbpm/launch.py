@@ -7,7 +7,7 @@ from .paths import qutebrowser_exe
 
 
 def launch_qutebrowser(
-    profile: Profile | None, foreground: bool, qb_args: tuple[str, ...]
+    profile: Profile | None, foreground: bool, qb_args: tuple[str, ...] = ()
 ) -> bool:
     qb = profile.cmdline() if profile else [qutebrowser_exe()]
     return launch(foreground, [*qb, *qb_args])

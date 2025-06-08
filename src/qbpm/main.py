@@ -2,6 +2,7 @@ import logging
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import wraps
 from pathlib import Path
 from typing import Any, NoReturn
 
@@ -22,7 +23,34 @@ class Context:
     profile_dir: Path
 
 
-def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
+@dataclass
+class CreatorOptions:
+    qb_config_dir: Path | None
+    launch: bool
+    foreground: bool
+    desktop_file: bool
+    overwrite: bool
+
+
+def creator_options(orig: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(orig)
+    def command(
+        qb_config_dir: Path | None,
+        launch: bool,
+        foreground: bool,
+        desktop_file: bool,
+        overwrite: bool,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        return orig(
+            *args,
+            c_opts=CreatorOptions(
+                qb_config_dir, launch, foreground, desktop_file, overwrite
+            ),
+            **kwargs,
+        )
+
     for opt in reversed(
         [
             click.option(
@@ -54,8 +82,8 @@ def creator_options(f: Callable[..., Any]) -> Callable[..., Any]:
             ),
         ]
     ):
-        f = opt(f)
-    return f
+        command = opt(command)
+    return command
 
 
 class LowerCaseFormatter(logging.Formatter):
@@ -96,10 +124,24 @@ def main(ctx: click.Context, profile_dir: Path | None, log_level: str) -> None:
 @click.argument("home_page", required=False)
 @creator_options
 @click.pass_obj
-def new(context: Context, profile_name: str, **kwargs: Any) -> None:
+def new(
+    context: Context,
+    profile_name: str,
+    home_page: str | None,
+    c_opts: CreatorOptions,
+) -> None:
     """Create a new profile."""
     profile = Profile(profile_name, **vars(context))
-    then_launch(profiles.new_profile, profile, **kwargs)
+    exit_with(
+        profiles.new_profile(
+            profile,
+            c_opts.qb_config_dir,
+            home_page,
+            c_opts.desktop_file,
+            c_opts.overwrite,
+        )
+        and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
+    )
 
 
 @main.command()
@@ -111,27 +153,38 @@ def from_session(
     context: Context,
     session: str,
     profile_name: str | None,
-    **kwargs: Any,
+    c_opts: CreatorOptions,
 ) -> None:
     """Create a new profile from a saved qutebrowser session.
     SESSION may be the name of a session in the global qutebrowser profile
     or a path to a session yaml file.
     """
     profile, session_path = session_info(session, profile_name, context)
-    then_launch(operations.from_session, profile, session_path=session_path, **kwargs)
+    exit_with(
+        operations.from_session(
+            profile,
+            session_path,
+            c_opts.qb_config_dir,
+            c_opts.desktop_file,
+            c_opts.overwrite,
+        )
+        and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
+    )
 
 
-@main.command(context_settings={"ignore_unknown_options": True})
+@main.command("launch", context_settings={"ignore_unknown_options": True})
 @click.argument("profile_name")
 @click.argument("qb_args", nargs=-1, type=click.UNPROCESSED)
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
 @click.pass_obj
-def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
+def launch_profile(
+    context: Context, profile_name: str, foreground: bool, qb_args: tuple[str, ...]
+) -> None:
     """Launch qutebrowser with a specific profile. All QB_ARGS are passed on to qutebrowser."""
     profile = Profile(profile_name, **vars(context))
-    exit_with(launch_qutebrowser(profile, **kwargs))
+    exit_with(launch_qutebrowser(profile, foreground, qb_args))
 
 
 @main.command(context_settings={"ignore_unknown_options": True})
@@ -147,12 +200,14 @@ def launch(context: Context, profile_name: str, **kwargs: Any) -> None:
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."
 )
 @click.pass_obj
-def choose(context: Context, **kwargs: Any) -> None:
+def choose(
+    context: Context, menu: str | None, foreground: bool, qb_args: tuple[str, ...]
+) -> None:
     """Choose a profile to launch.
     Support is built in for many X and Wayland launchers, as well as applescript dialogs.
     All QB_ARGS are passed on to qutebrowser.
     """
-    exit_with(choose_profile(profile_dir=context.profile_dir, **kwargs))
+    exit_with(choose_profile(context.profile_dir, menu, foreground, qb_args))
 
 
 @main.command()
@@ -185,20 +240,6 @@ def desktop(
     """Create an XDG desktop entry for an existing profile."""
     profile = Profile(profile_name, **vars(context))
     exit_with(operations.desktop(profile))
-
-
-def then_launch(
-    operation: Callable[..., bool],
-    profile: Profile,
-    launch: bool,
-    foreground: bool,
-    qb_args: tuple[str, ...] = (),
-    **kwargs: Any,
-) -> None:
-    exit_with(
-        operation(profile, **kwargs)
-        and ((not launch) or launch_qutebrowser(profile, foreground, qb_args))
-    )
 
 
 def session_info(
