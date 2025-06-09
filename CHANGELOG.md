@@ -1,4 +1,6 @@
 # next
+  - breaking: stop sourcing files from `~/.config/qutebrowser/conf.d/`
+    - this was undocumented, nonstandard, and didn't work as well as it could
   - switch to `pyproject.toml`
   - hopefully use the right qutebrowser dirs on Windows
   - `choose`: add `qutebrowser` menu item for the main qutebrowser profile

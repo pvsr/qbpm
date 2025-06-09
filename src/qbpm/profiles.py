@@ -51,8 +51,6 @@ def create_config(
         if home_page:
             out(f"c.url.start_pages = ['{home_page}']")
         out(f"config.source(r'{qb_config_dir / 'config.py'}')")
-        for conf in qb_config_dir.glob("conf.d/*.py"):
-            out(f"config.source(r'{conf}')")
 
 
 def exists(profile: Profile) -> bool:
