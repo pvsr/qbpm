@@ -86,5 +86,5 @@ def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
         ]
     if sys.stdin.isatty():
         if environ.get("TMUX"):
-            yield Dmenu("fzf-tmux", "--prompt {prompt}")
-        yield Dmenu("fzf", "--prompt {prompt}")
+            yield Dmenu("fzf-tmux", "--prompt '{prompt}> '")
+        yield Dmenu("fzf", "--prompt '{prompt}> '")
