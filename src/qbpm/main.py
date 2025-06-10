@@ -197,7 +197,7 @@ def launch_profile(
     "--menu",
     metavar="COMMAND",
     help="A dmenu-compatible command or one of the following supported menus: "
-    + ", ".join(sorted([getattr(m, "name", "applescript") for m in supported_menus()])),
+    + ", ".join([menu.name() for menu in supported_menus()]),
 )
 @click.option(
     "-f", "--foreground", is_flag=True, help="Run qutebrowser in the foreground."

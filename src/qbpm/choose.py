@@ -19,15 +19,17 @@ def choose_profile(
         error("no profiles")
         return False
     profiles = [*real_profiles, "qutebrowser"]
-    command = dmenu.commandline(sorted(profiles), "qutebrowser", " ".join(qb_args))
-    selection_cmd = subprocess.Popen(
+    command = dmenu.command(sorted(profiles), "qutebrowser", " ".join(qb_args))
+    selection_cmd = subprocess.run(
         command,
-        shell=True,
+        text=True,
+        input="\n".join(sorted(profiles)),
         stdout=subprocess.PIPE,
         stderr=None,
+        check=False,
     )
     out = selection_cmd.stdout
-    selection = out and out.read().decode(errors="ignore").rstrip("\n")
+    selection = out.rstrip("\n")
 
     if selection == "qutebrowser" and "qutebrowser" not in real_profiles:
         return launch_qutebrowser(None, foreground, qb_args)

@@ -12,32 +12,37 @@ from .log import error, or_phrase
 
 @dataclass
 class Dmenu:
-    name: str
-    args: str
+    menu_command: list[str]
+
+    def name(self) -> str:
+        return self.menu_command[0]
 
     def installed(self) -> bool:
-        return which(self.name) is not None
+        return which(self.name()) is not None
 
-    def command(self, prompt: str, qb_args: str) -> str:
-        prompt = prompt or "''"
-        return f"{self.name} {self.args.format(prompt=prompt, qb_args=qb_args)}"
-
-    def commandline(self, profiles: list[str], prompt: str, qb_args: str) -> str:
-        profile_list = "\n".join(profiles)
-        return f'echo "{profile_list}" | {self.command(prompt, qb_args)}'
+    def command(self, _profiles: list[str], prompt: str, qb_args: str) -> list[str]:
+        return [arg.format(prompt=prompt, qb_args=qb_args) for arg in self.menu_command]
 
 
 class ApplescriptMenu:
+    @classmethod
+    def name(cls) -> str:
+        return "applescript"
+
     @classmethod
     def installed(cls) -> bool:
         return platform.system() == "Darwin"
 
     @classmethod
-    def commandline(cls, profiles: list[str], _prompt: str, qb_args: str) -> str:
+    def command(cls, profiles: list[str], _prompt: str, qb_args: str) -> list[str]:
         profile_list = '", "'.join(profiles)
-        return f"""osascript -e \'set profiles to {{"{profile_list}"}}
+        return [
+            "osascript",
+            "-e",
+            f"""set profiles to {{"{profile_list}"}}
 set profile to choose from list profiles with prompt "qutebrowser: {qb_args}" default items {{item 1 of profiles}}
-item 1 of profile\'"""
+item 1 of profile""",
+        ]
 
 
 def find_menu(menu: str | None) -> Dmenu | ApplescriptMenu | None:
@@ -47,12 +52,12 @@ def find_menu(menu: str | None) -> Dmenu | ApplescriptMenu | None:
         if not found:
             error(
                 "no menu program found, use --menu to provide a dmenu-compatible menu or install one of "
-                + or_phrase([m.name for m in menus if isinstance(m, Dmenu)])
+                + or_phrase([m.name() for m in menus if isinstance(m, Dmenu)])
             )
         return found
     dmenu = custom_dmenu(menu)
     if not dmenu.installed():
-        error(f"{dmenu.name} not found")
+        error(f"{dmenu.name()} not found")
         return None
     return dmenu
 
@@ -62,9 +67,13 @@ def custom_dmenu(command: str) -> Dmenu:
     if len(split) == 1 or not split[1]:
         name = Path(command).name
         for menu in supported_menus():
-            if isinstance(menu, Dmenu) and menu.name == name:
-                return menu if menu.name == command else replace(menu, name=command)
-    return Dmenu(split[0], " ".join(split[1::]))
+            if isinstance(menu, Dmenu) and menu.name() == name:
+                return (
+                    menu
+                    if name == command
+                    else replace(menu, menu_command=[command, *menu.menu_command[1::]])
+                )
+    return Dmenu(split)
 
 
 def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
@@ -73,22 +82,29 @@ def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
     if environ.get("WAYLAND_DISPLAY"):
         yield from [
             # default window is too narrow for a long prompt
-            Dmenu("fuzzel", "--dmenu"),
-            Dmenu("walker", "--dmenu --placeholder '{prompt} {qb_args}'"),
-            Dmenu("wofi", "--dmenu --prompt '{prompt} {qb_args}'"),
-            Dmenu("tofi", "--prompt-text '{prompt}> '"),
-            Dmenu("wmenu", "-p {prompt}"),
-            Dmenu("dmenu-wl", "--prompt {prompt}"),
+            Dmenu(["fuzzel", "--dmenu"]),
+            Dmenu(["walker", "--dmenu", "--placeholder", "{prompt} {qb_args}"]),
+            Dmenu(["wofi", "--dmenu", "--prompt", "{prompt} {qb_args}"]),
+            Dmenu(["tofi", "--prompt-text", "{prompt}> "]),
+            Dmenu(["wmenu", "-p", "{prompt}"]),
+            Dmenu(["dmenu-wl", "--prompt", "{prompt}"]),
         ]
     if environ.get("DISPLAY"):
         yield from [
             Dmenu(
-                "rofi",
-                "-dmenu -no-custom -p {prompt} -mesg '{qb_args}'",
+                [
+                    "rofi",
+                    "-dmenu",
+                    "-no-custom",
+                    "-p",
+                    "{prompt}",
+                    "-mesg",
+                    "{qb_args}",
+                ]
             ),
-            Dmenu("dmenu", "-p {prompt}"),
+            Dmenu(["dmenu", "-p", "{prompt}"]),
         ]
     if sys.stdin.isatty():
         if environ.get("TMUX"):
-            yield Dmenu("fzf-tmux", "--prompt '{prompt}> '")
-        yield Dmenu("fzf", "--prompt '{prompt}> '")
+            yield Dmenu(["fzf-tmux", "--prompt", "{prompt}> "])
+        yield Dmenu(["fzf", "--prompt", "{prompt}> "])

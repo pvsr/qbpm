@@ -19,7 +19,7 @@ def test_choose(tmp_path: Path):
     write_script(
         tmp_path / "bin",
         name="qutebrowser",
-        contents=f'echo qutebrowser "$@" >> {log}',
+        contents=f'echo "\nqutebrowser" "$@" >> {log}',
     )
     environ["PATH"] = str(tmp_path / "bin") + ":" + environ["PATH"]
 
@@ -40,7 +40,9 @@ def test_find_installed_menu(tmp_path: Path):
     write_script(tmp_path / "bin", name="dmenu")
     environ["PATH"] = str(tmp_path / "bin")
     environ["DISPLAY"] = ":1"
-    assert getattr(find_menu(None), "name", None) == "dmenu"
+    dmenu = find_menu(None)
+    assert dmenu is not None
+    assert dmenu.name() == "dmenu"
 
 
 def test_override_menu_priority(tmp_path: Path):
@@ -48,16 +50,18 @@ def test_override_menu_priority(tmp_path: Path):
     write_script(tmp_path / "bin", name="dmenu-wl")
     environ["PATH"] = str(tmp_path / "bin")
     environ["WAYLAND_DISPLAY"] = "wayland-2"
-    assert getattr(find_menu(None), "name", None) == "fuzzel"
-    assert getattr(find_menu("dmenu-wl"), "name", None) == "dmenu-wl"
+    dmenu = find_menu(None)
+    assert dmenu is not None
+    assert dmenu.name() == "fuzzel"
+    dmenu = find_menu("dmenu-wl")
+    assert dmenu is not None
+    assert dmenu.name() == "dmenu-wl"
 
 
 def test_custom_menu():
     dmenu = find_menu("/bin/sh -c")
     assert dmenu is not None
-    assert (
-        dmenu.commandline(["p1", "p2"], "", "").strip() == 'echo "p1\np2" | /bin/sh -c'
-    )
+    assert dmenu.command(["p1"], "prompt", "args") == ["/bin/sh", "-c"]
 
 
 def test_invalid_custom_menu():
@@ -79,7 +83,15 @@ def test_custom_menu_default_args(tmp_path: Path):
     environ["DISPLAY"] = ":1"
     dmenu = find_menu(str(menu))
     assert dmenu is not None
-    assert f"{menu} -dmenu -no-custom -p ''" in dmenu.commandline(["p1", "p2"], "", "")
+    assert [
+        str(menu),
+        "-dmenu",
+        "-no-custom",
+        "-p",
+        "prompt",
+        "-mesg",
+        "",
+    ] == dmenu.command([], "prompt", "")
 
 
 def test_custom_menu_custom_args(tmp_path: Path):
@@ -89,4 +101,4 @@ def test_custom_menu_custom_args(tmp_path: Path):
     environ["DISPLAY"] = ":1"
     dmenu = find_menu(command)
     assert dmenu is not None
-    assert dmenu.commandline(["p1", "p2"], "", "").endswith(command)
+    assert [str(menu), "-custom", "-dmenu"] == dmenu.command([], "prompt", "")
