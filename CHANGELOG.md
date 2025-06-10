@@ -1,4 +1,8 @@
 # next
+  - built in support for more wayland menus:
+    - walker
+    - tofi
+    - wmenu
 
 # 1.0rc3
   - breaking: stop sourcing files from `~/.config/qutebrowser/conf.d/`
