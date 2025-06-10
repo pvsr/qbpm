@@ -64,6 +64,15 @@ def test_invalid_custom_menu():
     assert find_menu("fake_command") is None
 
 
+def test_custom_menu_space_in_name(tmp_path: Path):
+    write_script(tmp_path / "bin", name="my menu")
+    environ["PATH"] = str(tmp_path / "bin")
+    environ["DISPLAY"] = ":1"
+    dmenu = find_menu("my\\ menu")
+    assert dmenu is not None
+    assert dmenu.installed()
+
+
 def test_custom_menu_default_args(tmp_path: Path):
     menu = write_script(tmp_path / "bin", name="rofi")
     environ["PATH"] = str(tmp_path / "bin")

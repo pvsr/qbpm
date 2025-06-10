@@ -1,4 +1,5 @@
 import platform
+import shlex
 import sys
 from collections.abc import Iterator
 from dataclasses import dataclass, replace
@@ -57,13 +58,13 @@ def find_menu(menu: str | None) -> Dmenu | ApplescriptMenu | None:
 
 
 def custom_dmenu(command: str) -> Dmenu:
-    split = command.split(" ", maxsplit=1)
+    split = shlex.split(command)
     if len(split) == 1 or not split[1]:
         name = Path(command).name
         for menu in supported_menus():
             if isinstance(menu, Dmenu) and menu.name == name:
                 return menu if menu.name == command else replace(menu, name=command)
-    return Dmenu(split[0], split[1] if len(split) == 2 else "")
+    return Dmenu(split[0], " ".join(split[1::]))
 
 
 def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
