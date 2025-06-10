@@ -74,8 +74,11 @@ def supported_menus() -> Iterator[Dmenu | ApplescriptMenu]:
         yield from [
             # default window is too narrow for a long prompt
             Dmenu("fuzzel", "--dmenu"),
-            Dmenu("wofi", "--dmenu -p {prompt}"),
-            Dmenu("dmenu-wl", "-p {prompt}"),
+            Dmenu("walker", "--dmenu --placeholder '{prompt} {qb_args}'"),
+            Dmenu("wofi", "--dmenu --prompt '{prompt} {qb_args}'"),
+            Dmenu("tofi", "--prompt-text '{prompt}> '"),
+            Dmenu("wmenu", "-p {prompt}"),
+            Dmenu("dmenu-wl", "--prompt {prompt}"),
         ]
     if environ.get("DISPLAY"):
         yield from [
