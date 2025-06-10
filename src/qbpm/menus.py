@@ -10,7 +10,7 @@ from shutil import which
 from .log import error, or_phrase
 
 
-@dataclass
+@dataclass(frozen=True)
 class Dmenu:
     menu_command: list[str]
 
