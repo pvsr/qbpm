@@ -1,6 +1,6 @@
 image: archlinux
 sources:
-  - https://github.com/pvsr/qbpm
+  - https://git.sr.ht/~pvsr/qbpm
   - https://aur.archlinux.org/qbpm-git.git
 tasks:
   - install: |

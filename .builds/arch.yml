@@ -1,10 +1,13 @@
 image: archlinux
 sources:
-  - https://github.com/pvsr/qbpm
+  - https://git.sr.ht/~pvsr/qbpm
   - https://aur.archlinux.org/python-xdg-base-dirs.git
 packages:
   - python-pytest
 tasks:
+  - pytest: |
+      cd qbpm
+      pytest tests
   - xdg-base-dirs: |
       cd python-xdg-base-dirs
       makepkg -si --noconfirm
@@ -13,9 +16,6 @@ tasks:
       sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
       sudo pacman -Sy
       makepkg -si --noconfirm
-  - pytest: |
-      cd qbpm
-      pytest tests
   - run: |
       mkdir -p ~/.config/qutebrowser
       touch ~/.config/qutebrowser/config.py
