@@ -62,15 +62,8 @@ select = [
     "PL",
     "RUF",
 ]
-ignore = [
-    "E501", # line too long
-    "ANN401", # ban Any
-    "PLR0911", # too many returns
-    "PLR2004", # magic values
-]
+# long lines
+ignore = [ "E501" ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/test_main.py" = [ "S101", "ANN201"]
-"tests/test_profiles.py" = [ "S101", "ANN201"]
-"tests/test_desktop.py" = [ "S101", "ANN201"]
-"tests/test_choose.py" = [ "S101", "ANN201"]
+"tests/test_*.py" = [ "S101", "ANN201"]

@@ -16,7 +16,7 @@ def or_phrase(items: list) -> str:
         return "[]"
     elif size == 1:
         return strings[0]
-    elif size == 2:
+    elif size == 2:  # noqa: PLR2004
         return " or ".join(strings)
     else:
         return ", or ".join([", ".join(strings[0:-1]), strings[-1]])

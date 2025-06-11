@@ -4,7 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any, NoReturn, TypeVar
 
 import click
 
@@ -32,7 +32,10 @@ class CreatorOptions:
     overwrite: bool
 
 
-def creator_options(orig: Callable[..., Any]) -> Callable[..., Any]:
+T = TypeVar("T")
+
+
+def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
     @wraps(orig)
     def command(
         qb_config_dir: Path | None,
@@ -40,9 +43,9 @@ def creator_options(orig: Callable[..., Any]) -> Callable[..., Any]:
         foreground: bool,
         desktop_file: bool,
         overwrite: bool,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
+        *args: Any,  # noqa: ANN401
+        **kwargs: Any,  # noqa: ANN401
+    ) -> T:
         return orig(
             *args,
             c_opts=CreatorOptions(
