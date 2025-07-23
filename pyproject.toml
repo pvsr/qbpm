@@ -1,6 +1,6 @@
 [project]
 name = "qbpm"
-version = "1.0rc3"
+version = "1.0rc4"
 description = "qutebrowser profile manager"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]

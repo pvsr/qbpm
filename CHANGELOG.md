@@ -1,4 +1,4 @@
-# next
+# 1.0rc4
   - built in support for more wayland menus:
     - walker
     - tofi
