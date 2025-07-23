@@ -2,11 +2,15 @@ image: archlinux
 sources:
   - https://git.sr.ht/~pvsr/qbpm
   - https://aur.archlinux.org/python-xdg-base-dirs.git
+  - https://aur.archlinux.org/python-dacite.git
 packages:
   - python-pytest
 tasks:
   - xdg-base-dirs: |
       cd python-xdg-base-dirs
+      makepkg -si --noconfirm
+  - dacite: |
+      cd python-dacite
       makepkg -si --noconfirm
   - makepkg: |
       cd qbpm/contrib

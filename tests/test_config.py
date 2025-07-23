@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import pytest
+from dacite import MissingValueError
+
 from qbpm.config import load_config
 
 # def test_config_none():
@@ -12,16 +15,11 @@ def test_nonexistent_config(tmp_path: Path):
     assert load_config(tmp_path / "config.toml") is None
 
 
-# def test_empty_config(tmp_path: Path):
-#     file = tmp_path / "config.toml"
-#     file.touch()
-#     # raises
-#     try:
-#         config = load_config(file)
-#     except Exception as e:
-#         assert e is None
-#     # TODO should be error
-#     assert config is not None
+def test_empty_config(tmp_path: Path):
+    file = tmp_path / "config.toml"
+    file.touch()
+    with pytest.raises(MissingValueError, match="config_py_template"):
+        load_config(file)
 
 
 def test_minimal_config(tmp_path: Path):

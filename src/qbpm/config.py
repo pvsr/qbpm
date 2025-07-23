@@ -3,6 +3,8 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from dacite import from_dict
+
 from . import paths
 from .log import error, or_phrase
 from .paths import default_qbpm_config_dir, qutebrowser_config_dirs
@@ -26,7 +28,9 @@ class Config:
 
     @classmethod
     def load(cls, config_file: Path) -> "Config":
-        return Config(**tomllib.loads(config_file.read_text(encoding="utf-8")))
+        return from_dict(
+            Config, data=tomllib.loads(config_file.read_text(encoding="utf-8"))
+        )
 
     @classmethod
     def default(cls) -> "Config":
