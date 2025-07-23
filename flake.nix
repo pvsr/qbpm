@@ -1,5 +1,5 @@
 {
-  description = "Tool for creating, managing, and running qutebrowser profiles";
+  description = "A profile manager for qutebrowser";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.pyproject-nix.url = "github:nix-community/pyproject.nix";
@@ -44,6 +44,13 @@
             scdoc < qbpm.1.scd > qbpm.1
             installManPage qbpm.1
           '';
+
+          meta = {
+            homepage = "https://github.com/pvsr/qbpm";
+            changelog = "https://github.com/pvsr/qbpm/blob/main/CHANGELOG.md";
+            description = "A profile manager for qutebrowser";
+            license = pkgs.lib.licenses.gpl3Plus;
+          };
         };
         packages.default = self.packages.${system}.qbpm;
         apps.qbpm = flake-utils.lib.mkApp { drv = self.packages.${system}.qbpm; };

@@ -19,7 +19,9 @@ requires-python = ">= 3.11"
 dependencies = ["click", "xdg-base-dirs"]
 
 [project.urls]
+homepage = "https://github.com/pvsr/qbpm"
 repository = "https://github.com/pvsr/qbpm"
+changelog = "https://github.com/pvsr/qbpm/blob/main/CHANGELOG.md"
 
 [project.scripts]
 qbpm = "qbpm.main:main"

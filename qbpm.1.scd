@@ -126,4 +126,8 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 
 Peter Rice
 
-Contribute at https://github.com/pvsr/qbpm
+# CONTRIBUTE
+
+_https://github.com/pvsr/qbpm_
+
+_https://codeberg.org/pvsr/qbpm_
