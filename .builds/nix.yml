@@ -4,9 +4,15 @@ sources:
 environment:
   NIX_CONFIG: "experimental-features = nix-command flakes"
 tasks:
-  - check: |
+  - format: |
       cd qbpm
-      nix flake check --quiet
+      nix develop --quiet -c ruff format --check
+  - ruff: |
+      cd qbpm
+      nix develop -c ruff check
+  - mypy: |
+      cd qbpm
+      nix develop -c mypy src tests
   - build: |
       cd qbpm
       nix build --quiet
