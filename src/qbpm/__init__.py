@@ -20,14 +20,11 @@ class Profile:
         self.profile_dir = profile_dir
         self.root = self.profile_dir / name
 
-    def check(self) -> Optional["Profile"]:
-        if "/" in self.name:
-            error("profile name cannot contain slashes")
-            return None
-        return self
-
-    def exists(self) -> bool:
-        return self.root.exists() and self.root.is_dir()
+    def check_name(self) -> bool:
+        if "/" in self.name or self.name in [".", ".."]:
+            error("profile name cannot be a path")
+            return False
+        return True
 
     def cmdline(self) -> list[str]:
         return [

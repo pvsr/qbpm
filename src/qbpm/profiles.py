@@ -23,7 +23,7 @@ MIME_TYPES = [
 
 
 def create_profile(profile: Profile, overwrite: bool = False) -> bool:
-    if not profile.check():
+    if not profile.check_name():
         return False
 
     if not overwrite and profile.root.exists():
@@ -53,12 +53,18 @@ def create_config(
         out(f"config.source(r'{qb_config_dir / 'config.py'}')")
 
 
-def exists(profile: Profile) -> bool:
-    if profile.root.exists() and not profile.root.is_dir():
+def check(profile: Profile) -> bool:
+    if not profile.check_name():
+        return False
+    exists = profile.root.exists()
+    if not exists:
+        error(f"{profile.root} does not exist")
+        return False
+    if not profile.root.is_dir():
         error(f"{profile.root} is not a directory")
         return False
-    if not profile.root.exists():
-        error(f"{profile.root} does not exist")
+    if not (profile.root / "config").is_dir():
+        error(f"no config directory in {profile.root}, is it a profile?")
         return False
     return True
 

@@ -190,6 +190,8 @@ def launch_profile(
 
     All QB_ARGS are passed on to qutebrowser."""
     profile = Profile(profile_name, **vars(context))
+    if not profiles.check(profile):
+        sys.exit(1)
     exit_with(launch_qutebrowser(profile, foreground, qb_args))
 
 
@@ -223,8 +225,7 @@ def choose(
 def edit(context: Context, profile_name: str) -> None:
     """Edit a profile's config.py."""
     profile = Profile(profile_name, **vars(context))
-    if not profile.exists():
-        error(f"profile {profile.name} not found at {profile.root}")
+    if not profiles.check(profile):
         sys.exit(1)
     click.edit(filename=str(profile.root / "config" / "config.py"))
 

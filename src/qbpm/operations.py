@@ -24,9 +24,7 @@ def from_session(
 
 
 def desktop(profile: Profile) -> bool:
-    exists = profile.exists()
+    exists = profiles.check(profile)
     if exists:
         create_desktop_file(profile)
-    else:
-        error(f"profile {profile.name} not found at {profile.root}")
     return exists
