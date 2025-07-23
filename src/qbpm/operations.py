@@ -3,7 +3,6 @@ from pathlib import Path
 
 from . import Profile, profiles
 from .desktop import create_desktop_file
-from .log import error
 
 
 def from_session(
