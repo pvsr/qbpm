@@ -1,0 +1,44 @@
+name: Build and push release
+on: push
+
+jobs:
+  build:
+    name: Build qbpm
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+          python-version: "3.13"
+    - name: Install pypa/build
+      run: python3 -m pip install build --user
+    - name: Build wheel and source tarball
+      run: python3 -m build
+    - name: Upload package distribution
+      uses: actions/upload-artifact@v4
+      with:
+        name: package-dist
+        path: dist/
+
+  publish:
+    name: Publish qbpm release to PyPI
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags')
+    needs:
+    - build
+    environment:
+      name: pypi
+      url: https://pypi.org/p/qbpm
+    permissions:
+      id-token: write
+    steps:
+    - name: Download package distribution
+      uses: actions/download-artifact@v4
+      with:
+        name: package-dist
+        path: dist/
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
