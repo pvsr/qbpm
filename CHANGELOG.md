@@ -1,8 +1,6 @@
 # 1.0rc4
-  - built in support for more wayland menus:
-    - walker
-    - tofi
-    - wmenu
+  - `choose`: support `walker`, `tofi`, and `wmenu`
+  - better detection of invalid/nonexistent profiles
 
 # 1.0rc3
   - breaking: stop sourcing files from `~/.config/qutebrowser/conf.d/`
@@ -17,6 +15,22 @@
   - make generated `.desktop` files match qutebrowser's more closely
 
 # 1.0rc2:
-  - `choose`: builtin support for `fzf` and `fuzzel`
-  - moved argument handling to click
+  - `choose`: support `fzf` and `fuzzel`
+  - use `click `for CLI parsing
   - `qbpm launch`'s `-n`/`--new` renamed to `-c`/`--create`
+  - expand fish shell completions
+
+# 1.0rc:
+  - add a man page
+
+# 0.6
+  - better error handling
+
+# 0.5
+  - `choose`: support custom menu command
+  - `choose`: support `dmenu-wl` and `wofi`
+
+# 0.4
+  - `choose` subcommand (thanks, @mtoohey31!)
+  - load autoconfig.yml by default
+  - shell completions for fish
