@@ -60,12 +60,14 @@
           packages = [
             pkgs.ruff
             pkgs.nixfmt-rfc-style
+            pkgs.xdg-utils
             (pyprojectEnv (
               ps: with ps; [
                 flit
                 pytest
                 mypy
                 pylsp-mypy
+                # types-pillow
               ]
             ))
           ];

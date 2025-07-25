@@ -20,13 +20,17 @@ MIME_TYPES = [
 
 
 # TODO expose application_dir through config
-def create_desktop_file(profile: Profile, application_dir: Path | None = None) -> None:
+def create_desktop_file(
+    profile: Profile,
+    application_dir: Path | None = None,
+    icon: str | None = None,
+) -> None:
     text = textwrap.dedent(f"""\
         [Desktop Entry]
         Name={profile.name} (qutebrowser profile)
         StartupWMClass=qutebrowser
         GenericName={profile.name}
-        Icon=qutebrowser
+        Icon={icon or "qutebrowser"}
         Type=Application
         Categories=Network;WebBrowser;
         Exec={" ".join([*profile.cmdline(), "--untrusted-args", "%u"])}
@@ -46,3 +50,13 @@ def create_desktop_file(profile: Profile, application_dir: Path | None = None) -
     """)
     application_dir = application_dir or default_qbpm_application_dir()
     (application_dir / f"{profile.name}.desktop").write_text(text)
+
+
+# TODO
+# def add_to_desktop_file(profile: Profile, key: str, value: str) -> None:
+#     desktop_file = application_dir / f"{profile.name}.desktop"
+#     if not desktop_file.exists():
+#         return
+#     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
+#     desktop.set(key, value)
+#     desktop.write()
