@@ -20,7 +20,7 @@
   - `qbpm launch`'s `-n`/`--new` renamed to `-c`/`--create`
   - expand fish shell completions
 
-# 1.0rc:
+# 1.0rc1:
   - add a man page
 
 # 0.6
