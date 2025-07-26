@@ -15,7 +15,7 @@ from .log import error, or_phrase
 from .menus import supported_menus
 from .paths import default_profile_dir, qutebrowser_data_dir
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "max_content_width": 91}
 
 
 @dataclass
@@ -61,7 +61,7 @@ def creator_options(orig: Callable[..., T]) -> Callable[..., T]:
                 "--qutebrowser-config-dir",
                 "qb_config_dir",
                 type=click.Path(file_okay=False, readable=True, path_type=Path),
-                help="Location of the qutebrowser config to inherit from.",
+                help="Location of the qutebrowser config to source.",
             ),
             click.option("-l", "--launch", is_flag=True, help="Launch the profile."),
             click.option(
@@ -102,7 +102,7 @@ class LowerCaseFormatter(logging.Formatter):
     "--profile-dir",
     type=click.Path(file_okay=False, writable=True, path_type=Path),
     envvar="QBPM_PROFILE_DIR",
-    show_envvar=True,
+    show_envvar=False,
     default=None,
     help="Location to store qutebrowser profiles.",
 )
