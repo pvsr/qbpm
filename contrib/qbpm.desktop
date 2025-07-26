@@ -1,8 +1,10 @@
 [Desktop Entry]
-Type=Application
 Name=qbpm
 Icon=qutebrowser
-Exec=qbpm choose %u
-Categories=['Network']
+Type=Application
+Categories=Network;WebBrowser;
+Exec=qbpm choose --untrusted-args %u
 Terminal=False
 StartupNotify=True
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rdf+xml;image/gif;image/webp;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/qute;
+Keywords=Browser
