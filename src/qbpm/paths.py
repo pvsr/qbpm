@@ -7,7 +7,7 @@ from xdg_base_dirs import xdg_config_home, xdg_data_home
 
 def qutebrowser_exe() -> str:
     macos_app = "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
-    if platform == "darwin" and Path(macos_app).exists():
+    if platform.system() == "Darwin" and Path(macos_app).exists():
         return macos_app
     else:
         return "qutebrowser"

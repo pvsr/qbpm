@@ -1,6 +1,7 @@
 # next
   - `contrib/qbpm.desktop`: add `MimeType` and `Keywords`, fix incorrect formatting of `Categories`
   - allow help text to be slightly wider to avoid awkward line breaks
+  - macOS: fix detection of qutebrowser binary in /Applications
 
 # 1.0rc4
   - `choose`: support `walker`, `tofi`, and `wmenu`
