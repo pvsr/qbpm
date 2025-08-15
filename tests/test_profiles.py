@@ -84,3 +84,25 @@ def test_new_profile(tmp_path: Path):
     config.generate_desktop_file = False
     assert profiles.new_profile(profile, config)
     check_new_profile(profile)
+
+
+def test_config_template(tmp_path: Path):
+    profile = Profile("test", tmp_path)
+    template = "# Profile: {profile_name}\nconfig.source('{source_config_py}')"
+
+    profiles.create_profile(profile)
+    profiles.create_config(profile, tmp_path / "config", template)
+
+    config_content = (profile.root / "config" / "config.py").read_text()
+    assert "# Profile: test" in config_content
+    assert f"config.source('{tmp_path / 'config' / 'config.py'}')" in config_content
+
+
+def test_missing_qb_config(tmp_path: Path):
+    profile = Profile("test", tmp_path / "test")
+    config = Config.load(None)
+    config.qutebrowser_config_directory = tmp_path
+    config.generate_desktop_file = False
+    assert not profiles.new_profile(profile, config)
+    config.qutebrowser_config_directory = tmp_path / "nonexistent"
+    assert not profiles.new_profile(profile, config)
