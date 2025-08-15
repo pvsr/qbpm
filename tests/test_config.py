@@ -38,6 +38,7 @@ def test_full_config(tmp_path: Path):
 config_py_template = \"""
 config.load_autoconfig()
 \"""
+symlink_autoconfig = true
 qutebrowser_config_directory = "~/.config/qutebrowser"
 profile_directory = "profile"
 generate_desktop_file = false
@@ -47,6 +48,7 @@ menu_prompt = "qbpm"
     """)
     assert find_config(file) == Config(
         config_py_template="config.load_autoconfig()\n",
+        symlink_autoconfig=True,
         qutebrowser_config_directory=Path("~/.config/qutebrowser").expanduser(),
         profile_directory=Path("profile"),
         desktop_file_directory=Path("desktop"),
@@ -63,6 +65,14 @@ def test_find_qb_config(tmp_path: Path):
     (qb_conf_dir / "config.py").touch()
     assert find_qutebrowser_config_dir(qb_dir) == qb_conf_dir
     assert find_qutebrowser_config_dir(qb_dir / "config") == qb_conf_dir
+
+
+def test_find_autoconfig(tmp_path: Path):
+    qb_dir = tmp_path / "qb"
+    qb_conf_dir = qb_dir / "config"
+    qb_conf_dir.mkdir(parents=True)
+    (qb_conf_dir / "autoconfig.yml").touch()
+    assert find_qutebrowser_config_dir(qb_dir, autoconfig=True) == qb_conf_dir
 
 
 def test_find_qb_config_default(tmp_path: Path):

@@ -4,7 +4,7 @@ from pathlib import Path
 from . import Profile
 from .config import Config, find_qutebrowser_config_dir
 from .desktop import create_desktop_file
-from .log import error
+from .log import error, info
 
 MIME_TYPES = [
     "text/html",
@@ -31,7 +31,6 @@ def create_profile(profile: Profile, overwrite: bool = False) -> bool:
 
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True, exist_ok=overwrite)
-    print(profile.root)
     return True
 
 
@@ -42,18 +41,39 @@ def create_config(
     home_page: str | None = None,
     overwrite: bool = False,
 ) -> None:
+    source = qb_config_dir / "config.py"
+    if not source.is_file():
+        return
     user_config = profile.root / "config" / "config.py"
     with user_config.open(mode="w" if overwrite else "x") as dest_config:
         out = partial(print, file=dest_config)
         out(
             config_py_template.format(
                 profile_name=profile.name,
-                source_config_py=qb_config_dir / "config.py",
+                source_config_py=source,
             )
         )
         # TODO move to template?
         if home_page:
             out(f"c.url.start_pages = ['{home_page}']")
+
+
+def link_autoconfig(
+    profile: Profile,
+    qb_config_dir: Path,
+    overwrite: bool = False,
+) -> None:
+    if not hasattr(Path, "symlink_to"):
+        return
+    source = qb_config_dir / "autoconfig.yml"
+    dest = profile.root / "config" / "autoconfig.yml"
+    if not source.is_file() or dest.resolve() == source.resolve():
+        return
+    if overwrite and dest.exists():
+        backup = Path(str(dest) + ".bak")
+        info(f"backing up existing autoconfig to {backup}")
+        dest.replace(backup)
+    dest.symlink_to(source)
 
 
 def check(profile: Profile) -> bool:
@@ -82,7 +102,9 @@ def new_profile(
     if qb_config_dir and not qb_config_dir.is_dir():
         error(f"{qb_config_dir} is not a directory")
         return False
-    qb_config_dir = find_qutebrowser_config_dir(qb_config_dir)
+    qb_config_dir = find_qutebrowser_config_dir(
+        qb_config_dir, config.symlink_autoconfig
+    )
     if not qb_config_dir:
         return False
     if not config.config_py_template:
@@ -92,7 +114,10 @@ def new_profile(
         create_config(
             profile, qb_config_dir, config.config_py_template, home_page, overwrite
         )
+        if config.symlink_autoconfig:
+            link_autoconfig(profile, qb_config_dir, overwrite)
         if config.generate_desktop_file:
             create_desktop_file(profile, config.desktop_file_directory)
+        print(profile.root)
         return True
     return False

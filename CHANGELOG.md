@@ -6,6 +6,7 @@ qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
     - run `qbpm config default > "$(qbpm config path)"`
   - supported configuration options:
     - `config_py_template`: control the contents of `config.py` in new profiles
+    - `symlink_autoconfig`: symlink qutebrowser's `autoconfig.yml` in new profiles
     - `profile_directory` and `qutebrowser_config_directory`
       - equivalent `--profile-dir` to `--qutebrowser-config-dir` 
     - `generate_desktop_file` and `desktop_file_directory`
@@ -15,6 +16,7 @@ qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
     - see default config file for more detailed documentation
 
 ## other
+  - support for symlinking `autoconfig.yml` in addition to or instead of sourcing `config.py`
   - `contrib/qbpm.desktop`: add `MimeType` and `Keywords`, fix incorrect formatting of `Categories`
   - allow help text to be slightly wider to avoid awkward line breaks
   - macOS: fix detection of qutebrowser binary in /Applications

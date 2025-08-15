@@ -16,6 +16,7 @@ DEFAULT_CONFIG_FILE = Path(__file__).parent / "config.toml"
 @dataclass(kw_only=True)
 class Config:
     config_py_template: str | None = None
+    symlink_autoconfig: bool = False
     qutebrowser_config_directory: Path | None = None
     profile_directory: Path = field(default_factory=paths.default_profile_dir)
     generate_desktop_file: bool = platform.system() == "Linux"
@@ -57,14 +58,21 @@ def find_config(config_path: Path | None) -> Config:
     return Config.load(config_path)
 
 
-def find_qutebrowser_config_dir(qb_config_dir: Path | None) -> Path | None:
+def find_qutebrowser_config_dir(
+    qb_config_dir: Path | None, autoconfig: bool = False
+) -> Path | None:
     dirs = (
         [qb_config_dir, qb_config_dir / "config"]
         if qb_config_dir
         else list(paths.qutebrowser_config_dirs())
     )
     for config_dir in dirs:
-        if (config_dir / "config.py").exists():
+        if (config_dir / "config.py").exists() or (
+            autoconfig and (config_dir / "autoconfig.yml").exists()
+        ):
             return config_dir.absolute()
-    error(f"couldn't find config.py in {or_phrase(dirs)}")
+    if autoconfig:
+        error(f"couldn't find config.py or autoconfig.yml in {or_phrase(dirs)}")
+    else:
+        error(f"couldn't find config.py in {or_phrase(dirs)}")
     return None
