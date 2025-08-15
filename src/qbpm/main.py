@@ -260,12 +260,11 @@ def session_info(
     session_paths.append(Path(session))
     session_path = next(filter(lambda path: path.is_file(), session_paths), None)
 
-    if not session_path:
-        tried = or_phrase([str(p.resolve()) for p in session_paths])
-        error(f"could not find session file at {tried}")
-        sys.exit(1)
-
-    return (Profile(profile_name or session_path.stem, **vars(context)), session_path)
+    if session_path:
+        return (Profile(profile_name or session_path.stem, **vars(context)), session_path)
+    tried = or_phrase([str(p.resolve()) for p in session_paths])
+    error(f"could not find session file at {tried}")
+    sys.exit(1)
 
 
 def exit_with(result: bool) -> NoReturn:
