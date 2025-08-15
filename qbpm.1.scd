@@ -30,9 +30,6 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 	Use _path_ as the profile directory instead of the default location. Takes
 	precedence over the QBPM_PROFILE_DIR environment variable.
 
-*-C, --config-dir*
-	Source config files from the provided directory instead of the global
-	qutebrowser config location.
 
 # COMMANDS
 
@@ -48,6 +45,10 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 	*-f, --foreground*
 		If --launch is set, run qutebrowser in the foreground.
 
+	*-C, --qutebrowser-config-dir* <path>
+		Source config files from the provided directory instead of the global
+		qutebrowser config location.
+
 	*--no-desktop-file*
 		Do not generate an XDG desktop entry for the profile. Always true on
 		non-linux systems. See https://wiki.archlinux.org/title/Desktop_entries
@@ -58,7 +59,7 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 		already exists. --overwrite disables this check and replaces the existing
 		profile's configuration files. Profile data is left untouched.
 
-*launch* [options] <profile> [argument...]
+*launch* [options] <profile> [arguments...]
 	Start qutebrowser with --basedir set to the location of _profile_. All
 	arguments following _profile_ will be passed on to qutebrowser.
 
@@ -80,10 +81,10 @@ appropriate \--basedir, or more conveniently using the qbpm launch and qbpm choo
 		qbpm launch -n qb-dev --debug --json-logging
 		```
 
-*choose* [options]
+*choose* [options] [arguments...]
 	Open a menu to choose a qutebrowser profile to launch. On linux this defaults
 	to dmenu or another compatible menu program such as rofi, and on macOS this
-	will be an applescript dialog.
+	will be an applescript dialog. All arguments are passed to qutebrowser.
 
 	*-m, --menu* <menu>
 		Use _menu_ instead of the default menu program. This may be the name of a
