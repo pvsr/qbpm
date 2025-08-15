@@ -16,6 +16,7 @@ DEFAULT_CONFIG_FILE = Path(__file__).parent / "config.toml"
 @dataclass(kw_only=True)
 class Config:
     config_py_template: str | None = None
+    symlink_autoconfig_yml: bool = False
     qutebrowser_config_directory: Path | None = None
     profile_directory: Path = field(default_factory=paths.default_profile_dir)
     generate_desktop_file: bool = platform.system() == "Linux"

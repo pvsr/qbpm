@@ -56,6 +56,22 @@ def create_config(
             out(f"c.url.start_pages = ['{home_page}']")
 
 
+def link_autoconfig(
+    profile: Profile,
+    qb_config_dir: Path,
+    # TODO
+    overwrite: bool = False,
+) -> None:
+    windows = False  # TODO
+    if windows:
+        return
+    source = qb_config_dir / "autoconfig.yml"
+    if not source.is_file():
+        return
+    dest = profile.root / "config" / "autoconfig.yml"
+    dest.symlink_to(source)
+
+
 def check(profile: Profile) -> bool:
     if not profile.check_name():
         return False
@@ -92,6 +108,8 @@ def new_profile(
         create_config(
             profile, qb_config_dir, config.config_py_template, home_page, overwrite
         )
+        if config.symlink_autoconfig_yml:
+            link_autoconfig(profile, qb_config_dir, overwrite)
         if config.generate_desktop_file:
             create_desktop_file(profile, config.desktop_file_directory)
         return True

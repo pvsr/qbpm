@@ -38,6 +38,7 @@ def test_full_config(tmp_path: Path):
 config_py_template = \"""
 config.load_autoconfig()
 \"""
+symlink_autoconfig_yml = true
 qutebrowser_config_directory = "~/.config/qutebrowser"
 profile_directory = "profile"
 generate_desktop_file = false
@@ -47,6 +48,7 @@ menu_prompt = "qbpm"
     """)
     assert find_config(file) == Config(
         config_py_template="config.load_autoconfig()\n",
+        symlink_autoconfig_yml=True,
         qutebrowser_config_directory=Path("~/.config/qutebrowser").expanduser(),
         profile_directory=Path("profile"),
         desktop_file_directory=Path("desktop"),
