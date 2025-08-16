@@ -261,7 +261,10 @@ def session_info(
     session_path = next(filter(lambda path: path.is_file(), session_paths), None)
 
     if session_path:
-        return (Profile(profile_name or session_path.stem, **vars(context)), session_path)
+        return (
+            Profile(profile_name or session_path.stem, **vars(context)),
+            session_path,
+        )
     tried = or_phrase([str(p.resolve()) for p in session_paths])
     error(f"could not find session file at {tried}")
     sys.exit(1)
