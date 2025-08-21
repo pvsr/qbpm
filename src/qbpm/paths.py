@@ -1,4 +1,5 @@
 import platform
+from collections.abc import Iterator
 from pathlib import Path
 
 from click import get_app_dir
@@ -32,14 +33,10 @@ def qutebrowser_data_dir() -> Path:
     return Path(get_app_dir("qutebrowser", roaming=True))
 
 
-def qutebrowser_config_dirs() -> list[Path]:
-    # deduplicate while maintaining order
-    return list(
-        dict.fromkeys(
-            [
-                Path(get_app_dir("qutebrowser", roaming=True)),
-                xdg_config_home() / "qutebrowser",
-                Path.home() / ".qutebrowser",
-            ]
-        )
-    )
+def qutebrowser_config_dirs() -> Iterator[Path]:
+    app_dir = Path(get_app_dir("qutebrowser", roaming=True))
+    yield app_dir
+    xdg_dir = xdg_config_home() / "qutebrowser"
+    if xdg_dir != app_dir:
+        yield xdg_dir
+    yield Path.home() / ".qutebrowser"

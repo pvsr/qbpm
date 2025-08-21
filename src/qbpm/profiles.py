@@ -92,7 +92,7 @@ def find_qutebrowser_config_dir(qb_config_dir: Path | None) -> Path | None:
     dirs = (
         [qb_config_dir, qb_config_dir / "config"]
         if qb_config_dir
-        else qutebrowser_config_dirs()
+        else list(qutebrowser_config_dirs())
     )
     for config_dir in dirs:
         if (config_dir / config_file).exists():
