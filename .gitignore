@@ -15,3 +15,4 @@ qbpm.1
 .direnv/
 .pre-commit-config.yaml
 profiles/
+.coverage

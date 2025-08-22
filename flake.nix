@@ -72,6 +72,7 @@
             (pyprojectEnv pkgs.python3 (ps: [
               ps.flit
               ps.pytest
+              ps.pytest-cov
               ps.mypy
               ps.pylsp-mypy
             ]))
