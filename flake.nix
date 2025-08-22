@@ -35,8 +35,7 @@
             pkgs.installShellFiles
           ];
           nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
-          doInstallCheck = true;
-          installCheckPhase = "$out/bin/qbpm --help";
+          postInstallCheck = "$out/bin/qbpm --help";
           postInstall = ''
             _QBPM_COMPLETE=bash_source $out/bin/qbpm > completions/qbpm.bash
             _QBPM_COMPLETE=zsh_source $out/bin/qbpm > completions/qbpm.zsh
