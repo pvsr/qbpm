@@ -8,13 +8,14 @@ from typing import Any, NoReturn, TypeVar
 
 import click
 
-from . import Profile, operations, profiles
+from . import Profile, profiles
 from .choose import choose_profile
 from .config import DEFAULT_CONFIG_FILE, Config, find_config
+from .desktop import create_desktop_file
 from .launch import launch_qutebrowser
-from .log import error, or_phrase
 from .menus import supported_menus
-from .paths import default_qbpm_config_dir, qutebrowser_data_dir
+from .paths import default_qbpm_config_dir
+from .session import profile_from_session
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "max_content_width": 91}
 
@@ -156,7 +157,6 @@ def new(
         config.qutebrowser_config_directory = c_opts.qb_config_dir.absolute()
     if c_opts.desktop_file is not None:
         config.generate_desktop_file = c_opts.desktop_file
-
     exit_with(
         profiles.new_profile(
             profile,
@@ -185,20 +185,18 @@ def from_session(
     or a path to a session yaml file.
     """
     config = context.load_config()
-    profile, session_path = session_info(
-        session, profile_name, config.profile_directory
-    )
     if c_opts.qb_config_dir:
         config.qutebrowser_config_directory = c_opts.qb_config_dir.absolute()
     if c_opts.desktop_file is not None:
         config.generate_desktop_file = c_opts.desktop_file
+    profile = profile_from_session(
+        session,
+        profile_name,
+        config,
+        c_opts.overwrite,
+    )
     exit_with(
-        operations.from_session(
-            profile,
-            session_path,
-            config,
-            c_opts.overwrite,
-        )
+        profile is not None
         and ((not c_opts.launch) or launch_qutebrowser(profile, c_opts.foreground))
     )
 
@@ -284,7 +282,10 @@ def desktop(
     """Create an XDG desktop entry for an existing profile."""
     config = context.load_config()
     profile = Profile(profile_name, config.profile_directory)
-    exit_with(operations.desktop(profile, config.desktop_file_directory))
+    exists = profiles.check(profile)
+    if exists:
+        create_desktop_file(profile, config.desktop_file_directory)
+    return exit_with(exists)
 
 
 @main.group(context_settings={"help_option_names": []})
@@ -312,29 +313,6 @@ def path(context: Context) -> None:
 def default() -> None:
     """Print the default qbpm config file."""
     print(DEFAULT_CONFIG_FILE.read_text(), end="")
-
-
-def session_info(
-    session: str, profile_name: str | None, profile_dir: Path
-) -> tuple[Profile, Path]:
-    user_session_dir = qutebrowser_data_dir() / "sessions"
-    session_paths = []
-    if "/" not in session:
-        session_paths.append(user_session_dir / (session + ".yml"))
-    session_paths.append(Path(session))
-    session_path = next(filter(lambda path: path.is_file(), session_paths), None)
-
-    if session_path:
-        return (
-            Profile(
-                profile_name or session_path.stem,
-                profile_dir,
-            ),
-            session_path,
-        )
-    tried = or_phrase([str(p.resolve()) for p in session_paths])
-    error(f"could not find session file at {tried}")
-    sys.exit(1)
 
 
 def exit_with(result: bool) -> NoReturn:

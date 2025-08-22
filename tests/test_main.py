@@ -49,12 +49,24 @@ def test_relative_config_dir(tmp_path: Path):
     assert str(config) in (tmp_path / "test/config/config.py").read_text()
 
 
-def test_from_session(tmp_path: Path):
+def test_from_session_path(tmp_path: Path):
     environ["QBPM_PROFILE_DIR"] = str(tmp_path)
     (tmp_path / "config.py").touch()
     session = tmp_path / "test.yml"
     session.write_text("windows:\n")
     result = run("from-session", "-C", str(tmp_path), str(session))
+    assert result.exit_code == 0
+    assert result.output.strip() == str(tmp_path / "test")
+    assert (tmp_path / "test/data/sessions/_autosave.yml").read_text() == ("windows:\n")
+
+
+def test_from_session_name(tmp_path: Path):
+    environ["QBPM_PROFILE_DIR"] = str(tmp_path)
+    (tmp_path / "config.py").touch()
+    environ["XDG_DATA_HOME"] = str(tmp_path)
+    (tmp_path / "qutebrowser" / "sessions").mkdir(parents=True)
+    (tmp_path / "qutebrowser" / "sessions" / "test.yml").write_text("windows:\n")
+    result = run("from-session", "-C", str(tmp_path), "test")
     assert result.exit_code == 0
     assert result.output.strip() == str(tmp_path / "test")
     assert (tmp_path / "test/data/sessions/_autosave.yml").read_text() == ("windows:\n")
