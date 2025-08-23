@@ -18,13 +18,17 @@ MIME_TYPES = [
 ]
 
 
-def create_desktop_file(profile: Profile, application_dir: Path) -> None:
+def create_desktop_file(
+    profile: Profile,
+    application_dir: Path,
+    icon: str | None = None,
+) -> None:
     text = textwrap.dedent(f"""\
         [Desktop Entry]
         Name={profile.name} (qutebrowser profile)
         StartupWMClass=qutebrowser
         GenericName={profile.name}
-        Icon=qutebrowser
+        Icon={icon or "qutebrowser"}
         Type=Application
         Categories=Network;WebBrowser;
         Exec={" ".join([*profile.cmdline(), "--untrusted-args", "%u"])}
@@ -44,3 +48,14 @@ def create_desktop_file(profile: Profile, application_dir: Path) -> None:
     """)
     application_dir.mkdir(parents=True, exist_ok=True)
     (application_dir / f"{profile.name}.desktop").write_text(text)
+
+
+# TODO
+def add_to_desktop_file(profile: Profile, key: str, value: str) -> None:
+    pass
+#     desktop_file = application_dir / f"{profile.name}.desktop"
+#     if not desktop_file.exists():
+#         return
+#     desktop = DesktopEntry(str(application_dir / f"{profile.name}.desktop"))
+#     desktop.set(key, value)
+#     desktop.write()

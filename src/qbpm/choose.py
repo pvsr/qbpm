@@ -3,16 +3,19 @@ from pathlib import Path
 
 from . import Profile
 from .launch import launch_qutebrowser
+from .icons import icon_for_profile
 from .log import error
 from .menus import find_menu
 
 
+# TODO take config arg
 def choose_profile(
     profile_dir: Path,
     menu: str | list[str],
     prompt: str,
     foreground: bool,
     qb_args: tuple[str, ...],
+    force_icon: bool = False,
 ) -> bool:
     dmenu = find_menu(menu)
     if not dmenu:
@@ -23,11 +26,15 @@ def choose_profile(
         error("no profiles")
         return False
     profiles = [*real_profiles, "qutebrowser"]
+    use_icon = force_icon
+    # TODO check config
+    # TODO get menu icon support
+    # use_icon = dmenu.icon_support or force_icon
     command = dmenu.command(sorted(profiles), prompt, " ".join(qb_args))
     selection_cmd = subprocess.run(
         command,
         text=True,
-        input="\n".join(sorted(profiles)),
+        input=build_menu_items(profiles, use_icon),
         stdout=subprocess.PIPE,
         stderr=None,
         check=False,
@@ -43,3 +50,20 @@ def choose_profile(
     else:
         error("no profile selected")
         return False
+
+
+def build_menu_items(profiles: list[str], icon: bool) -> str:
+    # TODO build profile before passing to icons
+    if icon and any(profile_icons := [icon_for_profile(p) for p in profiles]):
+        menu_items = [
+            icon_entry(profile, icon)
+            for (profile, icon) in zip(profiles, profile_icons)
+        ]
+    else:
+        menu_items = profiles
+
+    return "\n".join(sorted(menu_items))
+
+
+def icon_entry(name: str, icon: str | None) -> str:
+    return f"{name}\0icon\x1f{icon or 'qutebrowser'}"

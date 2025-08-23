@@ -13,6 +13,7 @@ config.load_autoconfig()
 
 # location of the qutebrowser config to inherit from
 # qutebrowser_config_directory = "~/.config/qutebrowser"
+# symlink_autoconfig_yml = true
 
 # when creating a profile also generate an XDG desktop entry that launches the profile
 # defaults to true on linux
