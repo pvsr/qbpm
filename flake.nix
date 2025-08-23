@@ -13,6 +13,14 @@
     }:
     let
       pyproject = pyproject-nix.lib.project.loadPyproject { projectRoot = ./.; };
+      pyprojectPackage =
+        python: args:
+        python.pkgs.buildPythonApplication (
+          args // pyproject.renderers.buildPythonPackage { inherit python; }
+        );
+      pyprojectEnv =
+        python: extraPackages:
+        python.withPackages (pyproject.renderers.withPackages { inherit python extraPackages; });
       forAllSystems =
         mkOutputs:
         nixpkgs.lib.genAttrs [
@@ -24,31 +32,28 @@
     in
     {
       packages = forAllSystems (pkgs: {
-        qbpm = pkgs.python3.pkgs.buildPythonApplication (
-          pyproject.renderers.buildPythonPackage { python = pkgs.python3; }
-          // {
-            nativeBuildInputs = [
-              pkgs.scdoc
-              pkgs.installShellFiles
-            ];
-            nativeCheckInputs = [ pkgs.python3.pkgs.pytestCheckHook ];
-            postInstallCheck = "$out/bin/qbpm --help";
-            postInstall = ''
-              _QBPM_COMPLETE=bash_source $out/bin/qbpm > completions/qbpm.bash
-              _QBPM_COMPLETE=zsh_source $out/bin/qbpm > completions/qbpm.zsh
-              installShellCompletion completions/qbpm.{bash,zsh,fish}
-              scdoc < qbpm.1.scd > qbpm.1
-              installManPage qbpm.1
-            '';
+        qbpm = pyprojectPackage pkgs.python3 {
+          nativeBuildInputs = [
+            pkgs.scdoc
+            pkgs.installShellFiles
+          ];
+          nativeCheckInputs = [ pkgs.python3.pkgs.pytestCheckHook ];
+          postInstallCheck = "$out/bin/qbpm --help";
+          postInstall = ''
+            _QBPM_COMPLETE=bash_source $out/bin/qbpm > completions/qbpm.bash
+            _QBPM_COMPLETE=zsh_source $out/bin/qbpm > completions/qbpm.zsh
+            installShellCompletion completions/qbpm.{bash,zsh,fish}
+            scdoc < qbpm.1.scd > qbpm.1
+            installManPage qbpm.1
+          '';
 
-            meta = {
-              homepage = "https://github.com/pvsr/qbpm";
-              changelog = "https://github.com/pvsr/qbpm/blob/main/CHANGELOG.md";
-              description = "A profile manager for qutebrowser";
-              license = pkgs.lib.licenses.gpl3Plus;
-            };
-          }
-        );
+          meta = {
+            homepage = "https://github.com/pvsr/qbpm";
+            changelog = "https://github.com/pvsr/qbpm/blob/main/CHANGELOG.md";
+            description = "A profile manager for qutebrowser";
+            license = pkgs.lib.licenses.gpl3Plus;
+          };
+        };
         default = self.packages.${pkgs.system}.qbpm;
       });
 
@@ -64,17 +69,12 @@
         default = pkgs.mkShell {
           packages = [
             pkgs.ruff
-            (pkgs.python3.withPackages (
-              pyproject.renderers.withPackages {
-                python = pkgs.python3;
-                extraPackages = ps: [
-                  ps.flit
-                  ps.pytest
-                  ps.mypy
-                  ps.pylsp-mypy
-                ];
-              }
-            ))
+            (pyprojectEnv pkgs.python3 (ps: [
+              ps.flit
+              ps.pytest
+              ps.mypy
+              ps.pylsp-mypy
+            ]))
           ];
         };
       });
