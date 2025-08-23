@@ -285,7 +285,7 @@ def desktop(
     exists = profiles.check(profile)
     if exists:
         create_desktop_file(profile, config.desktop_file_directory)
-    return exit_with(exists)
+    exit_with(exists)
 
 
 @main.group(context_settings={"help_option_names": []})
