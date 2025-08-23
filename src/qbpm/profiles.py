@@ -45,6 +45,8 @@ def create_config(
     if not source.is_file():
         return
     user_config = profile.root / "config" / "config.py"
+    if overwrite and user_config.exists():
+        back_up(user_config)
     with user_config.open(mode="w" if overwrite else "x") as dest_config:
         out = partial(print, file=dest_config)
         out(
@@ -70,10 +72,14 @@ def link_autoconfig(
     if not source.is_file() or dest.resolve() == source.resolve():
         return
     if overwrite and dest.exists():
-        backup = Path(str(dest) + ".bak")
-        info(f"backing up existing autoconfig to {backup}")
-        dest.replace(backup)
+        back_up(dest)
     dest.symlink_to(source)
+
+
+def back_up(dest: Path) -> None:
+    backup = Path(str(dest) + ".bak")
+    info(f"backing up existing {dest.name} to {backup}")
+    dest.replace(backup)
 
 
 def check(profile: Profile) -> bool:

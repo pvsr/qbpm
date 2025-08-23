@@ -70,14 +70,13 @@ def test_overwrite_config(tmp_path: Path):
     url = "http://example.com"
     config_dir = profile.root / "config"
     config_dir.mkdir(parents=True)
+    config = config_dir / "config.py"
+    backup = config_dir / "config.py.bak"
     profiles.create_config(profile, tmp_path, "")
     profiles.create_config(profile, tmp_path, "", url, True)
-    assert list(config_dir.iterdir()) == [config_dir / "config.py"]
-    with (config_dir / "config.py").open() as conf:
-        for line in conf:
-            if url in line:
-                return
-    raise AssertionError()
+    assert set(config_dir.iterdir()) == {config, backup}
+    assert url in config.read_text()
+    assert url not in backup.read_text()
 
 
 def test_link_autoconfig(tmp_path: Path):

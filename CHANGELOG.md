@@ -17,6 +17,7 @@ qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
 
 ## other
   - support for symlinking `autoconfig.yml` in addition to or instead of sourcing `config.py`
+  - `qbpm new --overwrite`: back up existing config files by moving to e.g. `config.py.bak`
   - `contrib/qbpm.desktop`: add `MimeType` and `Keywords`, fix incorrect formatting of `Categories`
   - allow help text to be slightly wider to avoid awkward line breaks
   - macOS: fix detection of qutebrowser binary in /Applications
