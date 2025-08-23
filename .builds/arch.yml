@@ -4,22 +4,22 @@ sources:
   - https://aur.archlinux.org/python-xdg-base-dirs.git
   - https://aur.archlinux.org/python-dacite.git
 packages:
+  - ruff
+  - mypy
   - python-pytest
 tasks:
-  - xdg-base-dirs: |
-      cd python-xdg-base-dirs
-      makepkg -si --noconfirm
-  - dacite: |
-      cd python-dacite
-      makepkg -si --noconfirm
-  - makepkg: |
-      cd qbpm/contrib
-      sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' PKGBUILD
-      sudo pacman -Sy
-      makepkg -si --noconfirm
-  - pytest: |
-      cd qbpm
-      pytest tests
+  - format: ruff format --check qbpm
+  - lint: ruff check qbpm
+  - deps: |
+      makepkg -si --noconfirm --dir python-xdg-base-dirs
+      makepkg -si --noconfirm --dir python-dacite
+      mkdir build
+      cp qbpm/contrib/PKGBUILD build
+      sed -i 's|^source.*|source=("git+file:///home/build/qbpm")|' build/PKGBUILD
+      makepkg -s --noconfirm --dir build
+  - types: mypy qbpm
+  - tests: pytest qbpm/tests
+  - install: makepkg -i --noconfirm --noextract --dir build
   - run: |
       mkdir -p ~/.config/qutebrowser
       touch ~/.config/qutebrowser/config.py
