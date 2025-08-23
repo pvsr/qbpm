@@ -19,7 +19,7 @@ config.load_autoconfig()
 
 # when creating a profile also generate an XDG desktop entry that launches the profile
 # defaults to true on linux
-generate_desktop_file = true
+# generate_desktop_file = false
 # desktop_file_directory = "~/.local/share/applications/qbpm"
 
 # profile selection menu for `qbpm choose`
