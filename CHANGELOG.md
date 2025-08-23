@@ -1,15 +1,15 @@
 # 2.0
 ## config
-qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
+qbpm now reads configuration options from `$XDG_CONFIG_HOME/qbpm/config.toml`!
   - to install the default config file:
     - run `qbpm config path` and confirm that it prints out a path
     - run `qbpm config default > "$(qbpm config path)"`
   - supported configuration options:
     - `config_py_template`: control the contents of `config.py` in new profiles
     - `profile_directory` and `qutebrowser_config_directory`
-      - equivalent `--profile-dir` to `--qutebrowser-config-dir` 
+      - equivalent to `--profile-dir` and `--qutebrowser-config-dir` 
     - `generate_desktop_file` and `desktop_file_directory`
-      - whether to generate an XDG desktop entry for the profile and where to put it
+      - whether to generate XDG desktop entries for new profiles and where to put them
     - `menu`: equivalent to `--menu` for `qbpm choose`
     - `menu_prompt`: prompt shown in most menus
     - see default config file for more detailed documentation
@@ -17,7 +17,7 @@ qbpm now reads configuration options from a `$XDG_CONFIG_HOME/qbpm/config.toml`!
 ## other
   - `contrib/qbpm.desktop`: add `MimeType` and `Keywords`, fix incorrect formatting of `Categories`
   - allow help text to be slightly wider to avoid awkward line breaks
-  - macOS: fix detection of qutebrowser binary in /Applications
+  - macOS: fix detection of qutebrowser binary in `/Applications`
 
 # 1.0rc4
   - `choose`: support `walker`, `tofi`, and `wmenu`
