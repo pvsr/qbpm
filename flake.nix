@@ -58,7 +58,6 @@
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.ruff
-            pkgs.nixfmt-rfc-style
             (pyprojectEnv (
               ps: with ps; [
                 flit
@@ -71,18 +70,13 @@
         };
 
         formatter = pkgs.nixfmt-tree.override {
-          runtimeInputs = with pkgs; [ ruff ];
+          runtimeInputs = [ pkgs.ruff ];
           settings = {
-            on-unmatched = "info";
             tree-root-file = "flake.nix";
             formatter.ruff = {
               command = "ruff";
               options = [ "format" ];
               includes = [ "*.py" ];
-            };
-            formatter.nixfmt = {
-              command = "nixfmt";
-              includes = [ "*.nix" ];
             };
           };
         };
