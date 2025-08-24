@@ -284,7 +284,9 @@ def desktop(
     profile = Profile(profile_name, config.profile_directory)
     exists = profiles.check(profile)
     if exists:
-        create_desktop_file(profile, config.desktop_file_directory)
+        create_desktop_file(
+            profile, config.desktop_file_directory, config.application_name
+        )
     exit_with(exists)
 
 

@@ -17,10 +17,14 @@ config.load_autoconfig()
 # location of the qutebrowser config to inherit from
 # qutebrowser_config_directory = "~/.config/qutebrowser"
 
-# when creating a profile also generate an XDG desktop entry that launches the profile
+# when creating a profile also generate an XDG desktop file that launches the profile
 # defaults to true on linux
 # generate_desktop_file = false
 # desktop_file_directory = "~/.local/share/applications/qbpm"
+
+# application name in XDG desktop file (replace existing with `qbpm desktop PROFILE_NAME`) 
+# supported placeholders: {profile_name}
+# application_name = "{profile_name} (qutebrowser profile)"
 
 # profile selection menu for `qbpm choose`
 # when not set, qbpm will try to find a menu program on your $PATH

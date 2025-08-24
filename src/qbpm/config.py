@@ -20,6 +20,7 @@ class Config:
     qutebrowser_config_directory: Path | None = None
     profile_directory: Path = field(default_factory=paths.default_profile_dir)
     generate_desktop_file: bool = platform.system() == "Linux"
+    application_name: str = "{profile_name} (qutebrowser profile)"
     desktop_file_directory: Path = field(
         default_factory=paths.default_qbpm_application_dir
     )

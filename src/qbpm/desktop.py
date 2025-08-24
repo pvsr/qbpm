@@ -18,10 +18,13 @@ MIME_TYPES = [
 ]
 
 
-def create_desktop_file(profile: Profile, application_dir: Path) -> None:
+def create_desktop_file(
+    profile: Profile, application_dir: Path, application_name: str
+) -> None:
+    application_name = application_name.format(profile_name=profile.name)
     text = textwrap.dedent(f"""\
         [Desktop Entry]
-        Name={profile.name} (qutebrowser profile)
+        Name={application_name}
         StartupWMClass=qutebrowser
         GenericName={profile.name}
         Icon=qutebrowser
