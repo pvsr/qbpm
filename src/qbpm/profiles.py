@@ -123,7 +123,9 @@ def new_profile(
         if config.symlink_autoconfig:
             link_autoconfig(profile, qb_config_dir, overwrite)
         if config.generate_desktop_file:
-            create_desktop_file(profile, config.desktop_file_directory)
+            create_desktop_file(
+                profile, config.desktop_file_directory, config.application_name
+            )
         print(profile.root)
         return True
     return False
