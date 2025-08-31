@@ -1,3 +1,6 @@
+# next
+  - add `--help` flag to `qbpm config`
+
 # ~2.1~ 2.2
   - `config.toml` supports `application_name` for generated XDG desktop files
     - defaults to `{profile_name} (qutebrowser profile)`, you may want just `{profile_name}`

@@ -290,7 +290,7 @@ def desktop(
     exit_with(exists)
 
 
-@main.group(context_settings={"help_option_names": []})
+@main.group()
 def config() -> None:
     """Commands to create a qbpm config file.
 
