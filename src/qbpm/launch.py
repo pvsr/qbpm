@@ -24,7 +24,7 @@ def launch(foreground: bool, args: list[str]) -> bool:
         p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         try:
             # give qb a chance to validate input before returning to shell
-            stdout, stderr = p.communicate(timeout=0.1)
+            _stdout, stderr = p.communicate(timeout=0.1)
             print(stderr.decode(errors="ignore"), end="")
         except subprocess.TimeoutExpired:
             pass
