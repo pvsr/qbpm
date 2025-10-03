@@ -1,7 +1,8 @@
-# 2.1
+# ~2.1~ 2.2
   - `config.toml` supports `application_name` for generated XDG desktop files
     - defaults to `{profile_name} (qutebrowser profile)`, you may want just `{profile_name}`
     - `qbpm desktop` can be used to replace existing desktop files
+  - bumped to 2.2 because I pushed a 2.1 tag prematurely
 
 # 2.0
 ## config
