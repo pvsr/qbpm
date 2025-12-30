@@ -21,8 +21,13 @@ def check_empty_profile(profile: Profile | None):
 def check_new_profile(profile: Profile):
     assert profile
     config_dir = profile.root / "config"
-    assert list(profile.root.iterdir()) == [config_dir]
-    assert list(config_dir.iterdir()) == [config_dir / "config.py"]
+    data_dir = profile.root / "data"
+    assert set(profile.root.iterdir()) == {config_dir, data_dir}
+    assert set(config_dir.iterdir()) == {config_dir / "config.py"}
+    dicts_dir = data_dir / "qtwebengine_dictionaries"
+    assert set(data_dir.iterdir()) == {dicts_dir}
+    assert dicts_dir.is_symlink()
+    assert dicts_dir.resolve().name == "qtwebengine_dictionaries"
 
 
 def test_set_profile(tmp_path: Path):

@@ -5,6 +5,7 @@ from . import Profile
 from .config import Config, find_qutebrowser_config_dir
 from .desktop import create_desktop_file
 from .log import error, info
+from .paths import qutebrowser_data_dir
 
 MIME_TYPES = [
     "text/html",
@@ -76,6 +77,19 @@ def link_autoconfig(
     dest.symlink_to(source)
 
 
+def link_dictionaries(profile: Profile, overwrite: bool) -> None:
+    if not hasattr(Path, "symlink_to"):
+        return
+    source = qutebrowser_data_dir() / "qtwebengine_dictionaries"
+    dest = profile.root / "data" / "qtwebengine_dictionaries"
+    dest.parent.mkdir(exist_ok=True)
+    if dest.resolve() == source.resolve():
+        return
+    if overwrite and dest.exists():
+        back_up(dest)
+    dest.symlink_to(source, target_is_directory=True)
+
+
 def back_up(dest: Path) -> None:
     backup = Path(str(dest) + ".bak")
     info(f"backing up existing {dest.name} to {backup}")
@@ -126,6 +140,7 @@ def new_profile(
             create_desktop_file(
                 profile, config.desktop_file_directory, config.application_name
             )
+        link_dictionaries(profile, overwrite)
         print(profile.root)
         return True
     return False

@@ -1,5 +1,6 @@
-# next
-  - add `--help` flag to `qbpm config`
+# 2.3
+  - new profiles will have a symlink to `$XDG_DATA_HOME/qutebrowser/qtwebengine_dictionaries` and thus have access to any spellchecking dictionaries have been installed for the main qutebrowser profile
+  - `qbpm config` now has a `--help` flag
 
 # ~2.1~ 2.2
   - `config.toml` supports `application_name` for generated XDG desktop files
