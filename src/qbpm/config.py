@@ -15,7 +15,13 @@ DEFAULT_CONFIG_FILE = Path(__file__).parent / "config.toml"
 
 @dataclass(kw_only=True)
 class Config:
-    config_py_template: str | None = None
+    config_py_template: str = """
+config.source(r'{source_config_py}')
+
+c.window.title_format += ' ({profile_name})'
+
+config.load_autoconfig()
+"""
     symlink_autoconfig: bool = False
     qutebrowser_config_directory: Path | None = None
     profile_directory: Path = field(default_factory=paths.default_profile_dir)

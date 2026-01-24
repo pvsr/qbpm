@@ -1,3 +1,7 @@
+# 2.4
+  - `config_py_template` is no longer required to be set if `config.toml` exists
+  - if `config_py_template` is set to an empty string, no `config.py` will be generated
+
 # 2.3
   - new profiles will have a symlink to `$XDG_DATA_HOME/qutebrowser/qtwebengine_dictionaries` and thus have access to any spellchecking dictionaries have been installed for the main qutebrowser profile
   - `qbpm config` now has a `--help` flag

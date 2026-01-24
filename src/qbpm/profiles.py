@@ -127,13 +127,11 @@ def new_profile(
     )
     if not qb_config_dir:
         return False
-    if not config.config_py_template:
-        error("no value for config_py_template in config.toml")
-        return False
     if create_profile(profile, overwrite):
-        create_config(
-            profile, qb_config_dir, config.config_py_template, home_page, overwrite
-        )
+        if config.config_py_template:
+            create_config(
+                profile, qb_config_dir, config.config_py_template, home_page, overwrite
+            )
         if config.symlink_autoconfig:
             link_autoconfig(profile, qb_config_dir, overwrite)
         if config.generate_desktop_file:

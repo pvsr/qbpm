@@ -72,7 +72,7 @@ def test_from_session_name(tmp_path: Path):
     assert (tmp_path / "test/data/sessions/_autosave.yml").read_text() == ("windows:\n")
 
 
-def test_config_file(tmp_path: Path):
+def test_custom_template(tmp_path: Path):
     environ["QBPM_PROFILE_DIR"] = str(tmp_path)
     (tmp_path / "config.py").touch()
     config_file = tmp_path / "config.toml"
@@ -81,6 +81,35 @@ def test_config_file(tmp_path: Path):
     assert result.exit_code == 0
     profile_config = tmp_path / "test" / "config" / "config.py"
     assert "# Custom template test" in profile_config.read_text()
+
+
+def test_no_template(tmp_path: Path):
+    environ["QBPM_PROFILE_DIR"] = str(tmp_path)
+    (tmp_path / "config.py").touch()
+    config_file = tmp_path / "config.toml"
+    config_file.write_text("application_name = 'qbpm'")
+    result = run("-c", str(config_file), "new", "test")
+    assert result.exit_code == 0
+    profile_config = tmp_path / "test" / "config" / "config.py"
+    assert str(tmp_path) in profile_config.read_text()
+
+
+def test_autoconfig_only(tmp_path: Path):
+    environ["QBPM_PROFILE_DIR"] = str(tmp_path)
+    (tmp_path / "config.py").touch()
+    config_file = tmp_path / "config.toml"
+    config_file.write_text("""
+    config_py_template = ''
+    symlink_autoconfig = true
+    """)
+    autoconfig_file = tmp_path / "autoconfig.yml"
+    autoconfig_file.touch()
+    result = run("-c", str(config_file), "new", "test")
+    assert result.exit_code == 0
+    profile_config = tmp_path / "test" / "config" / "config.py"
+    profile_autoconfig = tmp_path / "test" / "config" / "autoconfig.yml"
+    assert not profile_config.exists()
+    assert profile_autoconfig.readlink() == autoconfig_file
 
 
 def test_bad_config_file():
