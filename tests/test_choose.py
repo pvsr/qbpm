@@ -2,6 +2,7 @@ from os import environ
 from pathlib import Path
 
 from qbpm.choose import choose_profile, find_menu
+from qbpm.config import Config
 
 from . import no_homedir_fixture  # noqa: F401
 
@@ -29,7 +30,16 @@ def test_choose(tmp_path: Path):
     profile_dir.mkdir()
     (profile_dir / "p1").mkdir()
     (profile_dir / "p2").mkdir()
-    assert choose_profile(profile_dir, str(menu), "", False, ())
+    config = Config(profile_directory=profile_dir, menu=str(menu), menu_prompt="")
+    assert choose_profile(config, False, ())
+    assert log.read_text().startswith(
+        f"""p1
+p2
+qutebrowser -B {profile_dir / "p1"}"""
+    )
+    log.write_text("")
+    config.qutebrowser_in_choose = True
+    assert choose_profile(config, False, ())
     assert log.read_text().startswith(
         f"""p1
 p2

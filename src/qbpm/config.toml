@@ -44,3 +44,6 @@ config.load_autoconfig()
 # menu_prompt = "qbpm"
 # menu_prompt = "profiles"
 # menu_prompt = "qutebrowser {qb_args}"
+
+# include a `qutebrowser` entry in `qbpm choose` that starts qutebrowser without a profile
+# qutebrowser_in_choose = false

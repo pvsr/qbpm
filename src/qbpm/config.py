@@ -32,6 +32,7 @@ config.load_autoconfig()
     )
     menu: str | list[str] = field(default_factory=list)
     menu_prompt: str = "qutebrowser"
+    qutebrowser_in_choose: bool = False
 
     @classmethod
     def load(cls, config_file: Path | None) -> "Config":

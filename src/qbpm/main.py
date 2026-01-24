@@ -242,11 +242,11 @@ def choose(
     All QB_ARGS are passed on to qutebrowser.
     """
     config = context.load_config()
+    if menu:
+        config.menu = menu
     exit_with(
         choose_profile(
-            config.profile_directory,
-            menu or config.menu,
-            config.menu_prompt,
+            config,
             foreground,
             qb_args,
         )

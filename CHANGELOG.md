@@ -1,4 +1,5 @@
 # 2.4
+  - `qbpm choose`: an entry named `qutebrowser` that launches qutebrowser without a profile will no longer be included by default. Set `qutebrowser_in_choose = true` in `config.toml` to restore it
   - `config_py_template` is no longer required to be set if `config.toml` exists
   - if `config_py_template` is set to an empty string, no `config.py` will be generated
 
