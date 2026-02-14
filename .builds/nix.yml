@@ -4,10 +4,4 @@ sources:
 environment:
   NIX_CONFIG: "experimental-features = nix-command flakes"
 tasks:
-  - build: nix build ./qbpm
-  - install: nix profile install ./qbpm
-  - run: |
-      mkdir -p ~/.config/qutebrowser
-      touch ~/.config/qutebrowser/config.py
-      qbpm new profile
-      qbpm list | grep profile
+  - check: nix flake check ./qbpm

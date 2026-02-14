@@ -38,7 +38,14 @@
             pkgs.installShellFiles
           ];
           nativeCheckInputs = [ pkgs.python3.pkgs.pytestCheckHook ];
-          postInstallCheck = "$out/bin/qbpm --help";
+          postInstallCheck = ''
+            $out/bin/qbpm --help >/dev/null
+            export HOME=$(mktemp -d)
+            mkdir -p ~/.config/qutebrowser
+            touch ~/.config/qutebrowser/config.py
+            $out/bin/qbpm new profile
+            $out/bin/qbpm list | grep profile
+          '';
           postInstall = ''
             _QBPM_COMPLETE=bash_source $out/bin/qbpm > completions/qbpm.bash
             _QBPM_COMPLETE=zsh_source $out/bin/qbpm > completions/qbpm.zsh
@@ -64,6 +71,8 @@
         };
         default = self.apps.${pkgs.system}.qbpm;
       });
+
+      checks = forAllSystems (pkgs: self.packages.${pkgs.system});
 
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {

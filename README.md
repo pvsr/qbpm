@@ -1,7 +1,8 @@
 # qutebrowser profile manager
 
+[![PyPI version](http://img.shields.io/pypi/v/qbpm.svg)](https://pypi.python.org/pypi/qbpm)
 [![builds.sr.ht status](https://builds.sr.ht/~pvsr/qbpm/commits/main.svg)](https://builds.sr.ht/~pvsr/qbpm/commits/main?)
-[![PyPI](http://img.shields.io/pypi/v/qbpm.svg)](https://pypi.python.org/pypi/qbpm)
+[![garnix build status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fpvsr%2Fqbpm)](https://garnix.io/repo/pvsr/qbpm)
 
 qbpm (qutebrowser profile manager) is a tool for creating, managing, and running
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) profiles. Profile support
