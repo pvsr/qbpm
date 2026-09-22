@@ -2,9 +2,8 @@
 
 [![PyPI version](http://img.shields.io/pypi/v/qbpm.svg)](https://pypi.python.org/pypi/qbpm)
 [![builds.sr.ht status](https://builds.sr.ht/~pvsr/qbpm/commits/main.svg)](https://builds.sr.ht/~pvsr/qbpm/commits/main?)
-[![garnix build status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fpvsr%2Fqbpm)](https://garnix.io/repo/pvsr/qbpm)
 
-qbpm (qutebrowser profile manager) is a tool for creating, managing, and running
+[qbpm](https://github.com/pvsr/qbpm) (qutebrowser profile manager) is a tool for creating, managing, and running
 [qutebrowser](https://github.com/qutebrowser/qutebrowser) profiles. Profile support
 isn't built in to qutebrowser, at least not directly, but it does have a `--basedir` flag
 which allows qutebrowser to use any directory as the location of its config and
