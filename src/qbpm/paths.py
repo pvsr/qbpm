@@ -29,13 +29,18 @@ def default_profile_dir() -> Path:
 def qutebrowser_data_dir() -> Path:
     if platform.system() == "Linux":
         return xdg_data_home() / "qutebrowser"
-    # TODO confirm this works on windows
-    return Path(get_app_dir("qutebrowser", roaming=True))
+    app_dir = Path(get_app_dir("qutebrowser", roaming=True))
+    if platform.system() == "Windows":
+        return app_dir / "data"
+    return app_dir
 
 
 def qutebrowser_config_dirs() -> Iterator[Path]:
     app_dir = Path(get_app_dir("qutebrowser", roaming=True))
-    yield app_dir
+    if platform.system() == "Windows":
+        yield app_dir / "config"
+    else:
+        yield app_dir
     xdg_dir = xdg_config_home() / "qutebrowser"
     if xdg_dir != app_dir:
         yield xdg_dir
