@@ -1,5 +1,5 @@
 # 2.5
-  - windows: detect correct qutebrowser config location on (hopefully)
+  - windows: detect correct qutebrowser config location (hopefully)
 
 # 2.4
   - `qbpm choose`: an entry named `qutebrowser` that launches qutebrowser without a profile will no longer be included by default. Set `qutebrowser_in_choose = true` in `config.toml` to restore it
